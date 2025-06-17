@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,15 +17,24 @@ public class ExamAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int totalSubmissions;
+    @Column(name = "total_submissions")
+    @Builder.Default
+    private int totalSubmissions = 0;
 
-    private double averageScore;
+    @Column(name = "average_score")
+    @Builder.Default
+    private double averageScore = 0;
 
-    private double highestScore;
+    @Column(name = "highest_score")
+    @Builder.Default
+    private double highestScore = 0;
 
-    private double lowestScore;
+    @Column(name = "lowest_score")
+    @Builder.Default
+    private double lowestScore = 0;
 
-    @OneToOne
+    @OneToOne(mappedBy = "analytics")
+    @ToString.Exclude
     private Exam exam;
 
 }

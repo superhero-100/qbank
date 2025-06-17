@@ -1,10 +1,13 @@
 package com.example.qbankapi.entity;
 
+import com.example.qbankapi.dao.SubjectDao;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @ToString
@@ -21,13 +24,37 @@ public class Question {
     private String text;
 
     @ElementCollection
-    private List<String> options;
+    @CollectionTable(
+            name = "question_options",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @Column(name = "option_value")
+    @Builder.Default
+    @ToString.Exclude
+    private List<String> options = new ArrayList<>();
 
+    @Column(name = "correct_answer")
     private String correctAnswer;
 
-    private int marks;
+    @Enumerated(EnumType.STRING)
+    private Complexity complexity;
 
     @ManyToOne
-    private Exam exam;
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
+    public enum Complexity {
+        EASY(1), MEDIUM(3), HARD(5);
+
+        private final int marks;
+
+        Complexity(int marks) {
+            this.marks = marks;
+        }
+
+        public int getMarks() {
+            return marks;
+        }
+    }
 
 }

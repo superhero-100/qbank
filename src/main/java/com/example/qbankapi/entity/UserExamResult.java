@@ -4,8 +4,10 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @ToString
@@ -19,20 +21,29 @@ public class UserExamResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "total_score")
     private int totalScore;
 
+    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne
+    @ToString.Exclude
     private Exam exam;
 
-    @OneToMany
-    private List<UserAnswer> answers;
+    @OneToMany(mappedBy = "userExamResult")
+    @Builder.Default
+    @ToString.Exclude
+    private List<UserAnswer> answers = new ArrayList<>();
 
     @OneToOne
-    private UserAnalytics userAnalytics;
+    @JoinColumn(name = "user_analytics_id")
+    @ToString.Exclude
+    private UserAnalytics analytics;
 
 }

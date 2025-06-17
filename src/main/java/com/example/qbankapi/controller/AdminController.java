@@ -1,65 +1,110 @@
 package com.example.qbankapi.controller;
 
-import com.example.qbankapi.DTO.ExamDTO;
-import com.example.qbankapi.DTO.QuestionDTO;
-import com.example.qbankapi.DTO.SubjectDTO;
-import com.example.qbankapi.DTO.UserDTO;
+import com.example.qbankapi.dto.*;
+import com.example.qbankapi.service.ExamService;
+import com.example.qbankapi.service.QuestionService;
+import com.example.qbankapi.service.SubjectService;
+import com.example.qbankapi.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
-    @GetMapping("/subject")
-    public List<SubjectDTO> getAllSubject() {
-        return List.of();
+    private final SubjectService subjectService;
+    private final QuestionService questionService;
+    private final UserService userService;
+    private final ExamService examService;
+
+    @GetMapping(value = "/subject", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<SubjectResponseDto>> getAllSubject() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(subjectService.getAll()
+                        .stream()
+                        .map(subject -> SubjectResponseDto.builder()
+                                .id(subject.getId())
+                                .name(subject.getName())
+                                .build()
+                        )
+                        .collect(Collectors.toList())
+                );
     }
 
-    @GetMapping("/subject/{id}")
-    public SubjectDTO getSubject(@PathVariable("id") Long id) {
-        return null;
-    }
-
-    @PostMapping("/subject")
-    public SubjectDTO addSubject(@RequestBody SubjectDTO subjectDTO) {
-        return null;
+    @PostMapping(value = "/subject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> addSubjects(
+            @Valid @RequestBody List<@Valid AddSubjectRequestDto> addSubjectRequestDtoList
+    ) {
+        subjectService.addAll(
+                addSubjectRequestDtoList.stream()
+                        .map(subjectDto -> subjectDto.getName())
+                        .collect(Collectors.toList())
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
     @GetMapping("/question")
-    public List<QuestionDTO> getAllQuestion() {
-        return List.of();
-    }
-
-    @GetMapping("/question")
-    public List<QuestionDTO> getAllQuestionBySubject(@RequestParam("subject") String subject) {
-        return null;
-    }
-
-    @GetMapping("/question/{id}")
-    public QuestionDTO getQuestion(@PathVariable("id") Long id) {
-        return null;
+    public ResponseEntity<List<QuestionResponseDto>> getAllQuestion() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(questionService.getAll()
+                        .stream()
+                        .map(question -> QuestionResponseDto.builder()
+                                .id(question.getId())
+                                .text(question.getText())
+                                .options(question.getOptions())
+                                .correctAnswer(question.getCorrectAnswer())
+                                .complexity(question.getComplexity())
+                                .build())
+                        .collect(Collectors.toList()));
     }
 
     @PostMapping("/question")
-    public QuestionDTO addSubject(@RequestBody QuestionDTO questionDTO) {
-        return null;
+    public ResponseEntity<Void> addQuestions(
+            @Valid @RequestBody List<@Valid AddQuestionRequestDto> addQuestionRequestDtoList
+    ) {
+        questionService.addAll(addQuestionRequestDtoList);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
-    @GetMapping("/user/{id}")
-    public UserDTO getUser(@PathVariable("id") Long id) {
-        return null;
+    @GetMapping("/user")
+    public ResponseEntity<List<UserResponseDto>> getAllUser() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.getAll().stream().map(user -> UserResponseDto.builder().username(user.getUsername()).password(user.getPassword()).build()).collect(Collectors.toList()));
     }
 
-    @PostMapping("/user/all")
-    public List<UserDTO> addUsers(@RequestBody List<UserDTO> userDto) {
-        return null;
+    @PostMapping("/user")
+    public ResponseEntity<Void> addUsers(
+            @Valid @RequestBody List<@Valid AddUserRequestDto> addUserRequestDtoList
+    ) {
+        userService.addAll(addUserRequestDtoList);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
     @PostMapping("/exam/create")
-    public ExamDTO createExam(@RequestBody ExamDTO examDTO) {
-        return null;
+    public ResponseEntity<Void> createExam(
+            @Valid @RequestBody CreateExamRequestDto examDTO
+    ) {
+        examService.createExam(examDTO);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
 }

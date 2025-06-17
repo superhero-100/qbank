@@ -3,8 +3,10 @@ package com.example.qbankapi.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @ToString
@@ -18,13 +20,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", unique = true)
     private String username;
 
     private String password;
 
-    @ManyToMany
-    private List<Exam> enrolledExams;
+    @ManyToMany(mappedBy = "enrolledUsers")
+    @Builder.Default
+    @ToString.Exclude
+    private List<Exam> enrolledExams = new ArrayList<>();
 
-    @OneToMany
-    private List<UserExamResult> userExamResults;
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    @ToString.Exclude
+    private List<UserExamResult> userExamResults = new ArrayList<>();
+
 }
