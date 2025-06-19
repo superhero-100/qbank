@@ -1,29 +1,174 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Login</title>-->
+
+<!--    &lt;!&ndash; Bootstrap 5 CSS &ndash;&gt;-->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
+
+<!--    &lt;!&ndash; Custom Animation CSS &ndash;&gt;-->
+<!--    <style>-->
+<!--        .fade-in {-->
+<!--            animation: fadeIn 1.2s ease-in-out both;-->
+<!--        }-->
+
+<!--        @keyframes fadeIn {-->
+<!--            from { opacity: 0; transform: translateY(-10px); }-->
+<!--            to { opacity: 1; transform: translateY(0); }-->
+<!--        }-->
+
+<!--        .form-container {-->
+<!--            max-width: 400px;-->
+<!--            margin: auto;-->
+<!--            padding: 2rem;-->
+<!--            border-radius: 1rem;-->
+<!--            background-color: #ffffff;-->
+<!--            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);-->
+<!--        }-->
+
+<!--        .logo {-->
+<!--            font-size: 2rem;-->
+<!--            font-weight: 700;-->
+<!--            text-align: center;-->
+<!--            color: #0d6efd;-->
+<!--            margin-bottom: 1.5rem;-->
+<!--        }-->
+
+<!--        body {-->
+<!--            background: linear-gradient(135deg, #f8f9fa, #e9ecef);-->
+<!--            height: 100vh;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div class="container fade-in">-->
+<!--    <div class="form-container mt-5">-->
+
+<!--        <div class="logo">Q<span class="text-warning">bank</span></div>-->
+
+<!--        <h3 class="text-center mb-4">Login</h3>-->
+
+
+<!--        <p th:if="${error}" th:text="${error}" class="alert alert-danger py-2 px-3"></p>-->
+
+<!--        <form th:action="@{/login}" method="post" th:object="${loginUserRequest}" novalidate>-->
+<!--            <div class="mb-3">-->
+<!--                <label for="username" class="form-label">Username</label>-->
+<!--                <input type="text" th:field="*{username}" class="form-control" placeholder="Enter username" />-->
+<!--                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger small mt-1"></div>-->
+<!--            </div>-->
+
+<!--            <div class="mb-3">-->
+<!--                <label for="password" class="form-label">Password</label>-->
+<!--                <input type="password" th:field="*{password}" class="form-control" placeholder="Enter password" />-->
+<!--                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small mt-1"></div>-->
+<!--            </div>-->
+
+<!--            <div class="d-grid">-->
+<!--                <button type="submit" class="btn btn-primary btn-lg">Login</button>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Bootstrap JS (optional but included for future extensibility) &ndash;&gt;-->
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
+
+<!--</body>-->
+<!--</html>-->
+
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Login</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom Animation CSS -->
+    <style>
+        .fade-in {
+            animation: fadeIn 1.2s ease-in-out both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            color: #0d6efd;
+            margin-bottom: 1.5rem;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Login</h2>
+<div class="container fade-in">
+    <div class="form-container mt-5">
 
-<p th:if="${error}" th:text="${error}" style="color: red;"></p>
+        <div class="logo">Q<span class="text-warning">bank</span></div>
 
-<form th:action="@{/login}" method="post" th:object="${loginUserRequest}">
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" th:field="*{username}" />
-        <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red;"></div>
+        <h3 class="text-center mb-4">Login</h3>
+
+        <p th:if="${error}" th:text="${error}" class="alert alert-danger py-2 px-3"></p>
+
+        <form th:action="@{/login}" method="post" th:object="${loginUserRequest}" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                    <input type="text" th:field="*{username}" class="form-control" placeholder="Enter username" />
+                </div>
+                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger small mt-1"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Enter password" />
+                </div>
+                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small mt-1"></div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" th:field="*{password}" />
-        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color: red;"></div>
-    </div>
-
-    <button type="submit">Login</button>
-</form>
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

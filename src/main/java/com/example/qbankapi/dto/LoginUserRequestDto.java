@@ -20,10 +20,10 @@ public class LoginUserRequestDto {
     private String username;
 
     @NotBlank(message = "Password must not be blank")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
-            message = "Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character"
-    )
+//    @Pattern(
+//            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
+//            message = "Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character"
+//    )
     private String password;
 
 }

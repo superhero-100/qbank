@@ -17,7 +17,8 @@ public class SessionValidationInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute(USER_ID) == null) {
-            response.sendRedirect("/login");
+            String contextPath = request.getContextPath();
+            response.sendRedirect(contextPath + "/login");
             return false;
         }
 

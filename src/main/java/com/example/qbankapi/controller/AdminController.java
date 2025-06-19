@@ -11,13 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
     private final SubjectService subjectService;
@@ -42,7 +41,7 @@ public class AdminController {
 
     @PostMapping(value = "/subject", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> addSubjects(
-            @Valid @RequestBody List<@Valid AddSubjectRequestDto> addSubjectRequestDtoList
+            @RequestBody List<AddSubjectRequestDto> addSubjectRequestDtoList
     ) {
         subjectService.addAll(
                 addSubjectRequestDtoList.stream()
@@ -58,21 +57,12 @@ public class AdminController {
     public ResponseEntity<List<QuestionResponseDto>> getAllQuestion() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(questionService.getAll()
-                        .stream()
-                        .map(question -> QuestionResponseDto.builder()
-                                .id(question.getId())
-                                .text(question.getText())
-                                .options(question.getOptions())
-                                .correctAnswer(question.getCorrectAnswer())
-                                .complexity(question.getComplexity())
-                                .build())
-                        .collect(Collectors.toList()));
+                .body(questionService.getAllInDto());
     }
 
     @PostMapping("/question")
     public ResponseEntity<Void> addQuestions(
-            @Valid @RequestBody List<@Valid AddQuestionRequestDto> addQuestionRequestDtoList
+            @RequestBody List<AddQuestionRequestDto> addQuestionRequestDtoList
     ) {
         questionService.addAll(addQuestionRequestDtoList);
         return ResponseEntity
@@ -89,7 +79,7 @@ public class AdminController {
 
     @PostMapping("/user")
     public ResponseEntity<Void> addUsers(
-            @Valid @RequestBody List<@Valid AddUserRequestDto> addUserRequestDtoList
+            @RequestBody List<AddUserRequestDto> addUserRequestDtoList
     ) {
         userService.addAll(addUserRequestDtoList);
         return ResponseEntity
@@ -99,7 +89,7 @@ public class AdminController {
 
     @PostMapping("/exam/create")
     public ResponseEntity<Void> createExam(
-            @Valid @RequestBody CreateExamRequestDto examDTO
+            @RequestBody CreateExamRequestDto examDTO
     ) {
         examService.createExam(examDTO);
         return ResponseEntity

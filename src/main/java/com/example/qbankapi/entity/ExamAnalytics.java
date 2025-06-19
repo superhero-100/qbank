@@ -19,19 +19,19 @@ public class ExamAnalytics {
 
     @Column(name = "total_submissions")
     @Builder.Default
-    private int totalSubmissions = 0;
+    private Integer totalSubmissions = 0;
 
     @Column(name = "average_score")
     @Builder.Default
-    private double averageScore = 0;
+    private Double averageScore = 0D;
 
     @Column(name = "highest_score")
     @Builder.Default
-    private double highestScore = 0;
+    private Double highestScore = 0D;
 
     @Column(name = "lowest_score")
     @Builder.Default
-    private double lowestScore = 0;
+    private Double lowestScore = 0D;
 
     @OneToOne(mappedBy = "analytics")
     @ToString.Exclude

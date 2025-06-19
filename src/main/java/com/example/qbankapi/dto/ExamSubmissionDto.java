@@ -5,14 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUserRequestDto {
+public class ExamSubmissionDto {
 
-    private String username;
+    private Long examId;
 
-    private String password;
+    private Map<Long, String> answers;
 
 }

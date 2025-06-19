@@ -9,16 +9,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateExamRequestDto {
+public class ExamDetailsDto {
+
+    private Long id;
 
     private String description;
 
-    private Long subjectId;
+    private Integer totalMarks;
 
-    private Integer totalEasyQuestions;
+    private String subjectName;
 
-    private Integer totalMediumQuestions;
+    private Integer totalQuestions;
 
-    private Integer totalHardQuestions;
+    private Integer totalEnrolledUsers;
 
 }

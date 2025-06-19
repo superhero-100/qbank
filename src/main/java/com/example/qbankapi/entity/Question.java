@@ -23,7 +23,7 @@ public class Question {
 
     private String text;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "question_options",
             joinColumns = @JoinColumn(name = "question_id")
