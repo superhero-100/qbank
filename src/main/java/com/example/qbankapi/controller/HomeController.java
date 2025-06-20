@@ -1,13 +1,9 @@
 package com.example.qbankapi.controller;
 
-import com.example.qbankapi.dto.ExamSubmissionDto;
 import com.example.qbankapi.dto.LoginUserRequestDto;
 import com.example.qbankapi.entity.User;
 import com.example.qbankapi.interceptor.SessionValidationInterceptor;
-import com.example.qbankapi.service.AuthenticationService;
-import com.example.qbankapi.service.ExamService;
-import com.example.qbankapi.service.SubjectService;
-import com.example.qbankapi.service.UserService;
+import com.example.qbankapi.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +23,7 @@ public class HomeController {
     private final UserService userService;
     private final SubjectService subjectService;
     private final ExamService examService;
+    private final UserExamResultService userExamResultService;
 
     @GetMapping("/")
     public String index() {
@@ -77,11 +74,6 @@ public class HomeController {
         return "home";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
-    }
-
     @GetMapping("/subjects")
     public String subjects(Model model) {
         model.addAttribute("subjects", subjectService.getAllInDto());
@@ -101,27 +93,23 @@ public class HomeController {
     }
 
     @GetMapping("/history")
-    public String history() {
+    public String history(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute(SessionValidationInterceptor.USER_ID);
+        model.addAttribute("history", userService.getEnrolledExamDtos(userId));
         return "history";
     }
 
     @GetMapping("/profile")
-    public String profile() {
+    public String profile(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute(SessionValidationInterceptor.USER_ID);
+        model.addAttribute("stats", userService.getUserStats(userId));
         return "profile";
     }
 
-    @GetMapping("/exam/start/{id}")
-    public String exam(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("exam", examService.getInDtoById(id));
-        return "exam";
-    }
-
-    @PostMapping("/submit")
-    public String submitExam(@ModelAttribute ExamSubmissionDto submissionDto, HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute(SessionValidationInterceptor.USER_ID);
-        System.out.println(submissionDto);
-        examService.processSubmission(submissionDto, userId);
-        return "redirect:/home";
+    @GetMapping("/result/exam/{id}")
+    public String examResult(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("result", userExamResultService.getDtoById(id));
+        return "examResult";
     }
 
 }

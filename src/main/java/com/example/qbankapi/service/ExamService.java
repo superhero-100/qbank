@@ -80,7 +80,7 @@ public class ExamService {
                 .totalEnrolledUsers(exam.getEnrolledUsers().size())
                 .questions(exam.getQuestions()
                         .stream()
-                        .map(question -> ExamQuestionsDto.builder()
+                        .map(question -> ExamQuestionDto.builder()
                                 .id(question.getId())
                                 .text(question.getText())
                                 .options(question.getOptions())
@@ -92,7 +92,7 @@ public class ExamService {
     }
 
     @Transactional
-    public void processSubmission(ExamSubmissionDto submissionDto, Long userId) {
+    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
@@ -166,6 +166,7 @@ public class ExamService {
         user.getEnrolledExams().add(exam);
         userDao.update(user);
 
+        return result.getId();
     }
 
 }

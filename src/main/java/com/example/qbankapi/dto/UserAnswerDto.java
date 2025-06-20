@@ -9,14 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubjectDto {
+public class UserAnswerDto {
 
-    private Long id;
+    private Long questionId;
 
-    private String name;
-
-    private Integer totalAvailableQuestions;
-
-    private Integer totalAvailableExams;
+    private String answer;
 
 }

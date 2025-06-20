@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExamDto {
+public class UserEnrolledExamDetailsDto {
 
     private Long id;
 
@@ -25,6 +23,6 @@ public class ExamDto {
 
     private Integer totalEnrolledUsers;
 
-    private List<ExamQuestionDto> questions;
+    private Long resultId;
 
 }

@@ -87,6 +87,15 @@
                 transform: scale(1);
             }
         }
+
+        .fade-in {
+            animation: fadeIn 1.2s ease-in-out both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -96,7 +105,6 @@
     <div class="container d-flex justify-content-between align-items-center">
         <div class="logo">Q<span class="text-warning">bank</span></div>
         <nav class="d-flex">
-            <a th:href="@{/dashboard}">Dashboard</a>
             <a th:href="@{/profile}">Profile</a>
             <a th:href="@{/subjects}">Subjects</a>
             <a th:href="@{/exams}">Exams</a>
@@ -106,26 +114,64 @@
     </div>
 </header>
 
-<!-- Main Content -->
-<main class="container">
-    <h2 class="text-center mb-5">Subjects</h2>
+<!--&lt;!&ndash; Main Content &ndash;&gt;-->
+<!--<main class="container fade-in">-->
+<!--    <h2 class="text-center mb-5">Subjects</h2>-->
 
-    <div class="row g-4">
-        <div class="col-md-4" th:each="subject : ${subjects}">
-            <div class="card text-center h-100 p-3 d-flex flex-column justify-content-between">
-                <div>
-                    <h5 class="card-title" th:text="${subject.name}">Subject Name</h5>
-                    <p class="card-text mb-1">
-                        Questions: <span th:text="${subject.totalAvailableQuestions}">0</span>
-                    </p>
-                    <p class="card-text">
-                        Exams: <span th:text="${subject.totalAvailableExams}">0</span>
-                    </p>
-                </div>
-                <a class="btn btn-outline-primary btn-view mt-3"
-                   th:href="@{'/exams?subjectId=' + ${subject.id}}">View Exams</a>
-            </div>
-        </div>
+<!--    <div class="row g-4">-->
+<!--        <div class="col-md-4" th:each="subject : ${subjects}">-->
+<!--            <div class="card text-center h-100 p-3 d-flex flex-column justify-content-between">-->
+<!--                <div>-->
+<!--                    <h5 class="card-title" th:text="${subject.name}">Subject Name</h5>-->
+<!--                    <p class="card-text mb-1">-->
+<!--                        Questions: <span th:text="${subject.totalAvailableQuestions}">0</span>-->
+<!--                    </p>-->
+<!--                    <p class="card-text">-->
+<!--                        Exams: <span th:text="${subject.totalAvailableExams}">0</span>-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--                <a class="btn btn-outline-primary btn-view mt-3"-->
+<!--                   th:href="@{'/exams?subjectId=' + ${subject.id}}">View Exams</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</main>-->
+
+<!-- Main Content -->
+<main class="container fade-in mt-5">
+    <div class="text-center mb-4">
+        <h2>Subjects</h2>
+    </div>
+
+    <div th:if="${#lists.isEmpty(subjects)}" class="text-center text-muted">
+        <p>No subjects available.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(subjects)}" class="table-responsive shadow-sm rounded">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-primary">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Subject Name</th>
+                <th scope="col">Total Questions</th>
+                <th scope="col">Total Exams</th>
+                <th scope="col" class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="subject, iterStat : ${subjects}">
+                <th scope="row" th:text="${iterStat.index + 1}">1</th>
+                <td th:text="${subject.name}">Mathematics</td>
+                <td th:text="${subject.totalAvailableQuestions}">50</td>
+                <td th:text="${subject.totalAvailableExams}">5</td>
+                <td class="text-center">
+                    <a th:href="@{'/exams?subjectId=' + ${subject.id}}" class="btn btn-outline-primary btn-sm">
+                        View Exams
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </main>
 

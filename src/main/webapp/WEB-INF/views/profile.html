@@ -1,129 +1,208 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Profile - Qbank</title>
+    <meta charset="UTF-8">
+    <title>User Stats - Qbank</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Lordicon -->
-  <script src="https://cdn.lordicon.com/lordicon-1.4.0.js"></script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
+        header {
+            background-color: #0d6efd;
+            padding: 1rem 0;
+        }
 
-    .header {
-      background-color: #0d6efd;
-      padding: 1rem 0;
-      color: white;
-    }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
 
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
+        nav a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+        }
 
-    nav a {
-      color: white;
-      margin-left: 1.5rem;
-      text-decoration: none;
-      font-weight: 500;
-    }
+        nav a:hover {
+            color: #ffc107;
+        }
 
-    nav a:hover {
-      color: #ffc107;
-    }
+        main {
+            flex: 1;
+            padding: 3rem 0;
+        }
 
-    .profile-card {
-      border-radius: 1rem;
-      background-color: white;
-      padding: 2rem;
-      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-    }
+        .stat-card {
+            border-radius: 1rem;
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            background-color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: zoomIn 0.4s ease;
+        }
 
-    .lordicon {
-      width: 80px;
-      height: 80px;
-    }
+        .stat-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+        }
 
-    .footer {
-      background-color: #0d6efd;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      margin-top: 3rem;
-    }
-  </style>
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .recent-title {
+            margin-top: 3rem;
+            font-weight: bold;
+        }
+
+        .recent-card {
+            border-radius: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .footer {
+            background-color: #0d6efd;
+            padding: 1rem;
+            color: white;
+            text-align: center;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
 
 <!-- Header -->
-<header class="container-fluid header">
-  <div class="container d-flex justify-content-between align-items-center">
-    <div class="logo">Q<span class="text-warning">bank</span></div>
-    <nav class="d-flex">
-      <a th:href="@{/dashboard}">Dashboard</a>
-      <a th:href="@{/profile}">Profile</a>
-      <a th:href="@{/subjects}">Subjects</a>
-      <a th:href="@{/exams}">Exams</a>
-      <a th:href="@{/history}">History</a>
-      <a th:href="@{/logout}">Logout</a>
-    </nav>
-  </div>
+<header class="container-fluid">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="logo">Q<span class="text-warning">bank</span></div>
+        <nav class="d-flex">
+            <a th:href="@{/profile}">Profile</a>
+            <a th:href="@{/subjects}">Subjects</a>
+            <a th:href="@{/exams}">Exams</a>
+            <a th:href="@{/history}">History</a>
+            <a th:href="@{/logout}">Logout</a>
+        </nav>
+    </div>
 </header>
 
-<!-- Profile Content -->
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="profile-card text-center">
-        <lord-icon src="https://cdn.lordicon.com/hrqwmuhr.json"
-                   trigger="loop"
-                   colors="primary:#0d6efd,secondary:#ffc107"
-                   class="lordicon mb-3"></lord-icon>
+<!-- Main -->
+<main class="container">
 
-        <h3 class="mb-1" th:text="${user.fullName}">John Doe</h3>
-        <p class="text-muted" th:text="${user.email}">john@example.com</p>
-        <p class="text-secondary small" th:text="${user.role}">ROLE_USER</p>
-
-        <hr>
-
-        <div class="row text-start mt-4">
-          <div class="col-6 mb-2">
-            <strong>Username:</strong>
-            <div th:text="${user.username}">johnd</div>
-          </div>
-          <div class="col-6 mb-2">
-            <strong>Registered:</strong>
-            <div th:text="${#dates.format(user.registeredAt, 'dd MMM yyyy')}">12 Feb 2024</div>
-          </div>
-          <div class="col-6 mb-2">
-            <strong>Exams Taken:</strong>
-            <div th:text="${user.totalExams}">5</div>
-          </div>
-          <div class="col-6 mb-2">
-            <strong>Questions Contributed:</strong>
-            <div th:text="${user.totalContributions}">12</div>
-          </div>
-        </div>
-
-        <a th:href="@{/profile/edit}" class="btn btn-outline-primary mt-4">Edit Profile</a>
-      </div>
+    <!-- Welcome -->
+    <div class="text-center mb-5">
+        <h2>Welcome, <span th:text="${stats.username}">User</span></h2>
     </div>
-  </div>
-</div>
+
+    <!-- Stats -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="card-title">Total Exams</div>
+                <div class="card-value" th:text="${stats.totalExamsTaken}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="card-title">Avg. Score</div>
+                <div class="card-value" th:text="${#numbers.formatDecimal(stats.averageScore, 0, 2)}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="card-title">Accuracy</div>
+                <div class="card-value" th:text="${#numbers.formatDecimal(stats.averageAccuracy, 0, 1) + '%'}">0%</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <div class="card-title">Questions Attempted</div>
+                <div class="card-value" th:text="${stats.totalQuestionsAttempted}">0</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card text-center">
+                <div class="card-title">Correct Answers</div>
+                <div class="card-value" th:text="${stats.totalCorrectAnswers}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Exams -->
+    <h4 class="recent-title">Recent Exams</h4>
+
+    <div class="row g-4 mt-2" th:if="${!#lists.isEmpty(stats.recentExams)}">
+        <div class="col-md-4" th:each="exam : ${stats.recentExams}">
+            <div class="recent-card h-100">
+                <h5 th:text="${exam.examDescription}">Mock Exam</h5>
+                <p>
+                    <strong>Subject:</strong> <span th:text="${exam.subjectName}">Math</span><br>
+                    <strong>Score:</strong> <span th:text="${exam.score}">85%</span><br>
+                    <strong>Accuracy:</strong> <span
+                        th:text="${#numbers.formatDecimal(exam.accuracy, 0, 2) + '%'}">0%</span><br>
+                    <strong>Submitted:</strong>
+                    <span th:text="${#dates.format(exam.submittedAt, 'dd MMM yyyy HH:mm')}">18 Jun 2025</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(stats.recentExams)}" class="alert alert-info text-center mt-4">
+        No recent exams available.
+    </div>
+
+</main>
 
 <!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    © 2025 Qbank. All rights reserved.
-  </div>
+<footer class="footer mt-auto">
+    <div class="container">
+        © 2025 Qbank. All rights reserved.
+    </div>
 </footer>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

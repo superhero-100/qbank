@@ -1,6 +1,7 @@
 package com.example.qbankapi.config;
 
 import com.example.qbankapi.interceptor.SessionValidationInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -12,16 +13,14 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "com.example.qbankapi")
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Bean
-    public SessionValidationInterceptor sessionValidationInterceptor() {
-        return new SessionValidationInterceptor();
-    }
+    private final SessionValidationInterceptor sessionValidationInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(sessionValidationInterceptor())
+        registry.addInterceptor(sessionValidationInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login", "/api/**");
     }

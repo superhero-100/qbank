@@ -35,12 +35,13 @@
             color: #ffc107;
         }
 
-        .table-container {
-            background-color: white;
-            padding: 2rem;
+        .card-container {
+            margin-top: 3rem;
+        }
+
+        .exam-card {
             border-radius: 1rem;
             box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.1);
-            margin-top: 3rem;
         }
 
         .footer {
@@ -55,6 +56,30 @@
             width: 60px;
             height: 60px;
         }
+
+        .btn-view-result {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-view-result:hover {
+            background-color: #0b5ed7;
+        }
+
+        .fade-in {
+            animation: fadeIn 1.2s ease-in-out both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -64,7 +89,6 @@
     <div class="container d-flex justify-content-between align-items-center">
         <div class="logo">Q<span class="text-warning">bank</span></div>
         <nav class="d-flex">
-            <a th:href="@{/dashboard}">Dashboard</a>
             <a th:href="@{/profile}">Profile</a>
             <a th:href="@{/subjects}">Subjects</a>
             <a th:href="@{/exams}">Exams</a>
@@ -75,91 +99,41 @@
 </header>
 
 <!-- Main Container -->
-<div class="container table-container">
+<div class="container card-container fade-in">
 
-    <!-- If a single exam result is available -->
-    <div th:if="${exam != null}">
-        <div class="d-flex align-items-center gap-3 mb-4">
-            <lord-icon src="https://cdn.lordicon.com/qhgmphtg.json"
-                       trigger="loop"
-                       colors="primary:#0d6efd,secondary:#ffc107"
-                       class="lordicon"></lord-icon>
-            <h2 class="mb-0">Given Exam Result</h2>
-        </div>
-
-        <table class="table table-striped">
-            <thead class="table-success">
-            <tr>
-                <th>Exam</th>
-                <th>Subject</th>
-                <th>Score</th>
-                <th>Total</th>
-                <th>Date</th>
-                <th>Result</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td th:text="${exam.examTitle}">Mock Test</td>
-                <td th:text="${exam.subjectName}">Physics</td>
-                <td th:text="${exam.scoredMarks}">85</td>
-                <td th:text="${exam.totalMarks}">100</td>
-                <td th:text="${#dates.format(exam.attemptedOn, 'dd MMM yyyy')}">18 Jun 2025</td>
-                <td>
-                        <span th:text="${exam.passed} ? 'Passed' : 'Failed'"
-                              th:classappend="${exam.passed} ? 'badge bg-success' : 'badge bg-danger'">
-                            Passed
-                        </span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <lord-icon src="https://cdn.lordicon.com/qhgmphtg.json"
+                   trigger="loop"
+                   colors="primary:#0d6efd,secondary:#ffc107"
+                   class="lordicon"></lord-icon>
+        <h2 class="mb-0">Exam History</h2>
     </div>
 
-    <!-- Full History Fallback -->
-    <div th:if="${exam == null}">
-        <div class="d-flex align-items-center gap-3 mb-4">
-            <lord-icon src="https://cdn.lordicon.com/qhgmphtg.json"
-                       trigger="loop"
-                       colors="primary:#0d6efd,secondary:#ffc107"
-                       class="lordicon"></lord-icon>
-            <h2 class="mb-0">Exam History</h2>
-        </div>
+    <div th:if="${#lists.isEmpty(history)}" class="alert alert-warning text-center">
+        No exam history found.
+    </div>
 
-        <div th:if="${#lists.isEmpty(history)}" class="alert alert-warning text-center">
-            No exam history found.
-        </div>
-
-        <div th:if="${!#lists.isEmpty(history)}" class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-primary">
-                <tr>
-                    <th>#</th>
-                    <th>Exam</th>
-                    <th>Subject</th>
-                    <th>Score</th>
-                    <th>Total</th>
-                    <th>Attempted On</th>
-                    <th>Result</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="record, iterStat : ${history}">
-                    <td th:text="${iterStat.count}">1</td>
-                    <td th:text="${record.examTitle}">Mock Test</td>
-                    <td th:text="${record.subjectName}">Chemistry</td>
-                    <td th:text="${record.scoredMarks}">67</td>
-                    <td th:text="${record.totalMarks}">100</td>
-                    <td th:text="${#dates.format(record.attemptedOn, 'dd MMM yyyy')}">10 Jun 2025</td>
-                    <td>
-                            <span th:text="${record.passed} ? 'Passed' : 'Failed'"
-                                  th:classappend="${record.passed} ? 'badge bg-success' : 'badge bg-danger'">
-                                Passed
-                            </span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:if="${!#lists.isEmpty(history)}">
+        <div class="col" th:each="record : ${history}">
+            <div class="card exam-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${record.subjectName}">Subject Name</h5>
+                    <p class="card-text">
+                        <strong>Description:</strong>
+                        <span th:text="${record.description}">Mock Exam Description</span><br>
+                        <strong>Total Marks:</strong>
+                        <span th:text="${record.totalMarks}">100</span><br>
+                        <strong>Total Questions:</strong>
+                        <span th:text="${record.totalQuestions}">50</span><br>
+                        <strong>Enrolled Users:</strong>
+                        <span th:text="${record.totalEnrolledUsers}">120</span>
+                    </p>
+                    <a class="btn btn-view-result"
+                       th:href="@{|/result/exam/${record.resultId}|}">
+                        View Result
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExamQuestionsDto {
+public class ExamQuestionDto {
 
     private Long id;
 

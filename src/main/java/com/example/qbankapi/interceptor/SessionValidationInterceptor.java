@@ -24,4 +24,5 @@ public class SessionValidationInterceptor implements HandlerInterceptor {
 
         return true;
     }
+
 }

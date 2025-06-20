@@ -1,136 +1,446 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title th:text="'Exam - ' + ${subjectName}">Exam</title>-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
+<!--    <script src="https://cdn.lordicon.com/lordicon-1.4.0.js"></script>-->
+
+<!--    <style>-->
+<!--        body {-->
+<!--            background-color: #f5f5f5;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            min-height: 100vh;-->
+<!--        }-->
+
+<!--        header {-->
+<!--            background-color: #0d6efd;-->
+<!--            padding: 1rem 0;-->
+<!--        }-->
+
+<!--        .logo {-->
+<!--            font-size: 1.8rem;-->
+<!--            font-weight: bold;-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        nav a {-->
+<!--            color: white;-->
+<!--            margin-left: 1.5rem;-->
+<!--            text-decoration: none;-->
+<!--            font-weight: 500;-->
+<!--        }-->
+
+<!--        nav a:hover {-->
+<!--            color: #ffc107;-->
+<!--        }-->
+
+<!--        main {-->
+<!--            flex: 1;-->
+<!--            padding-top: 3rem;-->
+<!--        }-->
+
+<!--        .card {-->
+<!--            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);-->
+<!--            border-radius: 12px;-->
+<!--            background-color: #fff;-->
+<!--        }-->
+
+<!--        .question {-->
+<!--            margin-bottom: 2rem;-->
+<!--        }-->
+
+<!--        .question h5 {-->
+<!--            font-weight: 600;-->
+<!--        }-->
+
+<!--        .footer {-->
+<!--            background-color: #0d6efd;-->
+<!--            color: white;-->
+<!--            padding: 1rem 0;-->
+<!--            text-align: center;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--&lt;!&ndash; Header &ndash;&gt;-->
+<!--<header class="container-fluid">-->
+<!--    <div class="container d-flex justify-content-between align-items-center">-->
+<!--        <div class="logo">Q<span class="text-warning">bank</span></div>-->
+<!--        <nav class="d-flex">-->
+<!--            <a th:href="@{/profile}">Profile</a>-->
+<!--            <a th:href="@{/subjects}">Subjects</a>-->
+<!--            <a th:href="@{/exams}">Exams</a>-->
+<!--            <a th:href="@{/history}">History</a>-->
+<!--            <a th:href="@{/logout}">Logout</a>-->
+<!--        </nav>-->
+<!--    </div>-->
+<!--</header>-->
+
+<!--&lt;!&ndash; Main Content &ndash;&gt;-->
+<!--<main class="container my-5">-->
+<!--    <div class="mb-4">-->
+<!--        <h2 class="text-primary fw-bold">Exam: <span th:text="${subjectName}">Subject</span></h2>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Exam Form &ndash;&gt;-->
+<!--    <form th:action="@{/exam/submit}" method="post" class="card p-4">-->
+
+<!--        <h4 class="mb-3 border-bottom pb-2">Answer the Questions</h4>-->
+
+<!--        <div class="question">-->
+<!--            <h5>Q<span th:text="${currentQuestionNumber}">0</span>. <span-->
+<!--                    th:text="${question.text}">Question Text</span>-->
+<!--            </h5>-->
+<!--            <input type="hidden" name="questionId" th:value="${question.id}">-->
+<!--            <div th:each="opt, optStat : ${question.options}" class="form-check">-->
+<!--                <input class="form-check-input" type="radio"-->
+<!--                       th:id="${'q' + question.id + '_' + optStat.index}"-->
+<!--                       th:name="answer"-->
+<!--                       th:value="${opt}" required>-->
+<!--                <label class="form-check-label" th:for="${'q' + question.id + '_' + optStat.index}"-->
+<!--                       th:text="${opt}">Option</label>-->
+<!--            </div>-->
+<!--            <hr class="my-3">-->
+<!--        </div>-->
+
+<!--        <div class="text-end mt-4">-->
+<!--            <button type="submit" class="btn btn-success"-->
+<!--                    th:text="${currentQuestionNumber == session.totalQuestion ? 'Submit Exam' : 'Next'}">-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </form>-->
+
+<!--</main>-->
+
+<!--&lt;!&ndash; Footer &ndash;&gt;-->
+<!--<footer class="footer mt-auto">-->
+<!--    <div class="container">-->
+<!--        © 2025 Qbank. All rights reserved.-->
+<!--    </div>-->
+<!--</footer>-->
+
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
+<!--</body>-->
+<!--</html>-->
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title th:text="'Exam - ' + ${exam.subjectName}">Exam</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title th:text="'Exam - ' + ${subjectName}">Exam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.lordicon.com/lordicon-1.4.0.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.lordicon.com/lordicon-1.4.0.js"></script>
 
-  <style>
-    body {
-      background-color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    <style>
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-    header {
-      background-color: #0d6efd;
-      padding: 1rem 0;
-    }
+        header {
+            background-color: #0d6efd;
+            padding: 1rem 0;
+        }
 
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: white;
-    }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
 
-    nav a {
-      color: white;
-      margin-left: 1.5rem;
-      text-decoration: none;
-      font-weight: 500;
-    }
+        nav a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+        }
 
-    nav a:hover {
-      color: #ffc107;
-    }
+        nav a:hover {
+            color: #ffc107;
+        }
 
-    main {
-      flex: 1;
-      padding-top: 3rem;
-    }
+        main {
+            flex: 1;
+            padding-top: 3rem;
+        }
 
-    .card {
-      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
-      border-radius: 12px;
-      background-color: #fff;
-    }
+        .card {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            background-color: #fff;
+        }
 
-    .question {
-      margin-bottom: 2rem;
-    }
+        .question {
+            margin-bottom: 2rem;
+        }
 
-    .question h5 {
-      font-weight: 600;
-    }
+        .question h5 {
+            font-weight: 600;
+        }
 
-    .badge {
-      font-size: 0.85rem;
-    }
-
-    .footer {
-      background-color: #0d6efd;
-      color: white;
-      padding: 1rem 0;
-      text-align: center;
-    }
-  </style>
+        .footer {
+            background-color: #0d6efd;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
 <!-- Header -->
 <header class="container-fluid">
-  <div class="container d-flex justify-content-between align-items-center">
-    <div class="logo">Q<span class="text-warning">bank</span></div>
-    <nav class="d-flex">
-      <a th:href="@{/dashboard}">Dashboard</a>
-      <a th:href="@{/profile}">Profile</a>
-      <a th:href="@{/subjects}">Subjects</a>
-      <a th:href="@{/exams}">Exams</a>
-      <a th:href="@{/history}">History</a>
-      <a th:href="@{/logout}">Logout</a>
-    </nav>
-  </div>
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="logo">Q<span class="text-warning">bank</span></div>
+        <nav class="d-flex" id="nav-tabs">
+            <a href="#" data-target="/profile">Profile</a>
+            <a href="#" data-target="/subjects">Subjects</a>
+            <a href="#" data-target="/exams">Exams</a>
+            <a href="#" data-target="/history">History</a>
+            <a href="#" data-target="/logout">Logout</a>
+        </nav>
+    </div>
 </header>
+
+<!--&lt;!&ndash; Main Content &ndash;&gt;-->
+<!--<main class="container my-5">-->
+<!--    <div class="mb-4">-->
+<!--        <h2 class="text-primary fw-bold">Exam: <span th:text="${subjectName}">Subject</span></h2>-->
+<!--    </div>-->
+
+<!--    <div class="d-flex justify-content-end align-items-center mb-3">-->
+<!--        <span class="me-2 text-muted">Auto Next in:</span>-->
+<!--        <span id="countdown-timer" class="badge bg-primary fs-6">30</span>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Exam Form &ndash;&gt;-->
+<!--    <form th:action="@{/exam/submit}" method="post" class="card p-4" id="exam-form">-->
+<!--        <h4 class="mb-3 border-bottom pb-2">Answer the Questions</h4>-->
+
+<!--        <div class="question">-->
+<!--            <h5>-->
+<!--                Q<span th:text="${currentQuestionNumber}">0</span>.-->
+<!--                <span th:text="${question.text}">Question Text</span>-->
+<!--            </h5>-->
+<!--            <input type="hidden" name="questionId" th:value="${question.id}">-->
+<!--            <div th:each="opt, optStat : ${question.options}" class="form-check">-->
+<!--                <input class="form-check-input" type="radio"-->
+<!--                       th:id="${'q' + question.id + '_' + optStat.index}"-->
+<!--                       th:name="answer"-->
+<!--                       th:value="${opt}" required>-->
+<!--                <label class="form-check-label" th:for="${'q' + question.id + '_' + optStat.index}"-->
+<!--                       th:text="${opt}">Option</label>-->
+<!--            </div>-->
+<!--            <hr class="my-3">-->
+<!--        </div>-->
+
+<!--        <div class="text-end mt-4">-->
+<!--            <button type="submit" class="btn btn-success" id="submit-button"-->
+<!--                    th:text="${currentQuestionNumber == session.totalQuestion ? 'Submit Exam' : 'Next'}">-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </form>-->
+<!--</main>-->
 
 <!-- Main Content -->
 <main class="container my-5">
-  <div class="mb-4">
-    <h2 class="text-primary fw-bold">Exam: <span th:text="${exam.subjectName}">Subject</span></h2>
-    <p class="text-muted mb-1">Description: <span th:text="${exam.description}">Exam Description</span></p>
-    <p class="mb-1">Total Marks: <strong th:text="${exam.totalMarks}">100</strong></p>
-    <p class="mb-1">Total Questions: <strong th:text="${exam.totalQuestions}">10</strong></p>
-    <p class="mb-3">Enrolled Users: <strong th:text="${exam.totalEnrolledUsers}">500</strong></p>
-  </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">Exam: <span th:text="${subjectName}">Subject</span></h2>
 
-  <!-- Exam Form -->
-  <form th:action="@{/submit}" method="post" class="card p-4">
-    <input type="hidden" th:name="examId" th:value="${exam.id}" />
-
-    <h4 class="mb-3 border-bottom pb-2">Answer the Questions</h4>
-
-    <div th:each="q, iterStat : ${exam.questions}" class="question">
-      <h5>Q<span th:text="${iterStat.index + 1}">1</span>. <span th:text="${q.text}">Question Text</span></h5>
-
-      <div th:each="opt, optStat : ${q.options}" class="form-check">
-        <input class="form-check-input" type="radio"
-               th:id="${'q' + q.id + '_' + optStat.index}"
-               th:name="'answers[' + ${q.id} + ']'"
-               th:value="${opt}" required>
-        <label class="form-check-label" th:for="${'q' + q.id + '_' + optStat.index}"
-               th:text="${opt}">Option</label>
-      </div>
-
-      <span class="badge bg-secondary mt-2" th:text="${q.complexity}">Medium</span>
-      <hr class="my-3">
+        <div class="d-flex align-items-center gap-2 px-3 py-2 bg-light rounded-3 shadow-sm border border-primary-subtle">
+            <span class="text-secondary fw-semibold">Auto Next In</span>
+            <span id="countdown-timer" class="badge bg-primary rounded-pill px-3 py-2 fs-6 shadow-sm"
+                  style="min-width: 45px; text-align: center;">30</span>
+        </div>
     </div>
 
-    <div class="text-end mt-4">
-      <button type="submit" class="btn btn-success">Submit Exam</button>
-    </div>
-  </form>
+    <!-- Exam Form -->
+    <form th:action="@{/exam/submit}" method="post" class="card p-4 shadow-sm border-0" id="exam-form">
+        <h4 class="mb-3 border-bottom pb-2 text-dark">Answer the Questions</h4>
+
+        <div class="question">
+            <h5 class="fw-semibold text-dark">
+                Q<span th:text="${currentQuestionNumber}">0</span>.
+                <span th:text="${question.text}">Question Text</span>
+            </h5>
+            <!--            <input type="hidden" name="questionId" th:value="${question.id}">-->
+            <!--            <div th:each="opt, optStat : ${question.options}" class="form-check mt-2">-->
+            <!--                <input class="form-check-input" type="radio"-->
+            <!--                       th:id="${'q' + question.id + '_' + optStat.index}"-->
+            <!--                       th:name="answer"-->
+            <!--                       th:value="${opt}" required>-->
+            <!--                <label class="form-check-label" th:for="${'q' + question.id + '_' + optStat.index}"-->
+            <!--                       th:text="${opt}">Option</label>-->
+            <!--            </div>-->
+            <input type="hidden" name="questionId" th:value="${question.id}">
+            <div th:each="opt, optStat : ${question.options}" class="form-check mt-2">
+                <input class="form-check-input" type="radio"
+                       th:id="${'q' + question.id + '_' + optStat.index}"
+                       th:name="answer"
+                       th:value="${opt}">
+                <label class="form-check-label" th:for="${'q' + question.id + '_' + optStat.index}"
+                       th:text="${opt}">Option</label>
+            </div>
+            <hr class="my-4">
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-success px-4 py-2" id="submit-button"
+                    th:text="${currentQuestionNumber == session.totalQuestion ? 'Submit Exam' : 'Next'}">
+            </button>
+        </div>
+    </form>
 </main>
+
 
 <!-- Footer -->
 <footer class="footer mt-auto">
-  <div class="container">
-    © 2025 Qbank. All rights reserved.
-  </div>
+    <div class="container">
+        © 2025 Qbank. All rights reserved.
+    </div>
 </footer>
 
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitConfirmModal" tabindex="-1" aria-labelledby="submitConfirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-success">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="submitConfirmModalLabel">Confirm Submission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to submit the exam?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="confirmSubmitBtn" type="button" class="btn btn-success">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exit Confirmation Modal -->
+<div class="modal fade" id="exitConfirmModal" tabindex="-1" aria-labelledby="exitConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="exitConfirmModalLabel">Confirm Exit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to exit the exam? Your progress may not be saved.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Stay</button>
+                <button id="confirmExitBtn" type="button" class="btn btn-danger">Exit Exam</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const examForm = document.getElementById('exam-form');
+    const submitBtn = document.getElementById('submit-button');
+    const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+    const confirmExitBtn = document.getElementById('confirmExitBtn');
+
+    const submitModal = new bootstrap.Modal(document.getElementById('submitConfirmModal'));
+    const exitModal = new bootstrap.Modal(document.getElementById('exitConfirmModal'));
+
+    let allowSubmit = false;
+
+    // Intercept form submission
+    examForm.addEventListener('submit', function (e) {
+        const isLastQuestion = submitBtn.textContent.trim() === 'Submit Exam';
+        if (isLastQuestion && !allowSubmit) {
+            e.preventDefault();
+            submitModal.show();
+        }
+    });
+
+    // Confirm actual submission
+    confirmSubmitBtn.addEventListener('click', function () {
+        allowSubmit = true;
+        submitModal.hide();
+        examForm.submit();
+    });
+
+    // Intercept nav links
+    document.querySelectorAll('#nav-tabs a').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            confirmExitBtn.onclick = () => {
+                const fullPath = window.location.pathname;
+                const basePath = fullPath.substring(0, fullPath.indexOf("/exam/question"));
+                const redirectUrl = basePath + "/exam/exit";
+                window.location.href = redirectUrl;
+            };
+            exitModal.show();
+        });
+    });
+</script>
+
+<!--<script>-->
+<!--    let countdown = 5;-->
+<!--    const timerDisplay = document.getElementById('countdown-timer');-->
+<!--    const submitButton = document.getElementById('submit-button');-->
+
+<!--    function updateTimer() {-->
+<!--        if (countdown > 0) {-->
+<!--            countdown&#45;&#45;;-->
+<!--            timerDisplay.textContent = countdown;-->
+<!--        } else {-->
+<!--            // Reset the timer-->
+<!--            countdown = 0;-->
+<!--            timerDisplay.textContent = countdown;-->
+
+<!--            // Auto-click the submit button-->
+<!--            const isModalOpen = document.querySelector('.modal.show');-->
+<!--            if (!isModalOpen && submitButton) {-->
+<!--                submitButton.click();-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
+
+<!--    setInterval(updateTimer, 1000);-->
+<!--</script>-->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const countdownElement = document.getElementById("countdown-timer");
+        const submitButton = document.getElementById("submit-button");
+        let timeLeft = 10;
+
+        const countdownInterval = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+
+            if (timeLeft <= 5) {
+                countdownElement.classList.remove("bg-primary");
+                countdownElement.classList.add("bg-danger");
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                submitButton.click();
+            }
+        }, 1000);
+    });
+</script>
+
+
 </body>
 </html>
