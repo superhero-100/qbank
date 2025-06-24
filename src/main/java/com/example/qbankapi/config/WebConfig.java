@@ -1,6 +1,8 @@
 package com.example.qbankapi.config;
 
+import com.example.qbankapi.interceptor.AdminSessionValidationInterceptor;
 import com.example.qbankapi.interceptor.SessionValidationInterceptor;
+import com.example.qbankapi.interceptor.UserSessionValidationInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,12 +19,20 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 public class WebConfig implements WebMvcConfigurer {
 
     private final SessionValidationInterceptor sessionValidationInterceptor;
+    private final UserSessionValidationInterceptor userSessionValidationInterceptor;
+    private final AdminSessionValidationInterceptor adminSessionValidationInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(sessionValidationInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/api/**");
+        registry.addInterceptor(sessionValidationInterceptor).addPathPatterns("/**").excludePathPatterns("/login");
+        registry.addInterceptor(userSessionValidationInterceptor).addPathPatterns("/user/**").excludePathPatterns("/login");
+        registry.addInterceptor(adminSessionValidationInterceptor).addPathPatterns("/admin/**").excludePathPatterns("/login");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("/resources/static/");
     }
 
     @Bean

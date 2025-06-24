@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>RichTextEditor Integration</title>
+
+    <link rel="stylesheet" th:href="@{/static/richtexteditor/rte_theme_default.css}"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+
+        button {
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Editor Container -->
+<div id="div_editor1"></div>
+
+<!-- HTML Display Area -->
+<textarea id="htmlOutput" placeholder="Editor HTML content will appear here..."></textarea>
+
+<!-- Control Buttons -->
+<div>
+    <button onclick="getHtmlFromEditor()">Get HTML</button>
+    <button onclick="setHtmlToEditor()">Set HTML</button>
+</div>
+
+<!-- Scripts -->
+<script th:src="@{/static/richtexteditor/rte.js}"></script>
+<script th:src="@{/static/richtexteditor/plugins/all_plugins.js}"></script>
+
+<script>
+    RTE_DefaultConfig.url_base = 'richtexteditor';
+    var editor1 = new RichTextEditor("#div_editor1");
+
+    function getHtmlFromEditor() {
+        const html = editor1.getHTMLCode();
+        document.getElementById("htmlOutput").value = html;
+    }
+
+    function setHtmlToEditor() {
+        const html = document.getElementById("htmlOutput").value;
+        editor1.setHTMLCode(html);
+    }
+</script>
+
+</body>
+</html>

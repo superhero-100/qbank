@@ -14,16 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_tbl")
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "username", unique = true)
-    private String username;
-
-    private String password;
+@DiscriminatorValue("USER")
+public class User extends BaseUser{
 
     @ManyToMany(mappedBy = "enrolledUsers")
     @Builder.Default
