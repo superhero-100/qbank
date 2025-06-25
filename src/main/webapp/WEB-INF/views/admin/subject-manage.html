@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <div th:replace="~{/admin/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <div class="p-6 space-y-6">
+            <h1 class="text-2xl font-bold text-primary">Manage Subjects</h1>
+            <p class="text-sm text-gray-500">Create, update, and organize subject categories.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Data Structures</h2>
+                    <p class="text-sm text-gray-500">Stacks, queues, trees, graphs.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Algorithms</h2>
+                    <p class="text-sm text-gray-500">Sorting, searching, dynamic programming.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Operating Systems</h2>
+                    <p class="text-sm text-gray-500">Processes, threads, memory management.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Computer Networks</h2>
+                    <p class="text-sm text-gray-500">TCP/IP, OSI model, protocols.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Databases</h2>
+                    <p class="text-sm text-gray-500">SQL, normalization, transactions.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Software Engineering</h2>
+                    <p class="text-sm text-gray-500">SDLC, design patterns, testing.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Web Technologies</h2>
+                    <p class="text-sm text-gray-500">HTML, CSS, JavaScript, HTTP.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Machine Learning</h2>
+                    <p class="text-sm text-gray-500">Supervised and unsupervised algorithms.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Artificial Intelligence</h2>
+                    <p class="text-sm text-gray-500">Search, planning, agents, NLP.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Cybersecurity</h2>
+                    <p class="text-sm text-gray-500">Encryption, threats, firewalls, forensics.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">Cloud Computing</h2>
+                    <p class="text-sm text-gray-500">IaaS, PaaS, SaaS, virtualization.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-md p-4">
+                    <h2 class="font-semibold text-lg">DevOps</h2>
+                    <p class="text-sm text-gray-500">CI/CD, automation, containerization.</p>
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="#" class="btn btn-sm btn-error">Delete</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <a href="#" class="btn btn-success">Add New Subject</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+</body>
+</html>

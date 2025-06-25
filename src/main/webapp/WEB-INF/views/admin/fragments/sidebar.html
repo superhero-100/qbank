@@ -1,0 +1,32 @@
+<!-- fragments/sidebar.html -->
+<th:block th:fragment="tag">
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+           class="w-full md:w-64 bg-base-100 shadow-inner p-6 animate-fade-in md:block hidden
+              md:sticky md:top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+        <nav class="space-y-3">
+            <a th:href="@{/admin/home}"
+               class="btn btn-ghost w-full justify-start gap-3 text-left hover:bg-base-300 transition">
+                <i class="fas fa-home text-primary"></i> Dashboard
+            </a>
+            <a th:href="@{/admin/manage/subjects}"
+               class="btn btn-ghost w-full justify-start gap-3 text-left hover:bg-base-300 transition">
+                <i class="fas fa-book text-primary"></i> Subjects
+            </a>
+            <a th:href="@{/admin/manage/questions}"
+               class="btn btn-ghost w-full justify-start gap-3 text-left hover:bg-base-300 transition">
+                <i class="fas fa-question-circle text-primary"></i> Questions
+            </a>
+            <a th:href="@{/admin/manage/users}"
+               class="btn btn-ghost w-full justify-start gap-3 text-left hover:bg-base-300 transition">
+                <i class="fas fa-users text-primary"></i> Users
+            </a>
+            <a th:href="@{/admin/view/analytics}"
+               class="btn btn-ghost w-full justify-start gap-3 text-left hover:bg-base-300 transition">
+                <i class="fas fa-chart-bar text-primary"></i> Analytics
+            </a>
+        </nav>
+    </aside>
+
+</th:block>

@@ -7,12 +7,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "user_exam_result_tbl")
 public class UserExamResult {
@@ -21,28 +19,28 @@ public class UserExamResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_score")
+    @Column(name = "total_score", nullable = false)
     private int totalScore;
 
-    @Column(name = "submitted_at")
+    @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private User user;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private Exam exam;
 
     @OneToMany(mappedBy = "userExamResult")
-    @Builder.Default
     @ToString.Exclude
-    private List<UserAnswer> answers = new ArrayList<>();
+    private List<UserAnswer> answers;
 
     @OneToOne
-    @JoinColumn(name = "user_analytics_id")
+    @JoinColumn(name = "user_analytics_id", nullable = false)
     @ToString.Exclude
     private UserAnalytics analytics;
 

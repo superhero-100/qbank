@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <div th:replace="~{/admin/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <h1 class="text-center text-4xl font-extrabold text-primary py-9">Welcome, Admin 👋</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <a th:href="@{/admin/manage/subjects}"
+               class="card bg-primary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
+                <div class="card-body">
+                    <figure><img src="https://img.icons8.com/color/96/books.png" alt="Subjects"/></figure>
+                    <h2 class="card-title">Manage Subjects</h2>
+                    <p>Create, update, and categorize topics.</p>
+                </div>
+            </a>
+
+            <a th:href="@{/admin/manage/questions}"
+               class="card bg-secondary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
+                <div class="card-body">
+                    <figure><img src="https://img.icons8.com/color/96/faq.png" alt="Questions"/></figure>
+                    <h2 class="card-title">Manage Questions</h2>
+                    <p>Edit and curate question sets by subject.</p>
+                </div>
+            </a>
+
+            <a th:href="@{/admin/manage/users}"
+               class="card bg-accent text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
+                <div class="card-body">
+                    <figure><img src="https://img.icons8.com/color/96/group.png" alt="Users"/></figure>
+                    <h2 class="card-title">User Management</h2>
+                    <p>Assign roles and monitor user activities.</p>
+                </div>
+            </a>
+
+            <a th:href="@{/admin/view/analytics}"
+               class="card bg-info text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
+                <div class="card-body">
+                    <figure><img src="https://img.icons8.com/color/96/combo-chart.png" alt="Results"/></figure>
+                    <h2 class="card-title">Analytics</h2>
+                    <p>Analyze score metrics and test outcomes.</p>
+                </div>
+            </a>
+
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+</body>
+</html>

@@ -2,18 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Login | QBank</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- TailwindCSS + DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.8.1/dist/full.css" rel="stylesheet"/>
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
-    <!-- Custom Animation CSS -->
+    <!-- Custom Animation -->
     <style>
         .fade-in {
-            animation: fadeIn 1.2s ease-in-out both;
+            animation: fadeIn 1s ease-in-out both;
         }
 
         @keyframes fadeIn {
@@ -26,79 +29,68 @@
                 transform: translateY(0);
             }
         }
-
-        .form-container {
-            max-width: 400px;
-            margin: auto;
-            padding: 2rem;
-            border-radius: 1rem;
-            background-color: #ffffff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            color: #0d6efd;
-            margin-bottom: 1.5rem;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center bg-base-200">
 
-<div class="container fade-in">
-    <div class="form-container mt-5">
-
-        <div class="logo">Q<span class="text-warning">bank</span></div>
-
-        <h3 class="text-center mb-4">Login</h3>
-
-        <p th:if="${error}" th:text="${error}" class="alert alert-danger py-2 px-3"></p>
-
-        <form th:action="@{/login}" method="post" th:object="${loginUserRequest}" novalidate>
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                    <input id="username" type="text" th:field="*{username}" class="form-control"
-                           placeholder="Enter username"/>
-                </div>
-                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
-                     class="text-danger small mt-1"></div>
-            </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                    <input id="password" type="password" th:field="*{password}" class="form-control"
-                           placeholder="Enter password"/>
-                </div>
-                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
-                     class="text-danger small mt-1"></div>
-            </div>
-
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">Login</button>
-            </div>
-        </form>
+<div class="w-full max-w-md p-6 rounded-xl shadow-xl bg-base-100 fade-in">
+    <!-- Logo -->
+    <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-primary">Q<span class="text-warning">bank</span></h1>
+        <p class="text-base-content text-sm mt-1">Login</p>
     </div>
+
+    <!-- Error Message -->
+    <p th:if="${error}" th:text="${error}"
+       class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
+
+    <!-- Login Form -->
+    <form th:action="@{/login}" method="post" th:object="${loginUserRequest}" novalidate class="space-y-4">
+        <!-- Username -->
+        <div>
+            <label for="username" class="label">
+                <span class="label-text font-semibold">Username</span>
+            </label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-user"></i>
+                </span>
+                <input id="username" th:field="*{username}" type="text"
+                       placeholder="Enter username"
+                       class="input input-bordered w-full pl-10"/>
+            </div>
+            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-error text-xs mt-1"></p>
+        </div>
+
+        <!-- Password -->
+        <div>
+            <label for="password" class="label">
+                <span class="label-text font-semibold">Password</span>
+            </label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input id="password" th:field="*{password}" type="password"
+                       placeholder="Enter password"
+                       class="input input-bordered w-full pl-10"/>
+            </div>
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-error text-xs mt-1"></p>
+        </div>
+
+        <!-- Submit -->
+        <div>
+            <button type="submit" class="btn btn-primary btn-block text-lg">Login</button>
+        </div>
+    </form>
 </div>
 
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<!-- Demo autofill -->
 <script>
-    document.forms[0].username.value = "sahil";
-    document.forms[0].password.value = "sahil@123";
+    document.addEventListener('DOMContentLoaded', () => {
+        document.forms[0].username.value = "admin";
+        document.forms[0].password.value = "admin@123";
+    });
 </script>
 
 </body>

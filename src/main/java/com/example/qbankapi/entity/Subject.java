@@ -6,12 +6,10 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "subject_tbl")
 public class Subject {
@@ -20,17 +18,18 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "subject")
-    @Builder.Default
-    @ToString.Exclude
-    private List<Question> questions = new ArrayList<>();
+    @Column(name = "description", nullable = false)
+    private String description;
 
     @OneToMany(mappedBy = "subject")
-    @Builder.Default
     @ToString.Exclude
-    private List<Exam> exams = new ArrayList<>();
+    private List<Question> questions;
+
+    @OneToMany(mappedBy = "subject")
+    @ToString.Exclude
+    private List<Exam> exams;
 
 }

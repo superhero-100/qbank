@@ -1,13 +1,22 @@
 package com.example.qbankapi.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/exam")
 @RequiredArgsConstructor
 public class ExamController {
+
+    @GetMapping("/home")
+    @ResponseBody
+    public String hello(){
+        log.info("Returning hello");
+        return "hello";
+    }
 
 //    private final ExamService examService;
 

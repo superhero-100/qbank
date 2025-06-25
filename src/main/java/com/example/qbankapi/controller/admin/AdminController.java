@@ -1,21 +1,30 @@
 package com.example.qbankapi.controller.admin;
 
+import com.example.qbankapi.service.SubjectService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
+    private final SubjectService subjectService;
+
     @GetMapping("/home")
-    @ResponseBody
-    public String hello(){
-        return "hello";
+    public String hello() {
+        return "/admin/dashboard";
     }
 
-//    private final SubjectService subjectService;
+    @GetMapping("/manage/subjects")
+    public String manageSubjects() {
+        return "/admin/subject-manage";
+    }
+
+
 //    private final QuestionService questionService;
 //    private final UserService userService;
 //    private final ExamService examService;

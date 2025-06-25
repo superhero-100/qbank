@@ -12,8 +12,8 @@ public class UserAnswerDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void save(UserAnswer userAnswer) {
-        entityManager.persist(userAnswer);
-    }
+//    public void save(UserAnswer userAnswer) {
+//        entityManager.persist(userAnswer);
+//    }
 
 }

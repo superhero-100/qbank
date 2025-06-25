@@ -1,9 +1,11 @@
 package com.example.qbankapi.controller.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -12,6 +14,7 @@ public class UserController {
     @GetMapping("/home")
     @ResponseBody
     public String hello(){
+        log.info("Returning hello");
         return "hello";
     }
 
@@ -20,13 +23,6 @@ public class UserController {
 //    private final ExamService examService;
 //    private final UserExamResultService userExamResultService;
 
-
-//    @GetMapping("/logout")
-//    public String logoutUser(HttpSession session) {
-//        session.removeAttribute(SessionValidationInterceptor.USER_ID);
-//        return "redirect:/login";
-//    }
-//
 //    @GetMapping("/home")
 //    public String home(
 //            Model model,

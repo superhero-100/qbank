@@ -1,18 +1,14 @@
 package com.example.qbankapi.entity;
 
-import com.example.qbankapi.dao.SubjectDao;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "question_tbl")
 public class Question {
@@ -21,26 +17,27 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "text", nullable = false)
     private String text;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "question_options",
-            joinColumns = @JoinColumn(name = "question_id")
+            joinColumns = @JoinColumn(name = "question_id", nullable = false)
     )
-    @Column(name = "option_value")
-    @Builder.Default
+    @Column(name = "option_value", nullable = false)
     @ToString.Exclude
-    private List<String> options = new ArrayList<>();
+    private List<String> options;
 
-    @Column(name = "correct_answer")
+    @Column(name = "correct_answer", nullable = false)
     private String correctAnswer;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "complexity", nullable = false)
     private Complexity complexity;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
     public enum Complexity {

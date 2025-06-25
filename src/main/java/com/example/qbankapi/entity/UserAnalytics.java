@@ -4,12 +4,10 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "user_analytics_tbl")
 public class UserAnalytics {
@@ -18,12 +16,13 @@ public class UserAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "attempted_questions")
+    @Column(name = "attempted_questions", nullable = false)
     private int attemptedQuestions;
 
-    @Column(name = "correct_answers")
+    @Column(name = "correct_answers", nullable = false)
     private int correctAnswers;
 
+    @Column(name = "accuracy", nullable = false)
     private double accuracy;
 
     @OneToOne(mappedBy = "analytics")

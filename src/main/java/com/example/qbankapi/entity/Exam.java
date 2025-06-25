@@ -6,52 +6,50 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @Entity
 @Table(name = "exam_tbl")
-public class Exam {
+public class Exam extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "total_marks")
+    @Column(name = "total_marks", nullable = false)
     private Integer totalMarks;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id", nullable = false)
     @ToString.Exclude
     private Subject subject;
 
     @ManyToMany
     @JoinTable(
             name = "exam_question",
-            joinColumns = @JoinColumn(name = "exam_id"),
-            inverseJoinColumns = @JoinColumn(name = "question_id")
+            joinColumns = @JoinColumn(name = "exam_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "question_id", nullable = false)
     )
-    @Builder.Default
     @ToString.Exclude
-    private List<Question> questions = new ArrayList<>();
+    private List<Question> questions;
 
     @ManyToMany
     @JoinTable(
             name = "exam_user",
-            joinColumns = @JoinColumn(name = "exam_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            joinColumns = @JoinColumn(name = "exam_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "user_id", nullable = false)
+
     )
-    @Builder.Default
     @ToString.Exclude
-    private List<User> enrolledUsers = new ArrayList<>();
+    private List<User> enrolledUsers;
 
     @OneToOne
-    @JoinColumn(name = "analytics_id")
+    @JoinColumn(name = "analytics_id", nullable = false)
     @ToString.Exclude
     private ExamAnalytics analytics;
 

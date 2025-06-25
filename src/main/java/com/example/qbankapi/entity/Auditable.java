@@ -9,16 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@MappedSuperclass
 @ToString
+@MappedSuperclass
 public abstract class Auditable {
 
-    @Builder.Default
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private LocalDateTime createdAt;
 
-    @Builder.Default
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt = LocalDateTime.now();
+    @Column(name = "modified_at", nullable = false)
+    private LocalDateTime modifiedAt;
 
 }

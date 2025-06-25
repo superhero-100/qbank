@@ -1,30 +1,27 @@
 package com.example.qbankapi.entity;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "user_tbl")
 @DiscriminatorValue("USER")
-public class User extends BaseUser{
+public class User extends BaseUser {
 
     @ManyToMany(mappedBy = "enrolledUsers")
-    @Builder.Default
     @ToString.Exclude
-    private List<Exam> enrolledExams = new ArrayList<>();
+    private List<Exam> enrolledExams;
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
     @ToString.Exclude
-    private List<UserExamResult> userExamResults = new ArrayList<>();
+    private List<UserExamResult> userExamResults;
 
 }
