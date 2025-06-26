@@ -44,3 +44,4 @@ build/
 .smarttomcat/
 
 application.properties
+**/application.properties
