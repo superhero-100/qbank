@@ -1,4 +1,4 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubjectDto {
+public class SubjectDescDto {
 
     private Long id;
 

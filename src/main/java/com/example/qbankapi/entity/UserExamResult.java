@@ -19,19 +19,19 @@ public class UserExamResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_score", nullable = false)
-    private int totalScore;
+    @Column(name = "total_score")
+    private Integer totalScore;
 
-    @Column(name = "submitted_at", nullable = false)
+    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "exam_id")
     @ToString.Exclude
     private Exam exam;
 
@@ -40,7 +40,7 @@ public class UserExamResult {
     private List<UserAnswer> answers;
 
     @OneToOne
-    @JoinColumn(name = "user_analytics_id", nullable = false)
+    @JoinColumn(name = "user_analytics_id")
     @ToString.Exclude
     private UserAnalytics analytics;
 

@@ -16,18 +16,18 @@ public class BaseUserDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public void save(BaseUser baseUser) {
+        log.trace("Entering save() with baseUser: {}", baseUser);
+        entityManager.persist(baseUser);
+        log.trace("Exiting save()");
+    }
+
     public Optional<BaseUser> findByUsername(String username) {
         log.trace("Entering findByUsername() with username: {}", username);
         List<BaseUser> userList = entityManager.createQuery("SELECT u FROM BaseUser u WHERE u.username = :username", BaseUser.class).setParameter("username", username).getResultList();
-        Optional<BaseUser> optionalBaseUser = userList.isEmpty() ? Optional.empty() : Optional.of(userList.get(0));
+        Optional<BaseUser> optionalBaseUser = userList.isEmpty() ? Optional.empty() : Optional.of(userList.getFirst());
         log.trace("Exiting findByUsername()");
         return optionalBaseUser;
-    }
-
-    public void save(BaseUser baseUser) {
-        log.trace("Entering save() with username: {}", baseUser.getUsername());
-        entityManager.persist(baseUser);
-        log.trace("Exiting save()");
     }
 
 }

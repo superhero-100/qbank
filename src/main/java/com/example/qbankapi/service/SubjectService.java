@@ -1,17 +1,23 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.SubjectDao;
-import com.example.qbankapi.dto.ExamDetailsDto;
-import com.example.qbankapi.dto.SubjectDto;
+import com.example.qbankapi.dto.model.SubjectDto;
+import com.example.qbankapi.dto.request.AddSubjectRequestDto;
+import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
 import com.example.qbankapi.entity.Subject;
-import com.example.qbankapi.exception.EntityNotFoundException;
+import com.example.qbankapi.exception.SubjectAlreadyExistsException;
+import com.example.qbankapi.exception.SubjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.OptimisticLockException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubjectService {
@@ -19,9 +25,45 @@ public class SubjectService {
     private final SubjectDao subjectDao;
 
     @Transactional(readOnly = true)
-    public List<Subject> getNameOfSubjects() {
-//        return subjectDao.findAll();
-        return List.of();
+    public List<SubjectDto> getSubjectDtoList() {
+        List<Subject> subjectList = subjectDao.findAll();
+        log.debug("Fetched {} subjects from database", subjectList.size());
+        return subjectList.stream()
+                .map(subject -> SubjectDto.builder()
+                        .id(subject.getId())
+                        .name(subject.getName())
+                        .description(subject.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void createSubject(AddSubjectRequestDto addSubjectRequest) {
+        if (subjectDao.findByName(addSubjectRequest.getName()).isPresent()) {
+            throw new SubjectAlreadyExistsException(String.format("Subject already exists with name: %s", addSubjectRequest.getName()));
+        }
+
+        Subject subject = new Subject();
+        subject.setName(addSubjectRequest.getName());
+        subject.setDescription(addSubjectRequest.getDescription());
+        subject.setQuestions(List.of());
+        subject.setExams(List.of());
+        subjectDao.save(subject);
+    }
+
+    @Transactional
+    public void updateSubject(UpdateSubjectRequestDto updateSubjectRequest) {
+        Subject subject = subjectDao.findById(updateSubjectRequest.getId())
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", updateSubjectRequest.getId())));
+        subject.setName(updateSubjectRequest.getName());
+        subject.setDescription(updateSubjectRequest.getDescription());
+        subjectDao.update(subject);
+    }
+
+    @Transactional(readOnly = true)
+    public SubjectDto getSubjectDtoById(Long id) {
+        Subject subject = subjectDao.findById(id).orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
+        return SubjectDto.builder().id(subject.getId()).name(subject.getName()).description(subject.getDescription()).build();
     }
 
 //    @Transactional(readOnly = true)

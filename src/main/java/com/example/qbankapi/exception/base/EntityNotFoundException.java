@@ -1,4 +1,4 @@
-package com.example.qbankapi.exception;
+package com.example.qbankapi.exception.base;
 
 public class EntityNotFoundException extends RuntimeException {
 

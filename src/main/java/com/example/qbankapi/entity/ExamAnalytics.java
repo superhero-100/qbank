@@ -15,16 +15,16 @@ public class ExamAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_submissions", nullable = false)
+    @Column(name = "total_submissions")
     private Integer totalSubmissions;
 
-    @Column(name = "average_score", nullable = false)
+    @Column(name = "average_score")
     private Double averageScore;
 
-    @Column(name = "highest_score", nullable = false)
+    @Column(name = "highest_score")
     private Double highestScore;
 
-    @Column(name = "lowest_score", nullable = false)
+    @Column(name = "lowest_score")
     private Double lowestScore;
 
     @OneToOne(mappedBy = "analytics")

@@ -17,27 +17,30 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text", nullable = false)
+    @Column(name = "text")
     private String text;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "question_options",
-            joinColumns = @JoinColumn(name = "question_id", nullable = false)
+            joinColumns = @JoinColumn(name = "question_id")
     )
-    @Column(name = "option_value", nullable = false)
+    @Column(name = "option_value")
     @ToString.Exclude
     private List<String> options;
 
-    @Column(name = "correct_answer", nullable = false)
-    private String correctAnswer;
+    @Column(name = "correct_answer")
+    private Option correctAnswer;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "complexity", nullable = false)
+    @Column(name = "complexity")
     private Complexity complexity;
 
+    @Column(name = "marks")
+    private Long marks;
+
     @ManyToOne
-    @JoinColumn(name = "subject_id", nullable = false)
+    @JoinColumn(name = "subject_id")
     private Subject subject;
 
     public enum Complexity {
@@ -52,6 +55,10 @@ public class Question {
         public int getMarks() {
             return marks;
         }
+    }
+
+    public enum Option {
+        A,B,C,D
     }
 
 }

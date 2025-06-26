@@ -16,14 +16,14 @@ public class UserAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "attempted_questions", nullable = false)
-    private int attemptedQuestions;
+    @Column(name = "attempted_questions")
+    private Integer attemptedQuestions;
 
-    @Column(name = "correct_answers", nullable = false)
-    private int correctAnswers;
+    @Column(name = "correct_answers")
+    private Integer correctAnswers;
 
-    @Column(name = "accuracy", nullable = false)
-    private double accuracy;
+    @Column(name = "accuracy")
+    private Double accuracy;
 
     @OneToOne(mappedBy = "analytics")
     @ToString.Exclude

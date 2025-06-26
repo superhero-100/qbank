@@ -19,10 +19,10 @@ public class BaseUser extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @Column(name = "username", unique = true)
     protected String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     protected String password;
 
     @Column(name = "role", insertable = false, updatable = false)

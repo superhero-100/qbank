@@ -29,3 +29,16 @@
     </style>
 
 </th:block>
+
+<!-- fragments/global-head.html -->
+<th:block th:fragment="richtexteditor">
+
+    <!-- Rich text editor -->
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/static/richtexteditor/rte_theme_default.css}"/>
+
+    <!-- JS -->
+    <script th:src="@{/static/richtexteditor/rte.js}"></script>
+    <script th:src="@{/static/richtexteditor/plugins/all_plugins.js}"></script>
+
+</th:block>

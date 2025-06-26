@@ -1,4 +1,4 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.response;
 
 import com.example.qbankapi.entity.Question;
 import lombok.AllArgsConstructor;

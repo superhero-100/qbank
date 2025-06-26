@@ -1,4 +1,4 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,13 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUserRequestDto {
+@Builder
+public class SubjectDto {
 
-    private String username;
+    private Long id;
 
-    private String password;
+    private String name;
+
+    private String description;
 
 }

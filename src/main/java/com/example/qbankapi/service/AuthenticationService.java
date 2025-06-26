@@ -1,10 +1,8 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.BaseUserDao;
-import com.example.qbankapi.dao.UserDao;
-import com.example.qbankapi.dto.LoginUserRequestDto;
+import com.example.qbankapi.dto.request.LoginUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
-import com.example.qbankapi.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

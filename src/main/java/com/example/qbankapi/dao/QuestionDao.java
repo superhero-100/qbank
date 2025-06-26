@@ -20,11 +20,11 @@ public class QuestionDao {
 //            "ORDER BY RAND() " +
 //            "LIMIT :limit";
 //
-//
-//    public void save(Question question) {
-//        entityManager.persist(question);
-//    }
-//
+
+    public void save(Question question) {
+        entityManager.persist(question);
+    }
+
 //    public List<Question> findAll() {
 //        return entityManager.createQuery("SELECT q FROM Question  q", Question.class).getResultList();
 //    }

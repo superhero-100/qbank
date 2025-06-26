@@ -16,19 +16,19 @@ public class UserAnswer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "answer_given", nullable = false)
+    @Column(name = "answer_given")
     private String answerGiven;
 
-    @Column(name = "is_correct", nullable = false)
-    private boolean isCorrect;
+    @Column(name = "is_correct")
+    private Boolean isCorrect;
 
     @ManyToOne
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id")
     @ToString.Exclude
     private Question question;
 
     @ManyToOne
-    @JoinColumn(name = "user_exam_result_id", nullable = false)
+    @JoinColumn(name = "user_exam_result_id")
     @ToString.Exclude
     private UserExamResult userExamResult;
 

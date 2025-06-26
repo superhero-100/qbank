@@ -1,23 +1,8 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.UserDao;
-import com.example.qbankapi.dto.AddUserRequestDto;
-import com.example.qbankapi.dto.UserEnrolledExamDetailsDto;
-import com.example.qbankapi.dto.UserProfileStatsDto;
-import com.example.qbankapi.entity.User;
-import com.example.qbankapi.entity.UserAnalytics;
-import com.example.qbankapi.entity.UserExamResult;
-import com.example.qbankapi.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service

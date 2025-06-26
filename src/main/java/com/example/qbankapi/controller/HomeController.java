@@ -1,6 +1,6 @@
 package com.example.qbankapi.controller;
 
-import com.example.qbankapi.dto.LoginUserRequestDto;
+import com.example.qbankapi.dto.request.LoginUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.constant.Role;
 import com.example.qbankapi.service.AuthenticationService;
@@ -74,7 +74,6 @@ public class HomeController {
             Model model,
             HttpSession session
     ) {
-        System.out.println(loginUserRequest);
         log.info("Login attempt for username: {}", loginUserRequest.getUsername());
 
         if (bindingResult.hasErrors()) {

@@ -1,4 +1,4 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.model;
 
 import com.example.qbankapi.entity.Question;
 import lombok.AllArgsConstructor;
@@ -6,23 +6,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddQuestionRequestDto {
+@Builder
+public class QuestionDto {
+
+    private Long id;
 
     private String text;
 
-    private String optionA;
-    private String optionB;
-    private String optionC;
-    private String optionD;
+    private List<String> options;
 
-    private String correctAnswer;
+    private Question.Option correctAnswer;
 
     private Question.Complexity complexity;
 
-    private Long subjectId;
+    private Long marks;
+
+    private String subjectName;
 
 }

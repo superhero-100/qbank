@@ -1,4 +1,4 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

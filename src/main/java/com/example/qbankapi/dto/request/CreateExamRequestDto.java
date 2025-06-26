@@ -1,14 +1,10 @@
-package com.example.qbankapi.dto;
+package com.example.qbankapi.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class CreateExamRequestDto {
 
     private String description;
