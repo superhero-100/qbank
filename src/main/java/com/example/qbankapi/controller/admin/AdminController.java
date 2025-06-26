@@ -121,19 +121,7 @@ public class AdminController {
             @ModelAttribute("filter") QuestionFilterDto questionFilterDto,
             Model model
     ) {
-
-//        if (questionFilterDto.getSubjectId() != null && questionFilterDto.getSubjectId() == -1L)
-//            questionFilterDto.setSubjectId(null);
-//        if (questionFilterDto.getMarks() != null && questionFilterDto.getMarks() == -1)
-//            questionFilterDto.setMarks(null);
-//        if ("*".equals(questionFilterDto.getOptionRegex())) questionFilterDto.setOptionRegex(null);
-//        if (questionFilterDto.getQuestionRegex() != null && questionFilterDto.getQuestionRegex().isBlank())
-//            questionFilterDto.setQuestionRegex(null);
-//        if (questionFilterDto.getDifficulty() != null && questionFilterDto.getDifficulty().isBlank())
-//            questionFilterDto.setDifficulty(null);
-//        if (questionFilterDto.getSortBy() == null || questionFilterDto.getSortBy().isBlank())
-//            questionFilterDto.setSortBy("text");
-
+        questionFilterDto.normalize();
         QuestionViewPageDto questionViewPage = questionService.getFilteredQuestions(questionFilterDto);
 
         model.addAttribute("subjects", subjectService.getSubjectDtoList());

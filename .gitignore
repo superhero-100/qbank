@@ -40,3 +40,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.smarttomcat/
+
+application.properties

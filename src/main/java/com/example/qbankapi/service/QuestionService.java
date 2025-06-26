@@ -2,6 +2,7 @@ package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.QuestionDao;
 import com.example.qbankapi.dao.SubjectDao;
+import com.example.qbankapi.dto.model.QuestionDto;
 import com.example.qbankapi.dto.model.QuestionFilterDto;
 import com.example.qbankapi.dto.model.QuestionViewPageDto;
 import com.example.qbankapi.dto.request.AddQuestionRequestDto;
@@ -48,21 +49,28 @@ public class QuestionService {
         subjectDao.update(subject);
     }
 
+    @Transactional(readOnly = true)
     public QuestionViewPageDto getFilteredQuestions(QuestionFilterDto questionFilterDto) {
-
         System.out.println("subjectId = " + Optional.ofNullable(questionFilterDto.getSubjectId()));
         System.out.println("difficulty = " + Optional.ofNullable(questionFilterDto.getDifficulty()));
         System.out.println("marks = " + Optional.ofNullable(questionFilterDto.getMarks()));
-        System.out.println("questionRegex = " + Optional.ofNullable(questionFilterDto.getQuestionRegex()));
-        System.out.println("optionRegex = " + Optional.ofNullable(questionFilterDto.getOptionRegex()));
         System.out.println("sortBy = " + Optional.ofNullable(questionFilterDto.getSortBy()));
-        System.out.println("page = " + Optional.ofNullable(questionFilterDto.getPage()));
         System.out.println("size = " + Optional.ofNullable(questionFilterDto.getPageSize()));
+        System.out.println("page = " + Optional.ofNullable(questionFilterDto.getPage()));
 
         QuestionViewPageDto questionViewPageDto = new QuestionViewPageDto();
-        questionViewPageDto.setQuestions(List.of());
-        questionViewPageDto.setPage(questionFilterDto.getPage());
-        questionViewPageDto.setHasNextPage(Boolean.FALSE);
+
+        QuestionDto questionDto=new QuestionDto();
+        questionDto.setText("Sample Question Text");
+        questionDto.setOptions(List.of("Option A", "Option B", "Option C", "Option D"));
+        questionDto.setCorrectAnswer(Question.Option.A);
+        questionDto.setComplexity(Question.Complexity.EASY);
+        questionDto.setMarks(6L);
+        questionDto.setSubjectName("English");
+
+        questionViewPageDto.setQuestions(List.of(questionDto,questionDto,questionDto));
+        questionViewPageDto.setPage(questionFilterDto.getPage()+5);
+        questionViewPageDto.setHasNextPage(Boolean.TRUE);
         questionViewPageDto.setPageSize(questionFilterDto.getPageSize());
         return questionViewPageDto;
     }

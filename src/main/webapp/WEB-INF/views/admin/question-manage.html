@@ -17,7 +17,6 @@
 
     <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
-
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
         <section class="bg-base-100 p-6 rounded-xl shadow-md">
@@ -34,105 +33,129 @@
             </div>
 
             <!-- Filter Panel -->
-            <form th:action="@{/admin/manage/questions}" th:object="${filter}" method="get"
-                  class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <form th:action="@{/admin/manage/questions}" th:object="${filter}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
                 <!-- Subject -->
-                <select th:field="*{subjectId}" class="select select-bordered w-full">
-                    <option value="">-- Select Subject --</option>
-                    <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
-                </select>
+                <div>
+                    <label class="label font-semibold text-base-content">Subject</label>
+                    <select th:field="*{subjectId}" class="select select-bordered w-full">
+                        <option value="0">All</option>
+                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
 
                 <!-- Difficulty -->
-                <select th:field="*{difficulty}" class="select select-bordered w-full">
-                    <option value="">-- Select Difficulty --</option>
-                    <option value="EASY">Easy</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HARD">Hard</option>
-                </select>
+                <div>
+                    <label class="label font-semibold text-base-content">Difficulty</label>
+                    <select th:field="*{difficulty}" class="select select-bordered w-full">
+                        <option value="ALL">All</option>
+                        <option value="EASY">Easy</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HARD">Hard</option>
+                    </select>
+                </div>
 
                 <!-- Marks -->
-                <select th:field="*{marks}" class="select select-bordered w-full">
-                    <option value="">-- Select Marks --</option>
-                    <optgroup label="Easy">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                    </optgroup>
-                    <optgroup label="Medium">
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </optgroup>
-                    <optgroup label="Hard">
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                    </optgroup>
-                </select>
-
-                <!-- Question Regex -->
-                <input type="text" th:field="*{questionRegex}" placeholder="Regex on Question"
-                       class="input input-bordered w-full"/>
-
-                <!-- Option Regex -->
-                <input type="text" th:field="*{optionRegex}" placeholder="Regex on Options"
-                       class="input input-bordered w-full"/>
+                <div>
+                    <label class="label font-semibold text-base-content">Marks</label>
+                    <select th:field="*{marks}" class="select select-bordered w-full">
+                        <option value="0">All</option>
+                        <optgroup label="Easy">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </optgroup>
+                        <optgroup label="Medium">
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </optgroup>
+                        <optgroup label="Hard">
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </optgroup>
+                    </select>
+                </div>
 
                 <!-- Sort By -->
-                <select th:field="*{sortBy}" class="select select-bordered w-full">
-                    <option value="">-- Sort By --</option>
-                    <option value="difficulty">Difficulty</option>
-                    <option value="subjectName">Subject</option>
-                    <option value="marks">Marks</option>
-                </select>
+                <div>
+                    <label class="label font-semibold text-base-content">Sort By</label>
+                    <select th:field="*{sortBy}" class="select select-bordered w-full">
+                        <option value="id">#</option>
+                        <option value="difficulty">Difficulty</option>
+                        <option value="subjectName">Subject</option>
+                        <option value="marks">Marks</option>
+                    </select>
+                </div>
 
                 <!-- Page Size -->
-                <select th:field="*{pageSize}" class="select select-bordered w-full">
-                    <option value="5">5 per page</option>
-                    <option value="10">10 per page</option>
-                    <option value="20">20 per page</option>
-                </select>
+                <div>
+                    <label class="label font-semibold text-base-content">Page Size</label>
+                    <select th:field="*{pageSize}" class="select select-bordered w-full">
+                        <option value="5">5 per page</option>
+                        <option value="10">10 per page</option>
+                        <option value="20">20 per page</option>
+                    </select>
+                </div>
 
                 <!-- Submit -->
-                <button type="submit" class="btn btn-primary w-full col-span-1 md:col-span-3">Apply Filters</button>
+                <div class="lg:col-span-3 md:col-span-2">
+                    <button type="submit" class="btn btn-primary w-full mt-2">Apply Filters</button>
+                </div>
             </form>
 
-            <!-- Questions Table -->
-            <div th:if="${questions}">
-                <table class="table w-full mt-4">
-                    <thead>
-                    <tr class="text-left">
-                        <th>#</th>
-                        <th>Question</th>
-                        <th>Subject</th>
-                        <th>Difficulty</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="q, iterStat : ${questions}">
-                        <td th:text="${iterStat.count}">1</td>
-                        <td th:utext="${q.text}">What is Java?</td>
-                        <td th:text="${q.subjectName}">Java</td>
-                        <td th:text="${q.difficulty}">Medium</td>
-                        <td class="space-x-2">
-                            <a th:href="@{'/admin/manage/questions/edit/' + ${q.id}}"
-                               class="btn btn-sm btn-info">Edit</a>
-                            <a th:href="@{'/admin/manage/questions/delete/' + ${q.id}}" class="btn btn-sm btn-error">Delete</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div th:if="${questions}" class="flex flex-col gap-6 mt-6">
+                <div th:each="q, iterStat : ${questions}" class="card bg-base-100 shadow-lg w-full">
+                    <div class="card-body space-y-4">
 
-                <!-- Pagination -->
+                        <!-- Question Header -->
+                        <h2 class="card-title text-lg font-bold text-primary">
+                            <span th:text="'#' + ${iterStat.count}">#1</span>
+                            <span th:utext="${q.text}" class="text-base-content">What is Java?</span>
+                        </h2>
+
+                        <!-- Metadata -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div><span class="font-semibold">Subject:</span> <span th:text="${q.subjectName}">Java</span></div>
+                            <div><span class="font-semibold">Difficulty:</span> <span th:text="${q.complexity}">Medium</span></div>
+                            <div><span class="font-semibold">Marks:</span> <span th:text="${q.marks}">5</span></div>
+                        </div>
+
+                        <!-- Options List -->
+                        <div>
+                            <p class="font-semibold mb-2">Options:</p>
+                            <ul class="space-y-3 text-sm text-base-content">
+                                <li><span class="font-semibold">A:</span> <span th:utext="${q.options[0]}">Option A</span></li>
+                                <li><span class="font-semibold">B:</span> <span th:utext="${q.options[1]}">Option B</span></li>
+                                <li><span class="font-semibold">C:</span> <span th:utext="${q.options[2]}">Option C</span></li>
+                                <li><span class="font-semibold">D:</span> <span th:utext="${q.options[3]}">Option D</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Correct Answer -->
+                        <div class="text-sm text-success font-semibold">
+                            Correct Answer:
+                            <span th:text="${q.correctAnswer.name()}">A</span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card-actions justify-end">
+                            <a th:href="@{'/admin/manage/questions/edit/' + ${q.id}}" class="btn btn-sm btn-info text-white">Edit</a>
+                            <a th:href="@{'/admin/manage/questions/delete/' + ${q.id}}" class="btn btn-sm btn-error text-white">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
                 <div class="flex justify-between items-center mt-6">
 
                     <a th:if="${pageNumber > 0}"
-                       th:href="@{/admin/manage/questions(page=${pageNumber - 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},questionRegex=${filter.questionRegex},optionRegex=${filter.optionRegex},sortBy=${filter.sortBy})}"
+                       th:href="@{/admin/manage/questions(page=${pageNumber - 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},sortBy=${filter.sortBy})}"
                        class="btn btn-sm btn-outline">Previous</a>
 
                     <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
 
                     <a th:if="${hasNextPage}"
-                       th:href="@{/admin/manage/questions(page=${pageNumber + 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},questionRegex=${filter.questionRegex},optionRegex=${filter.optionRegex},sortBy=${filter.sortBy})}"
+                       th:href="@{/admin/manage/questions(page=${pageNumber + 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},sortBy=${filter.sortBy})}"
                        class="btn btn-sm btn-outline">Next</a>
 
                 </div>
@@ -153,12 +176,3 @@
 
 </body>
 </html>
-
-
-<!--                    <a th:if="${pageNumber > 0}"-->
-<!--                       th:href="@{/admin/manage/questions(page=${pageNumber - 1}, size=${pageSize})}"-->
-<!--                       class="btn btn-sm btn-outline">Previous</a>-->
-
-<!--                    <a th:if="${hasNextPage}"-->
-<!--                       th:href="@{/admin/manage/questions(page=${pageNumber + 1}, size=${pageSize})}"-->
-<!--                       class="btn btn-sm btn-outline">Next</a>-->

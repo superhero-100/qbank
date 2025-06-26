@@ -13,43 +13,38 @@ import javax.validation.constraints.*;
 @Builder
 public class QuestionFilterDto {
 
-    @NotNull(message = "please select subject")
-    @Min(value = 1, message = "Invalid subject id")
-    private Long subjectId = 0L;
+    @Min(value = 0, message = "Invalid subject id")
+    private Long subjectId;
 
-    @NotBlank(message = "please select difficulty")
     @Pattern(
-            regexp = "|EASY|MEDIUM|HARD",
+            regexp = "ALL|EASY|MEDIUM|HARD",
             message = "Difficulty must be EASY, MEDIUM, or HARD"
     )
-    private String difficulty = "";
+    private String difficulty;
 
-    @NotNull(message = "please select marks")
-    @Min(value = 1, message = "Marks must be 0 or more")
-    @Max(value = 6, message = "Marks must be 0 or more")
-    private Integer marks = 0;
+    @Min(value = 0, message = "Marks must be at least 0")
+    @Max(value = 6, message = "Marks must not be more than 6")
+    private Integer marks;
 
-    @NotBlank(message = "please write regx   otherwise use *")
-    @Size(max = 100, message = "Question regex must be at most 100 characters")
-    private String questionRegex = "";
-
-    @NotBlank(message = "please write regx   otherwise use *")
-    @Size(max = 100, message = "Option regex must be at most 100 characters")
-    private String optionRegex = "";
-
-    @NotBlank(message = "please select    sort by")
     @Pattern(
-            regexp = "|id|marks|difficulty|subject",
+            regexp = "id|marks|difficulty|subject",
             message = "SortBy must be one of: id, marks, difficulty, subject"
     )
-    private String sortBy = "";
+    private String sortBy;
 
-    @NotNull(message = "input page size default 10")
     @Min(value = 1, message = "Page size must be at least 1")
-    private Integer pageSize = 10;
+    private Integer pageSize;
 
-    @NotNull(message = "please enter page")
     @Min(value = 0, message = "Page number cannot be negative")
-    private Integer page = 0;
+    private Integer page;
 
+    public void normalize() {
+        if (subjectId == null) subjectId = 0L;
+        if (difficulty == null || difficulty.isBlank()) difficulty = "ALL";
+        if (marks == null) marks = 0;
+
+        if (sortBy == null || sortBy.isBlank()) sortBy = "id";
+        if (pageSize == null || pageSize <= 0) pageSize = 10;
+        if (page == null || page < 0) page = 0;
+    }
 }
