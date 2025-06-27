@@ -5,10 +5,13 @@ import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.QuestionDto;
 import com.example.qbankapi.dto.model.QuestionFilterDto;
 import com.example.qbankapi.dto.model.QuestionViewPageDto;
+import com.example.qbankapi.dto.model.UpdateQuestionDto;
 import com.example.qbankapi.dto.request.AddQuestionRequestDto;
+import com.example.qbankapi.dto.request.UpdateQuestionRequestDto;
 import com.example.qbankapi.dto.response.QuestionResponseDto;
 import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.entity.Subject;
+import com.example.qbankapi.exception.QuestionNotFoundException;
 import com.example.qbankapi.exception.SubjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,28 +54,49 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public QuestionViewPageDto getFilteredQuestions(QuestionFilterDto questionFilterDto) {
+        if (questionFilterDto.getSubjectId() == null || questionFilterDto.getSubjectId() <= 0)
+            questionFilterDto.setSubjectId(0L);
+        if (questionFilterDto.getComplexity() == null || questionFilterDto.getComplexity().isBlank())
+            questionFilterDto.setComplexity("ALL");
+        if (questionFilterDto.getMarks() == null || questionFilterDto.getMarks() <= 0) questionFilterDto.setMarks(0L);
+        if (questionFilterDto.getSortBy() == null || questionFilterDto.getSortBy().isBlank())
+            questionFilterDto.setSortBy("id");
+        if (questionFilterDto.getSortOrder() == null || questionFilterDto.getSortOrder().isBlank())
+            questionFilterDto.setSortOrder("ASC");
+        if (questionFilterDto.getPageSize() == null || questionFilterDto.getPageSize() <= 0)
+            questionFilterDto.setPageSize(10);
+        if (questionFilterDto.getPageSize() != 5 && questionFilterDto.getPageSize() != 10 && questionFilterDto.getPageSize() != 20)
+            questionFilterDto.setPageSize(10);
+        if (questionFilterDto.getPage() == null || questionFilterDto.getPage() < 0) questionFilterDto.setPage(0);
+
         System.out.println("subjectId = " + Optional.ofNullable(questionFilterDto.getSubjectId()));
-        System.out.println("difficulty = " + Optional.ofNullable(questionFilterDto.getDifficulty()));
+        System.out.println("complexity = " + Optional.ofNullable(questionFilterDto.getComplexity()));
         System.out.println("marks = " + Optional.ofNullable(questionFilterDto.getMarks()));
         System.out.println("sortBy = " + Optional.ofNullable(questionFilterDto.getSortBy()));
+        System.out.println("sortOrder = " + Optional.ofNullable(questionFilterDto.getSortOrder()));
         System.out.println("size = " + Optional.ofNullable(questionFilterDto.getPageSize()));
         System.out.println("page = " + Optional.ofNullable(questionFilterDto.getPage()));
 
-        QuestionViewPageDto questionViewPageDto = new QuestionViewPageDto();
+        return questionDao.findFilteredQuestions(questionFilterDto);
+    }
 
-        QuestionDto questionDto=new QuestionDto();
-        questionDto.setText("Sample Question Text");
-        questionDto.setOptions(List.of("Option A", "Option B", "Option C", "Option D"));
-        questionDto.setCorrectAnswer(Question.Option.A);
-        questionDto.setComplexity(Question.Complexity.EASY);
-        questionDto.setMarks(6L);
-        questionDto.setSubjectName("English");
+    @Transactional(readOnly = true)
+    public UpdateQuestionDto getQuestionDtoById(Long id) {
+        Question question = questionDao.findById(id).orElseThrow(() -> new QuestionNotFoundException("Subject not found"));
+        return UpdateQuestionDto.builder()
+                .id(question.getId())
+                .text(question.getText())
+                .options(question.getOptions())
+                .correctAnswer(question.getCorrectAnswer())
+                .complexity(question.getComplexity())
+                .marks(question.getMarks())
+                .subjectId(question.getSubject().getId())
+                .build();
+    }
 
-        questionViewPageDto.setQuestions(List.of(questionDto,questionDto,questionDto));
-        questionViewPageDto.setPage(questionFilterDto.getPage()+5);
-        questionViewPageDto.setHasNextPage(Boolean.TRUE);
-        questionViewPageDto.setPageSize(questionFilterDto.getPageSize());
-        return questionViewPageDto;
+    @Transactional
+    public void updateQuestion(UpdateQuestionRequestDto updateQuestionRequest) {
+
     }
 
 //    @Transactional(readOnly = true)

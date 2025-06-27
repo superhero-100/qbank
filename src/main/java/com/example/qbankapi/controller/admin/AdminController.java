@@ -1,13 +1,13 @@
 package com.example.qbankapi.controller.admin;
 
-import com.example.qbankapi.dto.model.QuestionFilterDto;
-import com.example.qbankapi.dto.model.QuestionViewPageDto;
-import com.example.qbankapi.dto.model.SubjectDto;
-import com.example.qbankapi.dto.request.AddQuestionRequestDto;
-import com.example.qbankapi.dto.request.AddSubjectRequestDto;
-import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
+import com.example.qbankapi.dto.model.*;
+import com.example.qbankapi.dto.request.*;
+import com.example.qbankapi.entity.Question;
+import com.example.qbankapi.exception.InSufficientQuestionsException;
+import com.example.qbankapi.exception.QuestionNotFoundException;
 import com.example.qbankapi.exception.SubjectAlreadyExistsException;
 import com.example.qbankapi.exception.SubjectNotFoundException;
+import com.example.qbankapi.service.ExamService;
 import com.example.qbankapi.service.QuestionService;
 import com.example.qbankapi.service.SubjectService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Slf4j
 @Controller
@@ -30,6 +29,7 @@ public class AdminController {
 
     private final SubjectService subjectService;
     private final QuestionService questionService;
+    private final ExamService examService;
 
     @GetMapping("/home")
     public String getDashboardPage() {
@@ -84,19 +84,16 @@ public class AdminController {
             updateSubjectRequestDto.setDescription(subjectDto.getDescription());
 
             model.addAttribute("updateSubjectRequest", updateSubjectRequestDto);
-
             log.info("Rendering subject-edit page");
             return "/admin/subject-edit";
         } catch (SubjectNotFoundException ex) {
-
             model.addAttribute("message", ex.getMessage());
-
             return "/admin/error";
         }
     }
 
     @PostMapping("/manage/subjects/edit")
-    public String addSubject(
+    public String editSubject(
             @Valid @ModelAttribute("updateSubjectRequest") UpdateSubjectRequestDto updateSubjectRequest,
             BindingResult bindingResult,
             Model model
@@ -118,10 +115,14 @@ public class AdminController {
 
     @GetMapping("/manage/questions")
     public String getManageQuestionsPage(
-            @ModelAttribute("filter") QuestionFilterDto questionFilterDto,
-            Model model
+            @Valid @ModelAttribute("filter") QuestionFilterDto questionFilterDto,
+            Model model,
+            BindingResult bindingResult
     ) {
-        questionFilterDto.normalize();
+        if (bindingResult.hasErrors()) {
+            return "/admin/question-manage";
+        }
+
         QuestionViewPageDto questionViewPage = questionService.getFilteredQuestions(questionFilterDto);
 
         model.addAttribute("subjects", subjectService.getSubjectDtoList());
@@ -163,6 +164,126 @@ public class AdminController {
         return "/admin/success";
     }
 
+    @GetMapping("/manage/questions/{id}/edit")
+    public String getEditQuestionPage(@PathVariable("id") Long id, Model model) {
+        try {
+            UpdateQuestionRequestDto updateQuestionRequest = new UpdateQuestionRequestDto();
+            UpdateQuestionDto questionDto = questionService.getQuestionDtoById(id);
+            updateQuestionRequest.setId(questionDto.getId());
+            updateQuestionRequest.setText(questionDto.getText());
+            updateQuestionRequest.setOptionA(questionDto.getOptions().get(0));
+            updateQuestionRequest.setOptionB(questionDto.getOptions().get(1));
+            updateQuestionRequest.setOptionC(questionDto.getOptions().get(2));
+            updateQuestionRequest.setOptionD(questionDto.getOptions().get(3));
+            updateQuestionRequest.setCorrectAnswer(questionDto.getCorrectAnswer());
+            updateQuestionRequest.setComplexity(questionDto.getComplexity());
+            updateQuestionRequest.setMarks(questionDto.getMarks());
+            updateQuestionRequest.setSubjectId(questionDto.getSubjectId());
+
+            model.addAttribute("subjects",subjectService.getSubjectDtoList());
+            model.addAttribute("updateQuestionRequest", updateQuestionRequest);
+
+            log.info("Rendering question-edit page");
+            return "/admin/question-edit";
+        } catch (QuestionNotFoundException ex) {
+
+            model.addAttribute("error", ex.getMessage());
+            return "/admin/question-edit";
+        }
+    }
+
+    @PostMapping("/manage/questions/edit")
+    public String editQuestion(
+            @Valid @ModelAttribute("updateQuestionRequest") UpdateQuestionRequestDto updateQuestionRequest,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "/admin/question-edit";
+        }
+
+        try {
+            questionService.updateQuestion(updateQuestionRequest);
+        } catch (SubjectNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/admin/error";
+        }
+
+        model.addAttribute("message", "Question updated successfully");
+        return "/admin/success";
+    }
+
+    @GetMapping("/manage/questions/{id}/")
+    public String removeQuestion(@PathVariable("id") Long id, Model model) {
+//        try {
+//            UpdateSubjectRequestDto updateSubjectRequestDto = new UpdateSubjectRequestDto();
+//            SubjectDto subjectDto = subjectService.getSubjectDtoById(id);
+//            updateSubjectRequestDto.setId(subjectDto.getId());
+//            updateSubjectRequestDto.setName(subjectDto.getName());
+//            updateSubjectRequestDto.setDescription(subjectDto.getDescription());
+//
+//            model.addAttribute("updateSubjectRequest", updateSubjectRequestDto);
+//
+//            log.info("Rendering subject-edit page");
+//            return "/admin/subject-edit";
+//        } catch (SubjectNotFoundException ex) {
+//
+//            model.addAttribute("message", ex.getMessage());
+//
+//            return "/admin/error";
+//        }
+        return "";
+    }
+
+    @GetMapping("/manage/exams")
+    public String getManageExamsPage(
+            @Valid @ModelAttribute("filter") ExamFilterDto examFilterDto,
+            Model model,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "/admin/exam-manage";
+        }
+
+        ExamViewPageDto examViewPageDto = examService.getFilteredExams(examFilterDto);
+
+        model.addAttribute("subjects", subjectService.getSubjectDtoList());
+        model.addAttribute("filter", examFilterDto);
+
+        model.addAttribute("exams", examViewPageDto.getExams());
+        model.addAttribute("pageNumber", examViewPageDto.getPage());
+        model.addAttribute("pageSize", examViewPageDto.getPageSize());
+        model.addAttribute("hasNextPage", examViewPageDto.getHasNextPage());
+        return "/admin/exam-manage";
+    }
+
+    @GetMapping("/manage/exams/create")
+    public String getCreateExamPage(Model model) {
+        model.addAttribute("subjects", subjectService.getSubjectDtoList());
+        model.addAttribute("createExamRequest", new CreateExamRequestDto());
+        return "/admin/exam-add";
+    }
+
+    @PostMapping("/manage/exams/save")
+    public String createExam(
+            @Valid @ModelAttribute("createExamRequest") CreateExamRequestDto createExamRequestDto,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "/admin/exam-add";
+        }
+
+        try {
+            examService.createExam(createExamRequestDto);
+        } catch (InSufficientQuestionsException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/admin/error";
+        }
+
+        model.addAttribute("message", "Exam created successfully");
+        return "/admin/success";
+    }
 
 //    private final UserService userService;
 //    private final ExamService examService;

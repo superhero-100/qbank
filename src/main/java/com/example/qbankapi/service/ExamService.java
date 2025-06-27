@@ -1,8 +1,23 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.*;
-import lombok.RequiredArgsConstructor;
+import com.example.qbankapi.dto.model.ExamDetailsDto;
+import com.example.qbankapi.dto.model.ExamFilterDto;
+import com.example.qbankapi.dto.model.ExamViewPageDto;
+import com.example.qbankapi.dto.request.CreateExamRequestDto;
+import com.example.qbankapi.entity.*;
+import com.example.qbankapi.exception.InSufficientQuestionsException;
+import com.example.qbankapi.exception.SubjectNotFoundException;
+import lombok.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -12,52 +27,99 @@ public class ExamService {
     private final SubjectDao subjectDao;
     private final ExamAnalyticsDao examAnalyticsDao;
     private final QuestionDao questionDao;
-    private final UserAnalyticsDao userAnalyticsDao;
-    private final UserExamResultDao userExamResultDao;
-    private final UserAnswerDao userAnswerDao;
-    private final UserDao userDao;
+//    private final UserAnalyticsDao userAnalyticsDao;
+//    private final UserExamResultDao userExamResultDao;
+//    private final UserAnswerDao userAnswerDao;
+//    private final UserDao userDao;
 
-//    @Transactional
-//    public void createExam(CreateExamRequestDto examDTO) {
-//        Subject subject = subjectDao.findById(examDTO.getSubjectId()).orElseThrow(() -> new EntityNotFoundException("Subject Not Found"));
-//
-//        ExamAnalytics analytics = ExamAnalytics.builder().build();
-//
-//        Integer totalMarks = (examDTO.getTotalEasyQuestions() * Question.Complexity.EASY.getMarks()) + (examDTO.getTotalMediumQuestions() * Question.Complexity.MEDIUM.getMarks()) + (examDTO.getTotalHardQuestions() * Question.Complexity.HARD.getMarks());
-//        Exam exam = Exam.builder()
-//                .description(examDTO.getDescription())
-//                .totalMarks(totalMarks)
-//                .subject(subject)
-//                .analytics(analytics)
-//                .build();
-//
-//        exam.getQuestions().addAll(questionDao.findRandomQuestions(subject.getId(), examDTO.getTotalEasyQuestions(), Question.Complexity.EASY));
-//        exam.getQuestions().addAll(questionDao.findRandomQuestions(subject.getId(), examDTO.getTotalMediumQuestions(), Question.Complexity.MEDIUM));
-//        exam.getQuestions().addAll(questionDao.findRandomQuestions(subject.getId(), examDTO.getTotalHardQuestions(), Question.Complexity.HARD));
-//
-//        subject.getExams().add(exam);
-//        analytics.setExam(exam);
-//
-//        subjectDao.update(subject);
-//        examAnalyticsDao.save(analytics);
-//        examDao.save(exam);
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public List<ExamDetailsDto> getAllInDto() {
-//        return examDao.findAll()
-//                .stream()
-//                .map(exam -> ExamDetailsDto.builder()
-//                        .id(exam.getId())
-//                        .description(exam.getDescription())
-//                        .totalMarks(exam.getTotalMarks())
-//                        .subjectName(exam.getSubject().getName())
-//                        .totalQuestions(exam.getQuestions().size())
-//                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
-//                        .build())
-//                .collect(Collectors.toList());
-//    }
-//
+    @Transactional(readOnly = true)
+    public List<ExamDetailsDto> getExamInDto() {
+        return examDao.findAll()
+                .stream()
+                .map(exam -> ExamDetailsDto.builder()
+                        .id(exam.getId())
+                        .description(exam.getDescription())
+                        .totalMarks(exam.getTotalMarks())
+                        .subjectName(exam.getSubject().getName())
+                        .totalQuestions(exam.getQuestions().size())
+                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void createExam(CreateExamRequestDto createExamRequestDto) {
+        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject Not Found"));
+
+        ExamAnalytics examAnalytics = new ExamAnalytics();
+        examAnalytics.setTotalSubmissions(0);
+        examAnalytics.setAverageScore(0D);
+        examAnalytics.setHighestScore(0D);
+        examAnalytics.setLowestScore(0D);
+
+        Integer totalMarks = (
+                (createExamRequestDto.getTotal1MarkQuestions() * 1) +
+                        (createExamRequestDto.getTotal2MarkQuestions() * 2) +
+                        (createExamRequestDto.getTotal3MarkQuestions() * 3) +
+                        (createExamRequestDto.getTotal4MarkQuestions() * 4) +
+                        (createExamRequestDto.getTotal5MarkQuestions() * 5) +
+                        (createExamRequestDto.getTotal6MarkQuestions() * 6)
+        );
+
+        Exam exam = new Exam();
+        exam.setDescription(createExamRequestDto.getDescription());
+        exam.setTotalMarks(totalMarks);
+        exam.setSubject(subject);
+        exam.setQuestions(new ArrayList<>());
+        exam.setEnrolledUsers(List.of());
+        exam.setAnalytics(examAnalytics);
+        exam.setCreatedAt(LocalDateTime.now());
+        exam.setModifiedAt(LocalDateTime.now());
+
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal1MarkQuestions(), Question.Complexity.EASY, 1);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal2MarkQuestions(), Question.Complexity.EASY, 2);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal3MarkQuestions(), Question.Complexity.MEDIUM, 3);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal4MarkQuestions(), Question.Complexity.MEDIUM, 4);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal5MarkQuestions(), Question.Complexity.HARD, 5);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal6MarkQuestions(), Question.Complexity.HARD, 6);
+
+        subject.getExams().add(exam);
+        examAnalytics.setExam(exam);
+
+        subjectDao.update(subject);
+        examAnalyticsDao.save(examAnalytics);
+        examDao.save(exam);
+    }
+
+    private void addQuestionsIfAvailable(List<Question> targetList, Long subjectId, Integer total, Question.Complexity complexity, int marks) {
+        if (total == null || total <= 0) return;
+
+        List<Question> questions = questionDao.findRandomQuestions(subjectId, total, complexity, marks);
+        if (questions.size() < total) {
+            throw new InSufficientQuestionsException(String.format("Not enough questions for marks: %d, complexity: %s", marks, complexity));
+        }
+
+        targetList.addAll(questions);
+    }
+
+    @Transactional(readOnly = true)
+    public ExamViewPageDto getFilteredExams(ExamFilterDto examFilterDto) {
+        if (examFilterDto.getSubjectId() == null || examFilterDto.getSubjectId() <= 0) examFilterDto.setSubjectId(0L);
+        if (examFilterDto.getSortBy() == null || examFilterDto.getSortBy().isBlank()) examFilterDto.setSortBy("createdAt");
+        if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank()) examFilterDto.setSortOrder("DESC");
+        if (examFilterDto.getPageSize() == null || examFilterDto.getPageSize() <= 0) examFilterDto.setPageSize(10);
+//        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) examFilterDto.setPageSize(10);
+        if (examFilterDto.getPage() == null || examFilterDto.getPage() < 0) examFilterDto.setPage(0);
+
+        System.out.println("subjectId = " + Optional.ofNullable(examFilterDto.getSubjectId()));
+        System.out.println("sortBy = " + Optional.ofNullable(examFilterDto.getSortBy()));
+        System.out.println("sortOrder = " + Optional.ofNullable(examFilterDto.getSortOrder()));
+        System.out.println("size = " + Optional.ofNullable(examFilterDto.getPageSize()));
+        System.out.println("page = " + Optional.ofNullable(examFilterDto.getPage()));
+
+        return examDao.findFilteredExams(examFilterDto);
+    }
+
 //    @Transactional(readOnly = true)
 //    public ExamDto getInDtoById(Long id) {
 //        Exam exam = examDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Exam Not Found"));

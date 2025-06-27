@@ -33,7 +33,8 @@
             </div>
 
             <!-- Filter Panel -->
-            <form th:action="@{/admin/manage/questions}" th:object="${filter}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <form th:action="@{/admin/manage/questions}" th:object="${filter}" method="get"
+                  class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
                 <!-- Subject -->
                 <div>
@@ -44,10 +45,10 @@
                     </select>
                 </div>
 
-                <!-- Difficulty -->
+                <!-- Complexity -->
                 <div>
-                    <label class="label font-semibold text-base-content">Difficulty</label>
-                    <select th:field="*{difficulty}" class="select select-bordered w-full">
+                    <label class="label font-semibold text-base-content">Complexity</label>
+                    <select th:field="*{complexity}" class="select select-bordered w-full">
                         <option value="ALL">All</option>
                         <option value="EASY">Easy</option>
                         <option value="MEDIUM">Medium</option>
@@ -79,10 +80,19 @@
                 <div>
                     <label class="label font-semibold text-base-content">Sort By</label>
                     <select th:field="*{sortBy}" class="select select-bordered w-full">
-                        <option value="id">#</option>
-                        <option value="difficulty">Difficulty</option>
-                        <option value="subjectName">Subject</option>
+                        <option value="id">#id</option>
+                        <option value="complexity">Complexity</option>
+                        <option value="subject">Subject</option>
                         <option value="marks">Marks</option>
+                    </select>
+                </div>
+
+                <!-- Sort Order -->
+                <div>
+                    <label class="label font-semibold text-base-content">Sort Order</label>
+                    <select th:field="*{sortOrder}" class="select select-bordered w-full">
+                        <option value="ASC">ASC</option>
+                        <option value="DESC">DESC</option>
                     </select>
                 </div>
 
@@ -108,26 +118,33 @@
 
                         <!-- Question Header -->
                         <h2 class="card-title text-lg font-bold text-primary">
-                            <span th:text="'#' + ${iterStat.count}">#1</span>
+                            <!--                            <span th:text="'#' + ${iterStat.count}">#1</span>-->
+                            <span th:text="'#' + ${q.id}">#1</span>
                             <span th:utext="${q.text}" class="text-base-content">What is Java?</span>
                         </h2>
 
                         <!-- Metadata -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                            <div><span class="font-semibold">Subject:</span> <span th:text="${q.subjectName}">Java</span></div>
-                            <div><span class="font-semibold">Difficulty:</span> <span th:text="${q.complexity}">Medium</span></div>
+                            <div><span class="font-semibold">Subject:</span> <span
+                                    th:text="${q.subjectName}">Java</span></div>
+                            <div><span class="font-semibold">Complexity:</span> <span
+                                    th:text="${q.complexity}">Medium</span></div>
                             <div><span class="font-semibold">Marks:</span> <span th:text="${q.marks}">5</span></div>
                         </div>
 
                         <!-- Options List -->
                         <div>
                             <p class="font-semibold mb-2">Options:</p>
-                            <ul class="space-y-3 text-sm text-base-content">
-                                <li><span class="font-semibold">A:</span> <span th:utext="${q.options[0]}">Option A</span></li>
-                                <li><span class="font-semibold">B:</span> <span th:utext="${q.options[1]}">Option B</span></li>
-                                <li><span class="font-semibold">C:</span> <span th:utext="${q.options[2]}">Option C</span></li>
-                                <li><span class="font-semibold">D:</span> <span th:utext="${q.options[3]}">Option D</span></li>
-                            </ul>
+                            <ol class="space-y-3 text-sm text-base-content">
+                                <li class="flex gap-2 items-start"><span class="font-semibold">A:</span> <span
+                                        th:utext="${q.options[0]}">Option A</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold">B:</span> <span
+                                        th:utext="${q.options[1]}">Option B</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold">C:</span> <span
+                                        th:utext="${q.options[2]}">Option C</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold">D:</span> <span
+                                        th:utext="${q.options[3]}">Option D</span></li>
+                            </ol>
                         </div>
 
                         <!-- Correct Answer -->
@@ -138,32 +155,33 @@
 
                         <!-- Actions -->
                         <div class="card-actions justify-end">
-                            <a th:href="@{'/admin/manage/questions/edit/' + ${q.id}}" class="btn btn-sm btn-info text-white">Edit</a>
-                            <a th:href="@{'/admin/manage/questions/delete/' + ${q.id}}" class="btn btn-sm btn-error text-white">Delete</a>
+                            <a th:href="@{'/admin/manage/questions/' + ${q.id} + '/edit'}"
+                               class="btn btn-sm btn-info text-white">Edit</a>
+                            <a th:href="@{'/admin/manage/questions/' + ${q.id} + '/delete'}"
+                               class="btn btn-sm btn-error text-white">Delete</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Pagination -->
-                <div class="flex justify-between items-center mt-6">
-
-                    <a th:if="${pageNumber > 0}"
-                       th:href="@{/admin/manage/questions(page=${pageNumber - 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},sortBy=${filter.sortBy})}"
-                       class="btn btn-sm btn-outline">Previous</a>
-
-                    <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
-
-                    <a th:if="${hasNextPage}"
-                       th:href="@{/admin/manage/questions(page=${pageNumber + 1},size=${filter.pageSize},subjectId=${filter.subjectId},difficulty=${filter.difficulty},marks=${filter.marks},sortBy=${filter.sortBy})}"
-                       class="btn btn-sm btn-outline">Next</a>
-
-                </div>
+            <!-- Fallback Message -->
+            <div th:if="${questions == null or questions?.isEmpty()}">
+                <p class="text-center text-sm text-base-content/60 mt-6">No questions found.</p>
             </div>
 
-            <!-- Fallback Message -->
-            <div th:if="${questions == null}">
-                <p class="text-center text-sm text-base-content/60 mt-6">No questions found.</p>
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+
+                <a th:if="${pageNumber > 0}"
+                   th:href="@{/admin/manage/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Previous</a>
+
+                <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
+
+                <a th:if="${hasNextPage}"
+                   th:href="@{/admin/manage/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Next</a>
+
             </div>
         </section>
     </main>

@@ -32,14 +32,14 @@
 
                 <!-- Subject Name -->
                 <div>
-                    <label for="name" class="label">
+                    <label class="label">
                         <span class="label-text font-semibold">Subject Name</span>
                     </label>
                     <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
                     <i class="fas fa-book"></i>
                 </span>
-                        <input type="text" id="name" th:field="*{name}" placeholder="Enter subject name"
+                        <input type="text" th:field="*{name}" placeholder="Enter subject name"
                                class="input input-bordered w-full pl-10"/>
                     </div>
                     <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-error text-xs mt-1"></p>
@@ -47,14 +47,14 @@
 
                 <!-- Description -->
                 <div>
-                    <label for="description" class="label">
+                    <label class="label">
                         <span class="label-text font-semibold">Description</span>
                     </label>
                     <div class="relative">
                 <span class="absolute top-3 left-3 text-base-content/40">
                     <i class="fas fa-align-left"></i>
                 </span>
-                        <textarea id="description" th:field="*{description}" rows="3"
+                        <textarea th:field="*{description}" rows="3"
                                   placeholder="Enter brief subject description"
                                   class="textarea textarea-bordered w-full pl-10 pt-3"></textarea>
                     </div>

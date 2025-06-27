@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,12 +17,14 @@ public class ExamDetailsDto {
 
     private String description;
 
-    private Integer totalMarks;
-
     private String subjectName;
+
+    private Integer totalMarks;
 
     private Integer totalQuestions;
 
     private Integer totalEnrolledUsers;
+
+    private LocalDateTime createdAt;
 
 }

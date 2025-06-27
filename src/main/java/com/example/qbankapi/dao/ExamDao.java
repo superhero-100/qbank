@@ -1,10 +1,13 @@
 package com.example.qbankapi.dao;
 
+import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.entity.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -13,14 +16,56 @@ public class ExamDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-//    public void save(Exam exam) {
-//        entityManager.persist(exam);
-//    }
-//
-//    public List<Exam> findAll() {
-//        return entityManager.createQuery("SELECT e FROM Exam e", Exam.class).getResultList();
-//    }
-//
+    public void save(Exam exam) {
+        entityManager.persist(exam);
+    }
+
+    public List<Exam> findAll() {
+        return entityManager.createQuery("SELECT e FROM Exam e", Exam.class).getResultList();
+    }
+
+    public ExamViewPageDto findFilteredExams(ExamFilterDto filter) {
+        StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
+        Map<String, Object> parameters = new HashMap<>();
+
+        if (filter.getSubjectId() > 0) {
+            sql.append(" AND e.subject.id = :subjectId");
+            parameters.put("subjectId", filter.getSubjectId());
+        }
+
+        sql.append(" ORDER BY e.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", e.id ASC");
+
+        TypedQuery<Exam> query = entityManager.createQuery(sql.toString(), Exam.class);
+        parameters.forEach(query::setParameter);
+
+        query.setFirstResult(filter.getPage() * filter.getPageSize());
+        query.setMaxResults(filter.getPageSize() + 1);
+
+        List<Exam> results = query.getResultList();
+
+        boolean hasNext = results.size() > filter.getPageSize();
+
+        if (hasNext) results.remove(results.size() - 1);
+
+        List<ExamDetailsDto> examDetailsDtoList = results.stream()
+                .map(exam -> ExamDetailsDto.builder()
+                        .id(exam.getId())
+                        .description(exam.getDescription())
+                        .subjectName(exam.getSubject().getName())
+                        .totalMarks(exam.getTotalMarks())
+                        .totalQuestions(exam.getQuestions().size())
+                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
+                        .createdAt(exam.getCreatedAt())
+                        .build())
+                .toList();
+        ExamViewPageDto questionViewPage = new ExamViewPageDto();
+        questionViewPage.setExams(examDetailsDtoList);
+        questionViewPage.setPage(filter.getPage());
+        questionViewPage.setPageSize(filter.getPageSize());
+        questionViewPage.setHasNextPage(hasNext);
+        return questionViewPage;
+    }
+
 //    public Optional<Exam> findById(Long id) {
 //        List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
 //        return Optional.ofNullable(examList.size() == 0 ? null : examList.get(0));

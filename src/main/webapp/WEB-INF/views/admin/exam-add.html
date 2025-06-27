@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <section class="max-w-3xl mx-auto bg-base-100 p-8 rounded-xl shadow-md">
+            <h1 class="text-3xl font-bold text-primary mb-6">Create New Exam</h1>
+
+            <p th:if="${error}" th:text="${error}"
+               class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
+
+            <form th:action="@{/admin/manage/exams/save}" method="post" th:object="${createExamRequest}"
+                  class="space-y-6" novalidate>
+
+                <!-- Subject Dropdown -->
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Select Subject</span>
+                    </label>
+                    <select id="subjectId" th:field="*{subjectId}" class="select select-bordered w-full">
+                        <option value="" disabled selected>Select subject</option>
+                        <option th:each="subject : ${subjects}" th:value="${subject.id}"
+                                th:text="${subject.name}"></option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('subjectId')}" th:errors="*{subjectId}"
+                       class="text-error text-xs mt-1"></p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Exam Description</span>
+                    </label>
+                    <textarea id="description" th:field="*{description}" rows="3"
+                              placeholder="Enter exam details"
+                              class="textarea textarea-bordered w-full"></textarea>
+                    <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                       class="text-error text-xs mt-1"></p>
+                </div>
+
+                <!-- Marks-Wise Question Counts -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="label"><span class="label-text">1 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total1MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total1MarkQuestions')}" th:errors="*{total1MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">2 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total2MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total2MarkQuestions')}" th:errors="*{total2MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">3 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total3MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total3MarkQuestions')}" th:errors="*{total3MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">4 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total4MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total4MarkQuestions')}" th:errors="*{total4MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">5 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total5MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total5MarkQuestions')}" th:errors="*{total5MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                    <div>
+                        <label class="label"><span class="label-text">6 Mark Questions</span></label>
+                        <input type="number" min="0" th:field="*{total6MarkQuestions}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('total6MarkQuestions')}" th:errors="*{total6MarkQuestions}"
+                           class="text-error text-xs mt-1"></p>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end gap-4">
+                    <a th:href="@{/admin/manage/exams}" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Exam</button>
+                </div>
+
+            </form>
+        </section>
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+</body>
+</html>

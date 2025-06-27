@@ -12,10 +12,10 @@ public class ExamAnalyticsDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-//    public void save(ExamAnalytics analytics) {
-//        entityManager.persist(analytics);
-//    }
-//
+    public void save(ExamAnalytics analytics) {
+        entityManager.persist(analytics);
+    }
+
 //    public void update(ExamAnalytics analytics) {
 //        entityManager.merge(analytics);
 //    }

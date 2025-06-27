@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
-public class AddQuestionRequestDto {
+public class UpdateQuestionRequestDto {
+
+    private Long id;
 
     @NotBlank(message = "Question text is required")
     private String text;

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <section class="bg-base-100 p-6 rounded-xl shadow-md">
+
+            <div class="flex justify-between gap-4 w-full">
+                <div class="p-6 space-y-6">
+                    <h1 class="text-2xl font-bold text-primary">Manage Exams</h1>
+                    <p class="text-sm text-gray-500">Create, update, and organize exams.</p>
+                </div>
+
+                <div class="p-6">
+                    <a th:href="@{/admin/manage/exams/create}" class="btn btn-success">Create New Exam</a>
+                </div>
+            </div>
+
+            <!-- Filter Panel -->
+            <form th:action="@{/admin/manage/exams}" th:object="${filter}" method="get"
+                  class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+                <!-- Subject -->
+                <div>
+                    <label class="label font-semibold text-base-content">Subject</label>
+                    <select th:field="*{subjectId}" class="select select-bordered w-full">
+                        <option value="0">All</option>
+                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="label font-semibold text-base-content">Sort By</label>
+                    <select th:field="*{sortBy}" class="select select-bordered w-full">
+                        <option value="createdAt">Creation Date</option>
+                        <option value="totalMarks">Total Marks</option>
+                    </select>
+                </div>
+
+                <!-- Sort Order -->
+                <div>
+                    <label class="label font-semibold text-base-content">Sort Order</label>
+                    <select th:field="*{sortOrder}" class="select select-bordered w-full">
+                        <option value="ASC">ASC</option>
+                        <option value="DESC">DESC</option>
+                    </select>
+                </div>
+
+                <!-- Page Size -->
+                <div>
+                    <label class="label font-semibold text-base-content">Page Size</label>
+                    <select th:field="*{pageSize}" class="select select-bordered w-full">
+                        <option value="5">5 per page</option>
+                        <option value="10">10 per page</option>
+                        <option value="20">20 per page</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <div class="lg:col-span-4 md:col-span-2">
+                    <button type="submit" class="btn btn-primary w-full mt-2">Apply Filters</button>
+                </div>
+            </form>
+
+            <div th:if="${exams}" class="flex flex-col gap-6 mt-6">
+                <div th:each="e : ${exams}" class="card bg-base-100 shadow-lg w-full">
+                    <div class="card-body space-y-4">
+
+                        <!-- Exam Header -->
+                        <h2 class="card-title text-lg font-bold text-primary">
+                            <span th:text="'#' + ${e.id}">#1</span>
+                            <span th:text="${e.subjectName}" class="text-base-content ml-2">Subject</span>
+                        </h2>
+
+                        <!-- Description -->
+                        <div class="text-base text-base-content">
+                            <span class="font-semibold">Description:</span>
+                            <span th:text="${e.description}">Exam description</span>
+                        </div>
+
+                        <!-- Metadata -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+                            <div>
+                                <span class="font-semibold">Total Marks:</span>
+                                <span th:text="${e.totalMarks}">0</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Total Questions:</span>
+                                <span th:text="${e.totalQuestions}">0</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Enrolled Users:</span>
+                                <span th:text="${e.totalEnrolledUsers}">0</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Creation DateTime:</span>
+                                <!--<span th:text="${e.createdAt}">0</span>-->
+                                <span th:text="${#temporals.format(e.createdAt, 'yyyy-MM-dd HH:mm')}">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <!--                        <div class="card-actions justify-end">-->
+                        <!--                            <a th:href="@{'/admin/manage/exams/view/' + ${e.id}}"-->
+                        <!--                               class="btn btn-sm btn-primary">View</a>-->
+                        <!--                            <a th:href="@{'/admin/manage/exams/delete/' + ${e.id}}"-->
+                        <!--                               class="btn btn-sm btn-error text-white">Delete</a>-->
+                        <!--                        </div>-->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fallback Message -->
+            <div th:if="${exams == null or exams?.isEmpty()}">
+                <p class="text-center text-sm text-base-content/60 mt-6">No Exams found.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+
+                <a th:if="${pageNumber > 0}"
+                   th:href="@{/admin/manage/exams(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Previous</a>
+
+                <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
+
+                <a th:if="${hasNextPage}"
+                   th:href="@{/admin/manage/exams(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Next</a>
+
+            </div>
+
+        </section>
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+</body>
+</html>

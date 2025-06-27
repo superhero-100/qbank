@@ -44,17 +44,7 @@ public class Question {
     private Subject subject;
 
     public enum Complexity {
-        EASY(1), MEDIUM(3), HARD(5);
-
-        private final int marks;
-
-        Complexity(int marks) {
-            this.marks = marks;
-        }
-
-        public int getMarks() {
-            return marks;
-        }
+        EASY, MEDIUM, HARD,
     }
 
     public enum Option {

@@ -1,8 +1,10 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.BaseUserDao;
+import com.example.qbankapi.dao.QuestionDao;
 import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.entity.BaseUser;
+import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.entity.Subject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ public class AppInitService {
 
     private final BaseUserDao baseUserDao;
     private final SubjectDao subjectDao;
+    private final QuestionDao questionDao;
 
     @Transactional
     public void createUserIfNotExists(BaseUser baseUser) {
@@ -30,6 +33,14 @@ public class AppInitService {
         subjectDao.findByName(subject.getName()).ifPresentOrElse(sub -> log.info("Subject with name: {} exists", sub.getName()), () -> {
             subjectDao.save(subject);
             log.info("Subject with name: {} created", subject.getName());
+        });
+    }
+
+    @Transactional
+    public void createQuestionIfNotExists(Question question) {
+        questionDao.findByText(question.getText()).ifPresentOrElse(que -> log.info("Question with id: {} exists", que), () -> {
+            questionDao.save(question);
+            log.info("Question with id: {} created", question.getId());
         });
     }
 

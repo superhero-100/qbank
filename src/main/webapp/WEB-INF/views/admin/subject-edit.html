@@ -30,6 +30,9 @@
             <form th:action="@{/admin/manage/subjects/edit}" method="post" th:object="${updateSubjectRequest}" novalidate
                   class="space-y-6">
 
+                <!-- Hidden ID Field -->
+                <input type="hidden" th:field="*{id}" />
+
                 <!-- Subject Name -->
                 <div>
                     <label for="name" class="label">

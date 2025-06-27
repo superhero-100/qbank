@@ -5,30 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuestionFilterDto {
+public class ExamFilterDto {
 
     @Min(value = 0, message = "Invalid subject id")
     private Long subjectId;
 
     @Pattern(
-            regexp = "ALL|EASY|MEDIUM|HARD",
-            message = "Complexity must be EASY, MEDIUM, or HARD"
-    )
-    private String complexity;
-
-    @Min(value = 0, message = "Marks must be at least 0")
-    @Max(value = 6, message = "Marks must not be more than 6")
-    private Long marks;
-
-    @Pattern(
-            regexp = "id|marks|complexity|subject",
-            message = "SortBy must be one of: id, marks, complexity, subject"
+            regexp = "createdAt|totalMarks",
+            message = "SortBy must be one of: created_at, marks"
     )
     private String sortBy;
 
