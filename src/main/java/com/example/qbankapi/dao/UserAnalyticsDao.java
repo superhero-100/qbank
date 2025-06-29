@@ -12,8 +12,12 @@ public class UserAnalyticsDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-//    public void save(UserAnalytics analytics) {
-//        entityManager.persist(analytics);
-//    }
+    public void save(UserAnalytics analytics) {
+        entityManager.persist(analytics);
+    }
+
+    public void update(UserAnalytics analytics) {
+        entityManager.merge(analytics);
+    }
 
 }

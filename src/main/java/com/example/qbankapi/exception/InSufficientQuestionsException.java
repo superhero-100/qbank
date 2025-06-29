@@ -3,7 +3,7 @@ package com.example.qbankapi.exception;
 public class InSufficientQuestionsException extends RuntimeException{
 
     public InSufficientQuestionsException() {
-        super();
+        super("InSufficient questions exception");
     }
 
     public InSufficientQuestionsException(String message) {

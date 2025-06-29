@@ -25,7 +25,7 @@ public class QuestionDao {
     }
 
     public QuestionViewPageDto findFilteredQuestions(QuestionFilterDto filter) {
-        StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1 AND q.isActive = true");
         Map<String, Object> parameters = new HashMap<>();
 
         if (filter.getSubjectId() > 0) {
@@ -100,6 +100,10 @@ public class QuestionDao {
     public Optional<Question> findById(Long id) {
         List<Question> questionList = entityManager.createQuery("SELECT q FROM Question q WHERE q.id = :id", Question.class).setParameter("id", id).getResultList();
         return questionList.isEmpty() ? Optional.empty() : Optional.of(questionList.getFirst());
+    }
+
+    public void update(Question question) {
+        entityManager.merge(question);
     }
 
 //    public List<Question> findAll() {

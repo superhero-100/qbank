@@ -66,8 +66,9 @@ public class ExamDao {
         return questionViewPage;
     }
 
-//    public Optional<Exam> findById(Long id) {
-//        List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
-//        return Optional.ofNullable(examList.size() == 0 ? null : examList.get(0));
-//    }
+    public Optional<Exam> findById(Long id) {
+        List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
+        return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
+    }
+
 }

@@ -1,13 +1,14 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.*;
-import com.example.qbankapi.dto.model.ExamDetailsDto;
-import com.example.qbankapi.dto.model.ExamFilterDto;
-import com.example.qbankapi.dto.model.ExamViewPageDto;
+import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.InSufficientQuestionsException;
+import com.example.qbankapi.exception.QuestionNotFoundException;
 import com.example.qbankapi.exception.SubjectNotFoundException;
+import com.example.qbankapi.exception.UserNotFoundException;
+import com.example.qbankapi.exception.handler.ExamNotFoundException;
 import lombok.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,13 +29,13 @@ public class ExamService {
     private final SubjectDao subjectDao;
     private final ExamAnalyticsDao examAnalyticsDao;
     private final QuestionDao questionDao;
-//    private final UserAnalyticsDao userAnalyticsDao;
-//    private final UserExamResultDao userExamResultDao;
-//    private final UserAnswerDao userAnswerDao;
-//    private final UserDao userDao;
+    private final UserDao userDao;
+    private final UserAnalyticsDao userAnalyticsDao;
+    private final UserExamResultDao userExamResultDao;
+    private final UserAnswerDao userAnswerDao;
 
     @Transactional(readOnly = true)
-    public List<ExamDetailsDto> getExamInDto() {
+    public List<ExamDetailsDto> getAllExamsInDto() {
         return examDao.findAll()
                 .stream()
                 .map(exam -> ExamDetailsDto.builder()
@@ -49,7 +51,7 @@ public class ExamService {
 
     @Transactional
     public void createExam(CreateExamRequestDto createExamRequestDto) {
-        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException("Subject Not Found"));
+        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id",createExamRequestDto.getSubjectId())));
 
         ExamAnalytics examAnalytics = new ExamAnalytics();
         examAnalytics.setTotalSubmissions(0);
@@ -120,105 +122,108 @@ public class ExamService {
         return examDao.findFilteredExams(examFilterDto);
     }
 
-//    @Transactional(readOnly = true)
-//    public ExamDto getInDtoById(Long id) {
-//        Exam exam = examDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Exam Not Found"));
-//        return ExamDto.builder()
-//                .id(exam.getId())
-//                .description(exam.getDescription())
-//                .totalMarks(exam.getTotalMarks())
-//                .subjectName(exam.getSubject().getName())
-//                .totalQuestions(exam.getQuestions().size())
-//                .totalEnrolledUsers(exam.getEnrolledUsers().size())
-//                .questions(exam.getQuestions()
-//                        .stream()
-//                        .map(question -> ExamQuestionDto.builder()
-//                                .id(question.getId())
-//                                .text(question.getText())
-//                                .options(question.getOptions())
-//                                .correctAnswer(question.getCorrectAnswer())
-//                                .complexity(question.getComplexity())
-//                                .build())
-//                        .collect(Collectors.toList()))
-//                .build();
-//    }
-//
-//    @Transactional
-//    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
-//        User user = userDao.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
-//
-//        Exam exam = examDao.findById(submissionDto.getExamId())
-//                .orElseThrow(() -> new EntityNotFoundException("Exam Not Found"));
-//
-//        ExamAnalytics examAnalytics = exam.getAnalytics();
-//
-//        int totalCorrect = 0;
-//        int attempted = 0;
-//        List<UserAnswer> userAnswers = new ArrayList<>();
-//
-//        for (Map.Entry<Long, String> entry : submissionDto.getAnswers().entrySet()) {
-//            Long questionId = entry.getKey();
-//            String givenAnswer = entry.getValue();
-//
-//            Question question = questionDao.getById(questionId)
-//                    .orElseThrow(() -> new EntityNotFoundException("Invalid Question ID: " + questionId));
-//
-//            Boolean isCorrect = question.getCorrectAnswer().equalsIgnoreCase(givenAnswer.trim());
-//            if (!givenAnswer.isBlank()) attempted++;
-//            if (isCorrect) totalCorrect++;
-//
-//            UserAnswer userAnswer = UserAnswer.builder()
-//                    .question(question)
-//                    .answerGiven(givenAnswer)
-//                    .isCorrect(isCorrect)
-//                    .build();
-//
-//            userAnswers.add(userAnswer);
-//        }
-//
-//        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
-//        UserAnalytics analytics = UserAnalytics.builder()
-//                .attemptedQuestions(attempted)
-//                .correctAnswers(totalCorrect)
-//                .accuracy(accuracy)
-//                .build();
-//        userAnalyticsDao.save(analytics);
-//
-//        UserExamResult result = UserExamResult.builder()
-//                .submittedAt(LocalDateTime.now())
-//                .totalScore(totalCorrect)
-//                .user(user)
-//                .exam(exam)
-//                .analytics(analytics)
-//                .build();
-//
-//        result.setAnswers(userAnswers);
-//        userAnswers.forEach(ans -> ans.setUserExamResult(result));
-//        userExamResultDao.save(result);
-//        userAnswers.stream().forEach(userAnswer -> userAnswerDao.save(userAnswer));
-//
-//        Integer previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
-//        Double previousAvg = examAnalytics.getAverageScore() != null ? examAnalytics.getAverageScore() : 0.0;
-//
-//        Integer updatedCount = previousCount + 1;
-//        Double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
-//
-//        examAnalytics.setTotalSubmissions(updatedCount);
-//        examAnalytics.setAverageScore(updatedAvg);
-//        examAnalytics.setHighestScore(Math.max(examAnalytics.getHighestScore(), totalCorrect * 1.0));
-//        examAnalytics.setLowestScore(previousCount == 0 ? totalCorrect * 1.0 : Math.min(examAnalytics.getLowestScore(), totalCorrect * 1.0));
-//
-//        examAnalyticsDao.update(examAnalytics);
-//
-//        exam.getEnrolledUsers().add(user);
-//        examDao.save(exam);
-//
-//        user.getUserExamResults().add(result);
-//        user.getEnrolledExams().add(exam);
-//        userDao.update(user);
-//
-//        return result.getId();
-//    }
+    @Transactional(readOnly = true)
+    public ExamDto getExamInDtoById(Long id) {
+        Exam exam = examDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Exam Not Found"));
+        return ExamDto.builder()
+                .id(exam.getId())
+                .description(exam.getDescription())
+                .totalMarks(exam.getTotalMarks())
+                .subjectName(exam.getSubject().getName())
+                .totalQuestions(exam.getQuestions().size())
+                .totalEnrolledUsers(exam.getEnrolledUsers().size())
+                .questions(exam.getQuestions()
+                        .stream()
+                        .map(question -> ExamQuestionDto.builder()
+                                .id(question.getId())
+                                .text(question.getText())
+                                .options(question.getOptions())
+                                .correctAnswer(question.getCorrectAnswer())
+                                .complexity(question.getComplexity())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    @Transactional
+    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d",userId)));
+
+        Exam exam = examDao.findById(submissionDto.getExamId())
+                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d",submissionDto.getExamId())));
+
+        ExamAnalytics examAnalytics = exam.getAnalytics();
+
+        int totalCorrect = 0;
+        int attempted = 0;
+        List<UserAnswer> userAnswers = new ArrayList<>();
+
+        for (Map.Entry<Long, String> entry : submissionDto.getAnswers().entrySet()) {
+            Long questionId = entry.getKey();
+            String givenAnswer = entry.getValue();
+
+            Question question = questionDao.findById(questionId)
+                    .orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
+
+            Boolean isCorrect = question.getCorrectAnswer().equalsIgnoreCase(givenAnswer.trim());
+            if (!givenAnswer.isBlank()) attempted++;
+            if (isCorrect) totalCorrect++;
+
+            UserAnswer userAnswer =new UserAnswer();
+            userAnswer.setQuestion(question);
+            userAnswer.setAnswerGiven(givenAnswer);
+            userAnswer.setIsCorrect(isCorrect);
+            userAnswers.add(userAnswer);
+        }
+
+        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
+        UserAnalytics userAnalytics = new UserAnalytics();
+        userAnalytics.setAttemptedQuestions(attempted);
+        userAnalytics.setCorrectAnswers(totalCorrect);
+        userAnalytics.setAccuracy(accuracy);
+        userAnalyticsDao.save(userAnalytics);
+
+        UserExamResult userExamResult = new UserExamResult();
+        userExamResult.setSubmittedAt(LocalDateTime.now());
+        userExamResult.setTotalScore(totalCorrect);
+        userExamResult.setUser(user);
+        userExamResult.setExam(exam);
+        userExamResult.setAnalytics(userAnalytics);
+        userExamResult.setAnswers(userAnswers);
+
+        userAnswers.forEach(ans -> ans.setUserExamResult(userExamResult));
+        userExamResultDao.save(userExamResult);
+
+        userAnalytics.setUserExamResult(userExamResult);
+        userAnalyticsDao.update(userAnalytics);
+
+        userAnswers.stream().forEach(userAnswer -> {
+            userAnswer.setUserExamResult(userExamResult);
+            userAnswerDao.save(userAnswer);
+        });
+
+        Integer previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
+        Double previousAvg = examAnalytics.getAverageScore() != null ? examAnalytics.getAverageScore() : 0.0;
+
+        Integer updatedCount = previousCount + 1;
+        Double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
+
+        examAnalytics.setTotalSubmissions(updatedCount);
+        examAnalytics.setAverageScore(updatedAvg);
+        examAnalytics.setHighestScore(Math.max(examAnalytics.getHighestScore(), totalCorrect * 1.0));
+        examAnalytics.setLowestScore(previousCount == 0 ? totalCorrect * 1.0 : Math.min(examAnalytics.getLowestScore(), totalCorrect * 1.0));
+
+        examAnalyticsDao.update(examAnalytics);
+
+        exam.getEnrolledUsers().add(user);
+        examDao.save(exam);
+
+        user.getUserExamResults().add(userExamResult);
+        user.getEnrolledExams().add(exam);
+        userDao.update(user);
+
+        return userExamResult.getId();
+    }
 
 }

@@ -1,51 +1,50 @@
 ﻿<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>RichTextEditor Integration</title>
+    <title>RichText Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" th:href="@{/static/richtexteditor/rte_theme_default.css}"/>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            margin-top: 10px;
-            font-family: monospace;
-        }
+    <div th:replace="~{/fragments/global-head :: richtexteditor}"></div>
 
-        button {
-            margin-top: 10px;
-            margin-right: 10px;
-            padding: 6px 12px;
-        }
-    </style>
 </head>
-<body>
+<body class="bg-base-200 text-base-content min-h-screen p-6">
 
-<!-- Editor Container -->
-<div id="div_editor1"></div>
+<div class="max-w-4xl mx-auto bg-base-100 shadow-lg rounded-xl p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+        <i class="fas fa-pen-nib"></i> Rich Text Editor
+    </h1>
 
-<!-- HTML Display Area -->
-<textarea id="htmlOutput" placeholder="Editor HTML content will appear here..."></textarea>
+    <!-- Editor -->
+    <div id="div_editor1" class="border border-base-300 rounded"></div>
 
-<!-- Control Buttons -->
-<div>
-    <button onclick="getHtmlFromEditor()">Get HTML</button>
-    <button onclick="setHtmlToEditor()">Set HTML</button>
+    <!-- HTML Display Area -->
+    <div>
+        <label for="htmlOutput" class="label">
+            <span class="label-text font-medium">Editor HTML Output</span>
+        </label>
+        <textarea id="htmlOutput" class="textarea textarea-bordered w-full h-40" placeholder="Editor HTML content will appear here..."></textarea>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-4">
+        <button onclick="getHtmlFromEditor()" class="btn btn-primary btn-sm">
+            <i class="fas fa-download mr-1"></i> Get HTML
+        </button>
+        <button onclick="setHtmlToEditor()" class="btn btn-secondary btn-sm">
+            <i class="fas fa-upload mr-1"></i> Set HTML
+        </button>
+    </div>
 </div>
 
-<!-- Scripts -->
-<script th:src="@{/static/richtexteditor/rte.js}"></script>
-<script th:src="@{/static/richtexteditor/plugins/all_plugins.js}"></script>
-
+<!-- Editor Script -->
 <script>
-    RTE_DefaultConfig.url_base = 'richtexteditor';
-    var editor1 = new RichTextEditor("#div_editor1");
+    RTE_DefaultConfig.url_base = 'richtexteditor'; // Required if loading from /richtexteditor/
+    const editor1 = new RichTextEditor("#div_editor1", {
+        editorResizeMode: "none",
+    });
 
     function getHtmlFromEditor() {
         const html = editor1.getHTMLCode();

@@ -1,0 +1,16 @@
+<!-- fragments/support.html -->
+<th:block th:fragment="tags">
+
+    <!-- Logout Modal -->
+    <dialog id="logoutModal" class="modal">
+        <form method="dialog" class="modal-box">
+            <h3 class="font-bold text-lg">Confirm Logout</h3>
+            <p class="py-4">Are you sure you want to log out?</p>
+            <div class="modal-action">
+                <button class="btn">Cancel</button>
+                <a th:href="@{/logout}" class="btn btn-error">Yes, Logout</a>
+            </div>
+        </form>
+    </dialog>
+
+</th:block>

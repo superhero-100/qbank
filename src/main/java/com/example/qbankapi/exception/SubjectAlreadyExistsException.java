@@ -5,11 +5,11 @@ import com.example.qbankapi.exception.base.EntityAlreadyExistsException;
 public class SubjectAlreadyExistsException extends EntityAlreadyExistsException {
 
     public SubjectAlreadyExistsException() {
-        super();
+        super("Subject already exists");
     }
 
     public SubjectAlreadyExistsException(String message) {
-        super("Subject already exists");
+        super(message);
     }
 
     public SubjectAlreadyExistsException(Throwable cause) {

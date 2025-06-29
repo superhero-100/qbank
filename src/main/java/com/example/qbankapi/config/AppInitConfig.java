@@ -1,17 +1,16 @@
 package com.example.qbankapi.config;
 
-import com.example.qbankapi.entity.Admin;
-import com.example.qbankapi.entity.Question;
-import com.example.qbankapi.entity.Subject;
-import com.example.qbankapi.entity.User;
+import com.example.qbankapi.entity.*;
 import com.example.qbankapi.service.AppInitService;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -192,8 +191,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
         question.setCorrectAnswer(correctAnswer);
         question.setComplexity(complexity);
         question.setMarks(marks);
+        question.setIsActive(Boolean.TRUE);
         question.setSubject(subject);
         return question;
     }
-
 }

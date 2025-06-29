@@ -14,13 +14,13 @@ public class UserExamResultDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-//    public void save(UserExamResult result) {
-//        entityManager.persist(result);
-//    }
-//
-//    public Optional<UserExamResult> findById(Long id) {
-//        List<UserExamResult> userExamResultList = entityManager.createQuery("SELECT uer FROM UserExamResult uer WHERE uer.id = :id", UserExamResult.class).setParameter("id", id).getResultList();
-//        return Optional.ofNullable(userExamResultList.size() == 0 ? null : userExamResultList.get(0));
-//    }
+    public void save(UserExamResult result) {
+        entityManager.persist(result);
+    }
+
+    public Optional<UserExamResult> findById(Long id) {
+        List<UserExamResult> userExamResultList = entityManager.createQuery("SELECT uer FROM UserExamResult uer WHERE uer.id = :id", UserExamResult.class).setParameter("id", id).getResultList();
+        return userExamResultList.isEmpty() ? Optional.empty() : Optional.of(userExamResultList.getFirst());
+    }
 
 }

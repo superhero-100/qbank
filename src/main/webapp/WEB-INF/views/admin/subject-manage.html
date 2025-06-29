@@ -41,7 +41,9 @@
                         <a th:href="@{'/admin/manage/subjects/' + ${subject.id} + '/edit'}"
                            class="btn btn-sm btn-primary">Edit</a>
                         <a th:href="@{/admin/manage/questions(subjectId=${subject.id})}"
-                           class="btn btn-sm btn-secondary">Manage Questions</a>
+                           class="btn btn-sm btn-neutral">View Questions</a>
+                        <a th:href="@{/admin/manage/exams(subjectId=${subject.id})}"
+                           class="btn btn-sm btn-neutral">View Exams</a>
                         <!-- <a th:href="@{'/admin/manage/subjects/delete/' + ${subject.id}}" class="btn btn-sm btn-error">Delete</a> -->
                     </div>
                 </div>

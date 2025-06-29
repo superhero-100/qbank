@@ -204,7 +204,7 @@ public class AdminController {
 
         try {
             questionService.updateQuestion(updateQuestionRequest);
-        } catch (SubjectNotFoundException ex) {
+        } catch (QuestionNotFoundException | SubjectNotFoundException ex) {
             model.addAttribute("message", ex.getMessage());
             return "/admin/error";
         }
@@ -213,26 +213,16 @@ public class AdminController {
         return "/admin/success";
     }
 
-    @GetMapping("/manage/questions/{id}/")
+    @GetMapping("/manage/questions/{id}/delete")
     public String removeQuestion(@PathVariable("id") Long id, Model model) {
-//        try {
-//            UpdateSubjectRequestDto updateSubjectRequestDto = new UpdateSubjectRequestDto();
-//            SubjectDto subjectDto = subjectService.getSubjectDtoById(id);
-//            updateSubjectRequestDto.setId(subjectDto.getId());
-//            updateSubjectRequestDto.setName(subjectDto.getName());
-//            updateSubjectRequestDto.setDescription(subjectDto.getDescription());
-//
-//            model.addAttribute("updateSubjectRequest", updateSubjectRequestDto);
-//
-//            log.info("Rendering subject-edit page");
-//            return "/admin/subject-edit";
-//        } catch (SubjectNotFoundException ex) {
-//
-//            model.addAttribute("message", ex.getMessage());
-//
-//            return "/admin/error";
-//        }
-        return "";
+        try {
+            questionService.deactivateQuestion(id);
+            model.addAttribute("message", "Question deleted successfully");
+            return "/admin/success";
+        } catch (QuestionNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/admin/error";
+        }
     }
 
     @GetMapping("/manage/exams")

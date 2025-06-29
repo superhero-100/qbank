@@ -117,10 +117,9 @@
                     <div class="card-body space-y-4">
 
                         <!-- Question Header -->
-                        <h2 class="card-title text-lg font-bold text-primary">
-                            <!--                            <span th:text="'#' + ${iterStat.count}">#1</span>-->
-                            <span th:text="'#' + ${q.id}">#1</span>
-                            <span th:utext="${q.text}" class="text-base-content">What is Java?</span>
+                        <h2 class="card-title text-lg font-bold text-primary flex items-baseline space-x-2">
+                            <span class="text-xl text-base-content text-bold">#<span th:text="${q.id}">1</span></span>
+                            <span th:utext="${q.text}" class="text-base-content"></span>
                         </h2>
 
                         <!-- Metadata -->
@@ -136,19 +135,19 @@
                         <div>
                             <p class="font-semibold mb-2">Options:</p>
                             <ol class="space-y-3 text-sm text-base-content">
-                                <li class="flex gap-2 items-start"><span class="font-semibold">A:</span> <span
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">A:</span> <span
                                         th:utext="${q.options[0]}">Option A</span></li>
-                                <li class="flex gap-2 items-start"><span class="font-semibold">B:</span> <span
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">B:</span> <span
                                         th:utext="${q.options[1]}">Option B</span></li>
-                                <li class="flex gap-2 items-start"><span class="font-semibold">C:</span> <span
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">C:</span> <span
                                         th:utext="${q.options[2]}">Option C</span></li>
-                                <li class="flex gap-2 items-start"><span class="font-semibold">D:</span> <span
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">D:</span> <span
                                         th:utext="${q.options[3]}">Option D</span></li>
                             </ol>
                         </div>
 
                         <!-- Correct Answer -->
-                        <div class="text-sm text-success font-semibold">
+                        <div class="text-md text-success font-semibold">
                             Correct Answer:
                             <span th:text="${q.correctAnswer.name()}">A</span>
                         </div>

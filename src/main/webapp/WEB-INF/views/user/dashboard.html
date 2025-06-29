@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Qbank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- TailwindCSS + DaisyUI -->
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content flex flex-col min-h-screen">
+
+<div th:replace="~{/user/fragments/header :: tag}"></div>
+
+<!-- Welcome Section -->
+<main class="container mx-auto px-4 py-12 text-center flex-grow">
+    <h1 class="text-4xl font-bold mb-4">Welcome, <span th:text="${username}">User</span>!</h1>
+    <p class="text-lg">You have successfully logged in to the Qbank system.</p>
+</main>
+
+<!-- Sections -->
+<section class="bg-base-100 border-b border-base-300 py-16 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10">
+        <!-- Image -->
+        <div class="w-full md:w-1/2 flex justify-center">
+            <img class="rounded-xl shadow-xl w-full max-w-md"
+                 src="https://th.bing.com/th/id/OIP.140490gY1Ow4CJDHLf-pAAHaD4?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3"
+                 alt="Subjects" />
+        </div>
+
+        <!-- Text Content -->
+        <div class="w-full md:w-1/2 px-2">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-primary">
+                <i class="fas fa-book text-3xl"></i> Explore Subjects
+            </h2>
+            <p class="text-lg mb-6">Browse and manage available subjects such as Mathematics, Physics, Chemistry, and more.</p>
+            <a th:href="@{/user/subjects}" class="btn btn-primary">View Subjects</a>
+        </div>
+    </div>
+</section>
+
+<section class="bg-base-200 py-16 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center justify-center gap-10">
+        <!-- Image -->
+        <div class="w-full md:w-1/2 flex justify-center">
+            <img class="rounded-xl shadow-xl w-full max-w-md"
+                 src="https://images.unsplash.com/photo-1596495577886-d920f1fb7238?auto=format&fit=crop&w=800&q=80"
+                 alt="Exams" />
+        </div>
+
+        <!-- Text Content -->
+        <div class="w-full md:w-1/2 px-2">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-success">
+                <i class="fas fa-file-alt text-3xl"></i> Take Exams
+            </h2>
+            <p class="text-lg mb-6">Attempt real-time mock exams or scheduled assessments to benchmark your progress.</p>
+            <a th:href="@{/user/exams}" class="btn btn-success">View Exams</a>
+        </div>
+    </div>
+</section>
+
+<section class="bg-base-100 border-t border-base-300 py-16 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10">
+
+        <!-- Image Section -->
+        <div class="w-full md:w-1/2 flex justify-center">
+            <img class="rounded-xl shadow-xl w-full max-w-md"
+                 src="https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-History-56161577.jpg"
+                 alt="History" />
+        </div>
+
+        <!-- Text Content -->
+        <div class="w-full md:w-1/2 px-2">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-neutral">
+                <i class="fas fa-history text-3xl"></i> Exam History
+            </h2>
+            <p class="text-lg mb-6">Review past exams, answer breakdowns, and performance analytics to reinforce learning.</p>
+            <a th:href="@{/user/history}" class="btn btn-neutral">View History</a>
+        </div>
+    </div>
+</section>
+
+<section class="bg-base-200 py-16 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center justify-center gap-10">
+
+        <!-- Image -->
+        <div class="w-full md:w-1/2 flex justify-center">
+            <img class="rounded-xl shadow-xl w-full max-w-md"
+                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE4Ez6CC_hg-lH5wB4Eibmyo83w6trisZtsA&s"
+                 alt="Contribute Questions" />
+        </div>
+
+        <!-- Text Content -->
+        <div class="w-full md:w-1/2 px-2">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3 text-warning">
+                <i class="fas fa-plus-circle text-3xl"></i> Contribute Questions
+            </h2>
+            <p class="text-lg mb-6">Submit your own practice questions to help the community.</p>
+            <a th:href="@{/user/questions/contribute}" class="btn btn-warning">Contribute Now</a>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{/user/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/user/fragments/support :: tags}"></div>
+
+</body>
+</html>

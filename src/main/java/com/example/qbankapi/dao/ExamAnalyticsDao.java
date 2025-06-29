@@ -16,8 +16,8 @@ public class ExamAnalyticsDao {
         entityManager.persist(analytics);
     }
 
-//    public void update(ExamAnalytics analytics) {
-//        entityManager.merge(analytics);
-//    }
+    public void update(ExamAnalytics analytics) {
+        entityManager.merge(analytics);
+    }
 
 }

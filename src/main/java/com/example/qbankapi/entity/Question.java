@@ -17,7 +17,7 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text")
+    @Column(name = "text" , columnDefinition = "MEDIUMTEXT")
     private String text;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -25,19 +25,23 @@ public class Question {
             name = "question_options",
             joinColumns = @JoinColumn(name = "question_id")
     )
-    @Column(name = "option_value")
+    @Column(name = "option_value", columnDefinition = "MEDIUMTEXT")
     @ToString.Exclude
     private List<String> options;
 
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "correct_answer")
-    private Option correctAnswer;
+    private String correctAnswer;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "complexity")
     private Complexity complexity;
 
     @Column(name = "marks")
     private Long marks;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")

@@ -5,11 +5,11 @@ import com.example.qbankapi.exception.base.EntityNotFoundException;
 public class SubjectNotFoundException extends EntityNotFoundException {
 
     public SubjectNotFoundException() {
-        super();
+        super("Subject not found");
     }
 
     public SubjectNotFoundException(String message) {
-        super("Subject not found");
+        super(message);
     }
 
     public SubjectNotFoundException(Throwable cause) {

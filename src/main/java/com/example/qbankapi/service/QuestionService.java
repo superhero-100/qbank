@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,9 +33,7 @@ public class QuestionService {
     @Transactional
     public void createQuestion(AddQuestionRequestDto addQuestionRequest) {
         Subject subject = subjectDao.findById(addQuestionRequest.getSubjectId())
-                .orElseThrow(() -> new SubjectNotFoundException(
-                        String.format("Subject not found with id: %d", addQuestionRequest.getSubjectId()))
-                );
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", addQuestionRequest.getSubjectId())));
 
         Question question = new Question();
         question.setText(addQuestionRequest.getText());
@@ -45,6 +46,7 @@ public class QuestionService {
         question.setCorrectAnswer(addQuestionRequest.getCorrectAnswer());
         question.setComplexity(addQuestionRequest.getComplexity());
         question.setMarks(addQuestionRequest.getMarks());
+        question.setIsActive(Boolean.TRUE);
         question.setSubject(subject);
         questionDao.save(question);
 
@@ -82,7 +84,7 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public UpdateQuestionDto getQuestionDtoById(Long id) {
-        Question question = questionDao.findById(id).orElseThrow(() -> new QuestionNotFoundException("Subject not found"));
+        Question question = questionDao.findById(id).orElseThrow(() -> new QuestionNotFoundException(String.format("Question not found with id: %d",id)));
         return UpdateQuestionDto.builder()
                 .id(question.getId())
                 .text(question.getText())
@@ -96,7 +98,32 @@ public class QuestionService {
 
     @Transactional
     public void updateQuestion(UpdateQuestionRequestDto updateQuestionRequest) {
+        Question question = questionDao.findById(updateQuestionRequest.getId())
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + updateQuestionRequest.getId()));
 
+        Subject subject = subjectDao.findById(updateQuestionRequest.getSubjectId())
+                .orElseThrow(() -> new SubjectNotFoundException("Subject not found with id: " + updateQuestionRequest.getSubjectId()));
+
+        question.setText(updateQuestionRequest.getText());
+        question.setOptions(new ArrayList<>(List.of(
+                updateQuestionRequest.getOptionA(),
+                updateQuestionRequest.getOptionB(),
+                updateQuestionRequest.getOptionC(),
+                updateQuestionRequest.getOptionD()
+        )));
+        question.setCorrectAnswer(updateQuestionRequest.getCorrectAnswer());
+        question.setComplexity(updateQuestionRequest.getComplexity());
+        question.setMarks(updateQuestionRequest.getMarks());
+        question.setSubject(subject);
+        questionDao.update(question);
+    }
+
+    @Transactional
+    public void deactivateQuestion(Long id) {
+        Question question = questionDao.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + id));
+        question.setIsActive(Boolean.FALSE);
+        questionDao.update(question);
     }
 
 //    @Transactional(readOnly = true)
