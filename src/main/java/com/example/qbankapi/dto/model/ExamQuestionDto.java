@@ -17,7 +17,7 @@ public class ExamQuestionDto {
 
     private List<String> options;
 
-    private String correctAnswer;
+    private Question.Option correctAnswer;
 
     private Question.Complexity complexity;
 

@@ -51,7 +51,7 @@ public class ExamService {
 
     @Transactional
     public void createExam(CreateExamRequestDto createExamRequestDto) {
-        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id",createExamRequestDto.getSubjectId())));
+        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
 
         ExamAnalytics examAnalytics = new ExamAnalytics();
         examAnalytics.setTotalSubmissions(0);
@@ -107,10 +107,12 @@ public class ExamService {
     @Transactional(readOnly = true)
     public ExamViewPageDto getFilteredExams(ExamFilterDto examFilterDto) {
         if (examFilterDto.getSubjectId() == null || examFilterDto.getSubjectId() <= 0) examFilterDto.setSubjectId(0L);
-        if (examFilterDto.getSortBy() == null || examFilterDto.getSortBy().isBlank()) examFilterDto.setSortBy("createdAt");
-        if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank()) examFilterDto.setSortOrder("DESC");
+        if (examFilterDto.getSortBy() == null || examFilterDto.getSortBy().isBlank())
+            examFilterDto.setSortBy("createdAt");
+        if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank())
+            examFilterDto.setSortOrder("DESC");
         if (examFilterDto.getPageSize() == null || examFilterDto.getPageSize() <= 0) examFilterDto.setPageSize(10);
-//        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) examFilterDto.setPageSize(10);
+        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) examFilterDto.setPageSize(10);
         if (examFilterDto.getPage() == null || examFilterDto.getPage() < 0) examFilterDto.setPage(0);
 
         System.out.println("subjectId = " + Optional.ofNullable(examFilterDto.getSubjectId()));
@@ -148,10 +150,10 @@ public class ExamService {
     @Transactional
     public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d",userId)));
+                .orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
 
         Exam exam = examDao.findById(submissionDto.getExamId())
-                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d",submissionDto.getExamId())));
+                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", submissionDto.getExamId())));
 
         ExamAnalytics examAnalytics = exam.getAnalytics();
 
@@ -159,20 +161,24 @@ public class ExamService {
         int attempted = 0;
         List<UserAnswer> userAnswers = new ArrayList<>();
 
-        for (Map.Entry<Long, String> entry : submissionDto.getAnswers().entrySet()) {
+        for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
             Long questionId = entry.getKey();
-            String givenAnswer = entry.getValue();
+            Optional<Question.Option> givenNullableAnswer = Optional.ofNullable(entry.getValue());
 
             Question question = questionDao.findById(questionId)
                     .orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
 
-            Boolean isCorrect = question.getCorrectAnswer().equalsIgnoreCase(givenAnswer.trim());
-            if (!givenAnswer.isBlank()) attempted++;
+            Boolean isCorrect = false;
+            if (givenNullableAnswer.isPresent()) {
+                isCorrect = givenNullableAnswer.get().equals(question.getCorrectAnswer());
+            }
+
+            if (givenNullableAnswer.isPresent()) attempted++;
             if (isCorrect) totalCorrect++;
 
-            UserAnswer userAnswer =new UserAnswer();
+            UserAnswer userAnswer = new UserAnswer();
             userAnswer.setQuestion(question);
-            userAnswer.setAnswerGiven(givenAnswer);
+            userAnswer.setAnswerGiven(givenNullableAnswer.isPresent() ? givenNullableAnswer.get() : null);
             userAnswer.setIsCorrect(isCorrect);
             userAnswers.add(userAnswer);
         }

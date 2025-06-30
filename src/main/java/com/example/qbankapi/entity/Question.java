@@ -31,7 +31,7 @@ public class Question {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "correct_answer")
-    private String correctAnswer;
+    private Option correctAnswer;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "complexity")

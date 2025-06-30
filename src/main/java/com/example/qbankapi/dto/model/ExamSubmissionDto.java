@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -18,6 +19,6 @@ public class ExamSubmissionDto {
     private Long examId;
 
     @Builder.Default
-    private Map<Long, String> answers = new LinkedHashMap<>();
+    private Map<Long, Question.Option> answers = new LinkedHashMap<>();
 
 }

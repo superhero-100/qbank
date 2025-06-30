@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
 
@@ -44,7 +43,7 @@ public class ExamController {
         model.addAttribute("subjectName", examDto.getSubjectName());
         model.addAttribute("currentQuestionNumber", currentQuestionNumber);
         model.addAttribute("question", examDto.getQuestions().get(currentQuestionNumber - 1));
-        return "exam";
+        return "/user/exam";
     }
 
     @PostMapping("/submit")

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,6 +16,6 @@ public class UserAnswerDto {
 
     private Long questionId;
 
-    private String answer;
+    private Question.Option answer;
 
 }

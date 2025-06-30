@@ -5,216 +5,192 @@
     <title th:text="'Exam - ' + ${subjectName}">Exam</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.lordicon.com/lordicon-1.4.0.js"></script>
+    <!-- TailwindCSS + DaisyUI -->
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
 
-    <style>
-        body {
-            background-color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: #0d6efd;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        nav a {
-            color: white;
-            margin-left: 1.5rem;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            color: #ffc107;
-        }
-
-        main {
-            flex: 1;
-            padding-top: 3rem;
-        }
-
-        .card {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            background-color: #fff;
-        }
-
-        .question {
-            margin-bottom: 2rem;
-        }
-
-        .question h5 {
-            font-weight: 600;
-        }
-
-        .footer {
-            background-color: #0d6efd;
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
-        }
-    </style>
 </head>
-<body>
 
-<!-- Header -->
-<header class="container-fluid">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="logo">Q<span class="text-warning">bank</span></div>
-        <nav class="d-flex" id="nav-tabs">
-            <a href="#" data-target="/profile">Profile</a>
-            <a href="#" data-target="/subjects">Subjects</a>
-            <a href="#" data-target="/exams">Exams</a>
-            <a href="#" data-target="/history">History</a>
-            <a href="#" data-target="/logout">Logout</a>
-        </nav>
-    </div>
-</header>
+<body class="bg-base-200 text-base-content flex flex-col min-h-screen">
+
+<div th:replace="~{/user/fragments/header :: tag}"></div>
 
 <!-- Main Content -->
-<main class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary fw-bold">Exam: <span th:text="${subjectName}">Subject</span></h2>
+<main class="container mx-auto my-8 px-4">
 
-        <div class="d-flex align-items-center gap-2 px-3 py-2 bg-light rounded-3 shadow-sm border border-primary-subtle">
-            <span class="text-secondary fw-semibold">Auto Next In</span>
-            <span id="countdown-timer" class="badge bg-primary rounded-pill px-3 py-2 fs-6 shadow-sm"
-                  style="min-width: 45px; text-align: center;">30</span>
+    <!-- Header and Timer -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-primary">
+            Exam: <span th:text="${subjectName}">Subject</span>
+        </h2>
+
+        <div class="flex items-center gap-2 px-4 py-2 bg-base-100 rounded-xl border border-primary shadow">
+            <span class="text-sm font-semibold text-base-content">Auto Next In</span>
+            <span id="countdown-timer" class="badge badge-primary text-lg w-12 text-center">30</span>
         </div>
     </div>
 
     <!-- Exam Form -->
-    <form th:action="@{/exam/submit}" method="post" class="card p-4 shadow-sm border-0" id="exam-form">
-        <h4 class="mb-3 border-bottom pb-2 text-dark">Answer the Questions</h4>
+    <form th:action="@{/user/exam/submit}" method="post"
+          class="card bg-base-100 shadow-lg p-6 space-y-6"
+          id="exam-form">
 
-        <div class="question">
-            <h5 class="fw-semibold text-dark">
+        <!-- Section Title -->
+        <h3 class="text-2xl font-bold text-primary border-b border-base-300 pb-4">
+            Answer the Questions
+        </h3>
+
+        <!-- Question Block -->
+        <div class="space-y-4">
+            <h4 class="text-lg font-semibold text-base-content flex gap-2">
                 Q<span th:text="${currentQuestionNumber}">0</span>.
-                <span th:text="${question.text}">Question Text</span>
-            </h5>
+                <span th:utext="${question.text}">Question Text</span>
+            </h4>
 
-            <input type="hidden" name="questionId" th:value="${question.id}">
-            <div th:each="opt, optStat : ${question.options}" class="form-check mt-2">
-                <input class="form-check-input" type="radio"
-                       th:id="${'q' + question.id + '_' + optStat.index}"
-                       th:name="answer"
-                       th:value="${opt}">
-                <label class="form-check-label" th:for="${'q' + question.id + '_' + optStat.index}"
-                       th:text="${opt}">Option</label>
+            <input type="hidden" name="questionId" th:value="${question.id}"/>
+
+            <!-- Option A -->
+            <div class="form-control">
+                <label class="cursor-pointer flex gap-3">
+                    <input type="radio" name="answer" value="A"
+                           id="q[[${question.id}]]_0"
+                           class="radio radio-primary"/>
+                    <span class="label-text flex gap-2">
+                    <strong class="text-base">A:</strong>
+                    <span th:utext="${question.options[0]}"></span>
+                </span>
+                </label>
             </div>
-            <hr class="my-4">
+
+            <!-- Option B -->
+            <div class="form-control">
+                <label class="cursor-pointer flex gap-3">
+                    <input type="radio" name="answer" value="B"
+                           id="q[[${question.id}]]_1"
+                           class="radio radio-primary"/>
+                    <span class="label-text flex gap-2">
+                    <strong class="text-base">B:</strong>
+                    <span th:utext="${question.options[1]}"></span>
+                </span>
+                </label>
+            </div>
+
+            <!-- Option C -->
+            <div class="form-control">
+                <label class="cursor-pointer flex gap-3">
+                    <input type="radio" name="answer" value="C"
+                           id="q[[${question.id}]]_2"
+                           class="radio radio-primary"/>
+                    <span class="label-text flex gap-2">
+                    <strong class="text-base">C:</strong>
+                    <span th:utext="${question.options[2]}"></span>
+                </span>
+                </label>
+            </div>
+
+            <!-- Option D -->
+            <div class="form-control">
+                <label class="cursor-pointer flex gap-3">
+                    <input type="radio" name="answer" value="D"
+                           id="q[[${question.id}]]_3"
+                           class="radio radio-primary"/>
+                    <span class="label-text flex gap-2">
+                    <strong class="text-base">D:</strong>
+                    <span th:utext="${question.options[3]}"></span>
+                </span>
+                </label>
+            </div>
         </div>
 
-        <div class="text-end">
-            <button type="submit" class="btn btn-success px-4 py-2" id="submit-button"
+        <!-- Action Button -->
+        <div class="text-end pt-4">
+            <button type="submit"
+                    class="btn btn-primary btn-wide text-white"
+                    id="submit-button"
                     th:text="${currentQuestionNumber == session.totalQuestion ? 'Submit Exam' : 'Next'}">
             </button>
         </div>
     </form>
+
 </main>
 
+<div th:replace="~{/user/fragments/footer :: tag}"></div>
 
-<!-- Footer -->
-<footer class="footer mt-auto">
-    <div class="container">
-        © 2025 Qbank. All rights reserved.
-    </div>
-</footer>
+<div th:replace="~{/user/fragments/support :: tags}"></div>
 
-<!-- Submit Confirmation Modal -->
-<div class="modal fade" id="submitConfirmModal" tabindex="-1" aria-labelledby="submitConfirmModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-success">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="submitConfirmModalLabel">Confirm Submission</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to submit the exam?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<dialog id="submitConfirmModal" class="modal">
+    <div class="modal-box border border-success">
+        <h3 class="font-bold text-lg text-success">Confirm Submission</h3>
+        <p class="py-4">Are you sure you want to submit the exam?</p>
+        <div class="modal-action">
+            <form method="dialog" class="flex gap-2">
+                <button class="btn">Cancel</button>
                 <button id="confirmSubmitBtn" type="button" class="btn btn-success">Yes, Submit</button>
-            </div>
+            </form>
         </div>
     </div>
-</div>
+</dialog>
 
 <!-- Exit Confirmation Modal -->
-<div class="modal fade" id="exitConfirmModal" tabindex="-1" aria-labelledby="exitConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-danger">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="exitConfirmModalLabel">Confirm Exit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to exit the exam? Your progress may not be saved.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Stay</button>
-                <button id="confirmExitBtn" type="button" class="btn btn-danger">Exit Exam</button>
-            </div>
+<dialog id="exitConfirmModal" class="modal">
+    <div class="modal-box border border-error">
+        <h3 class="font-bold text-lg text-error">Confirm Exit</h3>
+        <p class="py-4">Are you sure you want to exit the exam? Your progress may not be saved.</p>
+        <div class="modal-action">
+            <form method="dialog" class="flex gap-2">
+                <button class="btn">Stay</button>
+                <button id="confirmExitBtn" type="button" class="btn btn-error">Exit Exam</button>
+            </form>
         </div>
     </div>
-</div>
+</dialog>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const examForm = document.getElementById('exam-form');
     const submitBtn = document.getElementById('submit-button');
     const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
     const confirmExitBtn = document.getElementById('confirmExitBtn');
 
-    const submitModal = new bootstrap.Modal(document.getElementById('submitConfirmModal'));
-    const exitModal = new bootstrap.Modal(document.getElementById('exitConfirmModal'));
-
+    const submitModal = document.getElementById('submitConfirmModal');
+    const exitModal = document.getElementById('exitConfirmModal');
     let allowSubmit = false;
 
-    // Intercept form submission
     examForm.addEventListener('submit', function (e) {
         const isLastQuestion = submitBtn.textContent.trim() === 'Submit Exam';
         if (isLastQuestion && !allowSubmit) {
             e.preventDefault();
-            submitModal.show();
+            submitModal.showModal();
         }
     });
 
-    // Confirm actual submission
     confirmSubmitBtn.addEventListener('click', function () {
         allowSubmit = true;
-        submitModal.hide();
+        submitModal.close();
         examForm.submit();
     });
 
-    // Intercept nav links
     document.querySelectorAll('#nav-tabs a').forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
+            exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                const fullPath = window.location.pathname;
-                const basePath = fullPath.substring(0, fullPath.indexOf("/exam/question"));
-                const redirectUrl = basePath + "/exam/exit";
-                window.location.href = redirectUrl;
+                const basePath = window.location.pathname.split("/user/exam/question")[0];
+                window.location.href = basePath + "/user/exam/exit";
             };
-            exitModal.show();
         });
     });
-</script>
+    document.querySelectorAll('#logo a').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            exitModal.showModal();
+            confirmExitBtn.onclick = () => {
+                const basePath = window.location.pathname.split("/user/exam/question")[0];
+                window.location.href = basePath + "/user/exam/exit";
+            };
+        });
+    });
 
-<script>
+    // Countdown Timer
     document.addEventListener("DOMContentLoaded", function () {
         const countdownElement = document.getElementById("countdown-timer");
         const submitButton = document.getElementById("submit-button");
@@ -225,8 +201,8 @@
             countdownElement.textContent = timeLeft;
 
             if (timeLeft <= 5) {
-                countdownElement.classList.remove("bg-primary");
-                countdownElement.classList.add("bg-danger");
+                countdownElement.classList.remove("badge-primary");
+                countdownElement.classList.add("badge-error");
             }
 
             if (timeLeft <= 0) {

@@ -17,7 +17,7 @@ public class UserAnswer {
     private Long id;
 
     @Column(name = "answer_given")
-    private String answerGiven;
+    private Question.Option answerGiven;
 
     @Column(name = "is_correct")
     private Boolean isCorrect;

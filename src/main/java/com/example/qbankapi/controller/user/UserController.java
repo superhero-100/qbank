@@ -69,13 +69,13 @@ public class UserController {
     public String profile(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute(USER_ID);
         model.addAttribute("stats", userService.getUserStats(userId));
-        return "profile";
+        return "/user/profile-view";
     }
 
     @GetMapping("/result/exam/{id}")
     public String examResult(@PathVariable("id") Long id, Model model) {
         model.addAttribute("result", userExamResultService.getUserExamResultInDtoById(id));
-        return "examResult";
+        return "/user/exam-result";
     }
 
 }

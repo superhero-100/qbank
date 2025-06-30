@@ -48,7 +48,7 @@ public class UserExamResultDto {
     public static class UserAnswerDto {
         private Long id;
 
-        private String answerGiven;
+        private Question.Option answerGiven;
 
         private Boolean isCorrect;
 
@@ -84,7 +84,7 @@ public class UserExamResultDto {
 
         private List<String> options;
 
-        private String correctAnswer;
+        private Question.Option correctAnswer;
 
         private Question.Complexity complexity;
     }
