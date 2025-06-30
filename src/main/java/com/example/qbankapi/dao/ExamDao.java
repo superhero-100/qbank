@@ -21,13 +21,13 @@ public class ExamDao {
         entityManager.persist(exam);
     }
 
-//    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc) {
-//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc",nowUtc).getResultList();
-//    }
-//
-//    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc) {
-//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc",nowUtc).getResultList();
-//    }
+    public List<Exam> findAllByEnrollmentEndDate(ZonedDateTime nowUtc) {
+        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc", nowUtc).getResultList();
+    }
+
+    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc, Long subjectId) {
+        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).getResultList();
+    }
 
     public ExamViewPageDto findFilteredExams(ExamFilterDto filter) {
         StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
@@ -76,7 +76,7 @@ public class ExamDao {
         return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
     }
 
-    public void update(Exam exam){
+    public void update(Exam exam) {
         entityManager.merge(exam);
     }
 

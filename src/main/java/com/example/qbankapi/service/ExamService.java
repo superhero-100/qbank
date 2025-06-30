@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -263,9 +260,12 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExamDetailsDto> getExamsInDtoBySubjectId(Long subjectId,Long userId) {
+    public List<ExamDetailsDto> getExamsInDtoBySubjectId(Long subjectId, Long userId) {
         User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id %d", userId)));
-        return examDao.findAllByEnrollmentEndDate().getExams()
+
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(user.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
+
+        return examDao.findAllByEnrollmentEndDateAndSubjectId(nowUtc, subjectId)
                 .stream()
                 .map(exam -> ExamDetailsDto.builder()
                         .id(exam.getId())
@@ -277,6 +277,5 @@ public class ExamService {
                         .build())
                 .collect(Collectors.toList());
     }
-
 
 }
