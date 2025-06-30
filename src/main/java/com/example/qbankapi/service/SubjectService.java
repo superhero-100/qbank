@@ -67,22 +67,6 @@ public class SubjectService {
         return SubjectDto.builder().id(subject.getId()).name(subject.getName()).description(subject.getDescription()).build();
     }
 
-    @Transactional(readOnly = true)
-    public List<ExamDetailsDto> getSubjectExamsInDtoById(Long id) {
-        Subject subject = subjectDao.findById(id).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id %d", id)));
-        return subject.getExams()
-                .stream()
-                .map(exam -> ExamDetailsDto.builder()
-                        .id(exam.getId())
-                        .description(exam.getDescription())
-                        .totalMarks(exam.getTotalMarks())
-                        .subjectName(exam.getSubject().getName())
-                        .totalQuestions(exam.getQuestions().size())
-                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
 //    @Transactional(readOnly = true)
 //    public SubjectDto getInDtoById(Long id) {
 //        Subject subject = subjectDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Subject Not Found"));

@@ -55,6 +55,8 @@
             <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-error text-xs mt-1"></p>
         </div>
 
+        <input type="hidden" name="zoneId" id="zoneId" th:field="*{zoneId}"/>
+
         <!-- Submit -->
         <div>
             <button type="submit" class="btn btn-primary btn-block text-lg">Login</button>
@@ -65,6 +67,9 @@
 <!-- Demo autofill -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const zoneId = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('zoneId').value = zoneId;
+
         document.forms[0].username.value = "sahil";
         document.forms[0].password.value = "sahil@123";
     });

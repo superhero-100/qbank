@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +21,15 @@ public class User extends BaseUser {
     @ToString.Exclude
     private List<Exam> enrolledExams;
 
+    @ManyToMany(mappedBy = "completedUsers")
+    @ToString.Exclude
+    private List<Exam> completedExams;
+
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private List<UserExamResult> userExamResults;
+
+    @Column(name = "zone_id")
+    private String zoneId;
 
 }

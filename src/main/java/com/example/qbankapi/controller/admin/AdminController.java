@@ -2,7 +2,6 @@ package com.example.qbankapi.controller.admin;
 
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.*;
-import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.exception.InSufficientQuestionsException;
 import com.example.qbankapi.exception.QuestionNotFoundException;
 import com.example.qbankapi.exception.SubjectAlreadyExistsException;
@@ -17,9 +16,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
+import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
 
 @Slf4j
 @Controller
@@ -180,7 +180,7 @@ public class AdminController {
             updateQuestionRequest.setMarks(questionDto.getMarks());
             updateQuestionRequest.setSubjectId(questionDto.getSubjectId());
 
-            model.addAttribute("subjects",subjectService.getSubjectDtoList());
+            model.addAttribute("subjects", subjectService.getSubjectDtoList());
             model.addAttribute("updateQuestionRequest", updateQuestionRequest);
 
             log.info("Rendering question-edit page");
@@ -258,14 +258,30 @@ public class AdminController {
     public String createExam(
             @Valid @ModelAttribute("createExamRequest") CreateExamRequestDto createExamRequestDto,
             BindingResult bindingResult,
+            HttpSession session,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
             return "/admin/exam-add";
         }
 
+        if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
+            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
+            return "/admin/exam-add";
+        }
+
+        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
+            model.addAttribute("error", "Exam start date must be before exam end date.");
+            return "/admin/exam-add";
+        }
+
+        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
+            model.addAttribute("error", "Enrollment must end before the exam starts.");
+            return "/admin/exam-add";
+        }
+
         try {
-            examService.createExam(createExamRequestDto);
+            examService.createExam(createExamRequestDto, (Long) session.getAttribute(USER_ID));
         } catch (InSufficientQuestionsException ex) {
             model.addAttribute("message", ex.getMessage());
             return "/admin/error";

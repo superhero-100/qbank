@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -25,6 +27,6 @@ public class ExamDetailsDto {
 
     private Integer totalEnrolledUsers;
 
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
 }

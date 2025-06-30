@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
 public abstract class Auditable {
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    private ZonedDateTime modifiedAt;
 
 }

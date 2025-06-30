@@ -1,6 +1,6 @@
 package com.example.qbankapi.interceptor;
 
-import com.example.qbankapi.entity.constant.Role;
+import com.example.qbankapi.entity.BaseUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -28,7 +28,7 @@ public class AdminSessionValidationInterceptor implements HandlerInterceptor {
 
             log.debug("Session found. USER_ID={}, USER_ROLE={}", userId, role);
 
-            if (Role.ADMIN.equals(role)) {
+            if (BaseUser.Role.ADMIN.equals(role)) {
                 log.debug("Admin session validated");
                 return true;
             } else {

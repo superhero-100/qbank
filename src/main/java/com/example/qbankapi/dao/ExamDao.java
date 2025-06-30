@@ -5,6 +5,7 @@ import com.example.qbankapi.entity.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,13 @@ public class ExamDao {
         entityManager.persist(exam);
     }
 
-    public List<Exam> findAll() {
-        return entityManager.createQuery("SELECT e FROM Exam e", Exam.class).getResultList();
-    }
+//    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc) {
+//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc",nowUtc).getResultList();
+//    }
+//
+//    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc) {
+//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc",nowUtc).getResultList();
+//    }
 
     public ExamViewPageDto findFilteredExams(ExamFilterDto filter) {
         StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
@@ -69,6 +74,10 @@ public class ExamDao {
     public Optional<Exam> findById(Long id) {
         List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
         return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
+    }
+
+    public void update(Exam exam){
+        entityManager.merge(exam);
     }
 
 }

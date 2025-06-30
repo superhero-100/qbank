@@ -100,6 +100,43 @@
                     </div>
                 </div>
 
+                <!-- Date -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="label"><span class="label-text">Enrollment Start Date</span></label>
+                        <input type="datetime-local" th:field="*{enrollmentStartDate}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('enrollmentStartDate')}"
+                           th:errors="*{enrollmentStartDate}" class="text-error text-xs mt-1"></p>
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Enrollment End Date</span></label>
+                        <input type="datetime-local" th:field="*{enrollmentEndDate}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('enrollmentEndDate')}"
+                           th:errors="*{enrollmentEndDate}" class="text-error text-xs mt-1"></p>
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Exam Start Date</span></label>
+                        <input type="datetime-local" th:field="*{examStartDate}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('examStartDate')}"
+                           th:errors="*{examStartDate}" class="text-error text-xs mt-1"></p>
+                    </div>
+
+                    <div>
+                        <label class="label"><span class="label-text">Exam End Date</span></label>
+                        <input type="datetime-local" th:field="*{examEndDate}"
+                               class="input input-bordered w-full"/>
+                        <p th:if="${#fields.hasErrors('examEndDate')}"
+                           th:errors="*{examEndDate}" class="text-error text-xs mt-1"></p>
+                    </div>
+
+                </div>
+
                 <!-- Buttons -->
                 <div class="flex justify-end gap-4">
                     <a th:href="@{/admin/manage/exams}" class="btn btn-ghost">Cancel</a>

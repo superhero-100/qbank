@@ -21,4 +21,6 @@ public class LoginUserRequestDto {
 //    )
     private String password;
 
+    private String zoneId;
+
 }

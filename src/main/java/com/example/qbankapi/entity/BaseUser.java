@@ -1,6 +1,5 @@
 package com.example.qbankapi.entity;
 
-import com.example.qbankapi.entity.constant.Role;
 import lombok.*;
 
 import javax.persistence.*;
@@ -32,5 +31,11 @@ public class BaseUser extends Auditable {
     public Role getRole() {
         return Role.valueOf(roleValue);
     }
+
+    public enum Role {
+        ADMIN,
+        USER
+    }
+
 
 }

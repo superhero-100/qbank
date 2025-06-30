@@ -1,6 +1,6 @@
 package com.example.qbankapi.interceptor;
 
-import com.example.qbankapi.entity.constant.Role;
+import com.example.qbankapi.entity.BaseUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -28,7 +28,7 @@ public class UserSessionValidationInterceptor implements HandlerInterceptor {
 
             log.debug("Session found. USER_ID={}, USER_ROLE={}", userId, role);
 
-            if (Role.USER.equals(role)) {
+            if (BaseUser.Role.USER.equals(role)) {
                 log.debug("User session validated");
                 return true;
             } else {

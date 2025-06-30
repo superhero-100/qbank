@@ -12,6 +12,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -156,8 +158,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
         Admin admin = new Admin();
         admin.setUsername(username);
         admin.setPassword(password);
-        admin.setCreatedAt(LocalDateTime.now());
-        admin.setModifiedAt(LocalDateTime.now());
+        admin.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         return admin;
     }
 
@@ -165,9 +167,10 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setModifiedAt(LocalDateTime.now());
+        user.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         user.setEnrolledExams(List.of());
+        user.setCompletedExams(List.of());
         user.setUserExamResults(List.of());
         return user;
     }

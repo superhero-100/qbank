@@ -29,7 +29,7 @@ public class UserController {
     private final UserExamResultService userExamResultService;
 
     @GetMapping("/home")
-    public String home(
+    public String getDashboardPage(
             Model model,
             HttpSession session
     ) {
@@ -41,39 +41,39 @@ public class UserController {
     }
 
     @GetMapping("/subjects")
-    public String subjects(Model model) {
+    public String getSubjectsPage(Model model) {
         model.addAttribute("subjects", subjectService.getSubjectDtoList());
         return "/user/subjects-view";
     }
 
     @GetMapping("/exams")
-    public String exams(@RequestParam(name = "subjectId", required = false) Optional<Long> optionalId, Model model) {
+    public String getExamsPage(@RequestParam(name = "subjectId", required = false) Optional<Long> optionalId, HttpSession session, Model model) {
         optionalId.ifPresentOrElse(
                 id -> {
                     model.addAttribute("subject", subjectService.getSubjectDtoById(id));
-                    model.addAttribute("exams", subjectService.getSubjectExamsInDtoById(id));
+                    model.addAttribute("exams", examService.getExamsInDtoBySubjectId(id, (Long) session.getAttribute(USER_ID)));
                 },
-                () -> model.addAttribute("exams", examService.getAllExamsInDto())
+                () -> model.addAttribute("exams", examService.getAllExamsInDto((Long) session.getAttribute(USER_ID)))
         );
         return "/user/exams-view";
     }
 
     @GetMapping("/history")
-    public String history(HttpSession session, Model model) {
+    public String getHistoryPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute(USER_ID);
         model.addAttribute("history", userService.getAllEnrolledExamDtos(userId));
         return "/user/history-view";
     }
 
     @GetMapping("/profile")
-    public String profile(HttpSession session, Model model) {
+    public String getProfilePage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute(USER_ID);
         model.addAttribute("stats", userService.getUserStats(userId));
         return "/user/profile-view";
     }
 
     @GetMapping("/result/exam/{id}")
-    public String examResult(@PathVariable("id") Long id, Model model) {
+    public String getExamResultPage(@PathVariable("id") Long id, Model model) {
         model.addAttribute("result", userExamResultService.getUserExamResultInDtoById(id));
         return "/user/exam-result";
     }

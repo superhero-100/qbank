@@ -4,10 +4,7 @@ import com.example.qbankapi.dao.*;
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
 import com.example.qbankapi.entity.*;
-import com.example.qbankapi.exception.InSufficientQuestionsException;
-import com.example.qbankapi.exception.QuestionNotFoundException;
-import com.example.qbankapi.exception.SubjectNotFoundException;
-import com.example.qbankapi.exception.UserNotFoundException;
+import com.example.qbankapi.exception.*;
 import com.example.qbankapi.exception.handler.ExamNotFoundException;
 import lombok.*;
 import org.springframework.stereotype.Service;
@@ -15,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +33,15 @@ public class ExamService {
     private final UserAnalyticsDao userAnalyticsDao;
     private final UserExamResultDao userExamResultDao;
     private final UserAnswerDao userAnswerDao;
+    private final AdminDao adminDao;
 
     @Transactional(readOnly = true)
-    public List<ExamDetailsDto> getAllExamsInDto() {
-        return examDao.findAll()
+    public List<ExamDetailsDto> getAllExamsInDto(Long userId) {
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
+
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(user.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
+
+        return examDao.findAllByEnrollmentEndDate(nowUtc)
                 .stream()
                 .map(exam -> ExamDetailsDto.builder()
                         .id(exam.getId())
@@ -50,7 +55,8 @@ public class ExamService {
     }
 
     @Transactional
-    public void createExam(CreateExamRequestDto createExamRequestDto) {
+    public void createExam(CreateExamRequestDto createExamRequestDto, Long adminId) {
+        Admin admin = adminDao.findById(adminId).orElseThrow(() -> new AdminNotFoundException(String.format("Admin not found with id", adminId)));
         Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
 
         ExamAnalytics examAnalytics = new ExamAnalytics();
@@ -68,15 +74,22 @@ public class ExamService {
                         (createExamRequestDto.getTotal6MarkQuestions() * 6)
         );
 
+        ZoneId userZoneId = ZoneId.of(admin.getZoneId());
+
         Exam exam = new Exam();
         exam.setDescription(createExamRequestDto.getDescription());
         exam.setTotalMarks(totalMarks);
         exam.setSubject(subject);
         exam.setQuestions(new ArrayList<>());
         exam.setEnrolledUsers(List.of());
+        exam.setCompletedUsers(List.of());
         exam.setAnalytics(examAnalytics);
-        exam.setCreatedAt(LocalDateTime.now());
-        exam.setModifiedAt(LocalDateTime.now());
+        exam.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
 
         addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal1MarkQuestions(), Question.Complexity.EASY, 1);
         addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal2MarkQuestions(), Question.Complexity.EASY, 2);
@@ -88,6 +101,9 @@ public class ExamService {
         subject.getExams().add(exam);
         examAnalytics.setExam(exam);
 
+        admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+
+        adminDao.update(admin);
         subjectDao.update(subject);
         examAnalyticsDao.save(examAnalytics);
         examDao.save(exam);
@@ -112,7 +128,8 @@ public class ExamService {
         if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank())
             examFilterDto.setSortOrder("DESC");
         if (examFilterDto.getPageSize() == null || examFilterDto.getPageSize() <= 0) examFilterDto.setPageSize(10);
-        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) examFilterDto.setPageSize(10);
+        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20)
+            examFilterDto.setPageSize(10);
         if (examFilterDto.getPage() == null || examFilterDto.getPage() < 0) examFilterDto.setPage(0);
 
         System.out.println("subjectId = " + Optional.ofNullable(examFilterDto.getSubjectId()));
@@ -227,9 +244,39 @@ public class ExamService {
 
         user.getUserExamResults().add(userExamResult);
         user.getEnrolledExams().add(exam);
+        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         userDao.update(user);
 
         return userExamResult.getId();
     }
+
+    @Transactional
+    public void enrollExam(Long userId, Long examId) {
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
+        Exam exam = examDao.findById(examId).orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", examId)));
+        user.getEnrolledExams().add(exam);
+        exam.getEnrolledUsers().add(user);
+        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        userDao.update(user);
+        examDao.update(exam);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamDetailsDto> getExamsInDtoBySubjectId(Long subjectId,Long userId) {
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id %d", userId)));
+        return examDao.findAllByEnrollmentEndDate().getExams()
+                .stream()
+                .map(exam -> ExamDetailsDto.builder()
+                        .id(exam.getId())
+                        .description(exam.getDescription())
+                        .totalMarks(exam.getTotalMarks())
+                        .subjectName(exam.getSubject().getName())
+                        .totalQuestions(exam.getQuestions().size())
+                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
 }

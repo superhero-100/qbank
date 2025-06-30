@@ -2,7 +2,6 @@ package com.example.qbankapi.controller;
 
 import com.example.qbankapi.dto.request.LoginUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
-import com.example.qbankapi.entity.constant.Role;
 import com.example.qbankapi.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index(HttpSession session) {
-        Role role = (Role) session.getAttribute(USER_ROLE);
+        BaseUser.Role role = (BaseUser.Role) session.getAttribute(USER_ROLE);
         log.info("Session role: {}", role);
 
         String redirectUrl = switch (role) {
@@ -42,12 +41,6 @@ public class HomeController {
 
         log.info("Redirecting to: {}", redirectUrl);
         return "redirect:" + redirectUrl;
-    }
-
-    @GetMapping("/editor")
-    public String editor() {
-        log.info("Rendering editor page");
-        return "editor";
     }
 
     @GetMapping("/login")

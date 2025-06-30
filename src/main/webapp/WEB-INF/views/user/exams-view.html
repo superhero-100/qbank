@@ -56,8 +56,8 @@
                 <td th:text="${exam.totalQuestions}">20</td>
                 <td th:text="${exam.totalEnrolledUsers}">15</td>
                 <td class="text-center">
-                    <a th:href="@{'/user/exam/start/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">
-                        <i class="fas fa-play-circle mr-1"></i> Start Exam
+                    <a th:href="@{'/user/exam/enroll/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">
+                        <i class="fas fa-play-circle mr-1"></i> Enroll Exam
                     </a>
                 </td>
             </tr>

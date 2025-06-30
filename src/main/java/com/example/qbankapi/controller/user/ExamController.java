@@ -3,6 +3,8 @@ package com.example.qbankapi.controller.user;
 import com.example.qbankapi.dto.model.ExamDto;
 import com.example.qbankapi.dto.model.ExamSubmissionDto;
 import com.example.qbankapi.dto.model.UserAnswerDto;
+import com.example.qbankapi.exception.UserNotFoundException;
+import com.example.qbankapi.exception.handler.ExamNotFoundException;
 import com.example.qbankapi.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,19 @@ public class ExamController {
 
     private final ExamService examService;
 
+    @GetMapping("/enroll/{id}")
+    public String enrollExam(@PathVariable("id") Long id, HttpSession session, Model model) {
+        try {
+            examService.enrollExam((Long) session.getAttribute(USER_ID), id);
+        } catch (UserNotFoundException | ExamNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/user/error";
+        }
+        model.addAttribute("message", "Enrolled in exam successfully");
+        return "/user/success";
+    }
+
+    // only start if valid time as per the     cached user zone id   and if previously enrolled
     @GetMapping("/start/{id}")
     public String startExam(@PathVariable("id") Long id, HttpSession session) {
         ExamDto examDto = examService.getExamInDtoById(id);

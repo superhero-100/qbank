@@ -3,6 +3,7 @@ package com.example.qbankapi.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_user",
+            name = "exam_user_enrolled",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
@@ -48,9 +49,37 @@ public class Exam extends Auditable {
     @ToString.Exclude
     private List<User> enrolledUsers;
 
+    @ManyToMany
+    @JoinTable(
+            name = "exam_user_completed",
+            joinColumns = @JoinColumn(name = "exam_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+
+    )
+    @ToString.Exclude
+    private List<User> completedUsers;
+
     @OneToOne
     @JoinColumn(name = "analytics_id")
     @ToString.Exclude
     private ExamAnalytics analytics;
+
+
+
+    // Enrollment Period
+    @Column(name = "enrollment_start_date")
+    private ZonedDateTime enrollmentStartDate;
+
+    @Column(name = "enrollment_end_date")
+    private ZonedDateTime enrollmentEndDate;
+
+
+
+    // Exam Period
+    @Column(name = "exam_start_date")
+    private ZonedDateTime examStartDate;
+
+    @Column(name = "exam_end_date")
+    private ZonedDateTime examEndDate;
 
 }
