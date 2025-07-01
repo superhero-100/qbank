@@ -7,6 +7,7 @@ import com.example.qbankapi.dto.request.LoginUserRequestDto;
 import com.example.qbankapi.entity.Admin;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.User;
+import com.example.qbankapi.exception.AccountNotActiveException;
 import com.example.qbankapi.exception.AdminNotFoundException;
 import com.example.qbankapi.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,9 @@ public class AuthenticationService {
         Optional<BaseUser> optionalUser = baseUserDao.findByUsername(requestDto.getUsername());
         if (optionalUser.isPresent()) {
             BaseUser baseUser = optionalUser.get();
+            if (!baseUser.getStatus().equals(BaseUser.Status.ACTIVE)){
+                throw new AccountNotActiveException("your account is locked or inactive");
+            }
             log.info("User with username: {} found", baseUser.getUsername());
             if (baseUser.getPassword().equals(requestDto.getPassword())) {
                 log.info("Authenticate attempt for user with username: {} successful", baseUser.getUsername());

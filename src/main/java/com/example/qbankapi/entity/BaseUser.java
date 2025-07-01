@@ -21,11 +21,18 @@ public class BaseUser extends Auditable {
     @Column(name = "username", unique = true)
     protected String username;
 
+    @Column(name = "email", unique = true)
+    protected String email;
+
     @Column(name = "password")
     protected String password;
 
     @Column(name = "role", insertable = false, updatable = false)
     protected String roleValue;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
 
     @Transient
     public Role getRole() {
@@ -37,5 +44,8 @@ public class BaseUser extends Auditable {
         USER
     }
 
+    public enum Status {
+        ACTIVE, INACTIVE, LOCKED
+    }
 
 }

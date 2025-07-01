@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <section class="bg-base-100 p-6 rounded-xl shadow-md">
+
+            <div class="flex justify-between gap-4 w-full">
+                <div class="p-6 space-y-6">
+                    <h1 class="text-2xl font-bold text-primary">Manage Users</h1>
+                    <p class="text-sm text-gray-500">Create, update, and manage system users.</p>
+                </div>
+            </div>
+
+            <!-- Filter Panel -->
+            <form th:action="@{/admin/manage/users}" th:object="${filter}" method="get"
+                  class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+                <!-- Role -->
+                <div>
+                    <label class="label font-semibold text-base-content">Role</label>
+                    <select th:field="*{role}" class="select select-bordered w-full">
+                        <option value="ALL">All</option>
+                        <option value="USER">User</option>
+                        <option value="ADMIN">Admin</option>
+                        <!--            <option value="Teacher">Teacher</option>-->
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="label font-semibold text-base-content">Status</label>
+                    <select th:field="*{status}" class="select select-bordered w-full">
+                        <option value="ALL">All</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                        <option value="LOCKED">Locked</option>
+                    </select>
+                </div>
+
+                <!-- Regex Pattern -->
+                <div>
+                    <label class="label font-semibold text-base-content">Username Regex Pattern</label>
+                    <input type="text" th:field="*{usernameRegxPattern}" placeholder="Enter regex..."
+                           class="input input-bordered w-full"/>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="label font-semibold text-base-content">Sort By</label>
+                    <select th:field="*{sortBy}" class="select select-bordered w-full">
+                        <option value="id">#id</option>
+                        <option value="username">Username</option>
+                        <option value="email">Email</option>
+                        <option value="roleValue">Role</option>
+                    </select>
+                </div>
+
+                <!-- Sort Order -->
+                <div>
+                    <label class="label font-semibold text-base-content">Sort Order</label>
+                    <select th:field="*{sortOrder}" class="select select-bordered w-full">
+                        <option value="ASC">ASC</option>
+                        <option value="DESC">DESC</option>
+                    </select>
+                </div>
+
+                <!-- Page Size -->
+                <div>
+                    <label class="label font-semibold text-base-content">Page Size</label>
+                    <select th:field="*{pageSize}" class="select select-bordered w-full">
+                        <option value="5">5 per page</option>
+                        <option value="10">10 per page</option>
+                        <option value="20">20 per page</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <div class="lg:col-span-3 md:col-span-2">
+                    <button type="submit" class="btn btn-primary w-full mt-2">Apply Filters</button>
+                </div>
+            </form>
+
+            <div th:if="${baseUsers}" class="flex flex-col gap-6 mt-6">
+                <div th:each="u : ${baseUsers}" class="card bg-base-100 shadow-lg w-full">
+                    <div class="card-body space-y-4">
+
+                        <!-- User Info -->
+                        <h2 class="card-title text-lg font-bold text-primary flex items-center space-x-2">
+                            <span class="text-base-content text-xl font-bold">#<span th:text="${u.id}">1</span></span>
+                            <span th:text="${u.username}">John Doe</span>
+                        </h2>
+
+                        <!-- Metadata -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div><span class="font-semibold">Email:</span> <span
+                                    th:text="${u.email}">john@example.com</span></div>
+                            <div><span class="font-semibold">Role:</span> <span th:text="${u.role}">USER</span></div>
+                            <div><span class="font-semibold">Status:</span> <span th:text="${u.status}">ACTIVE</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card-actions justify-end">
+                            <!-- Inactivate Button -->
+                            <button type="button"
+                                    th:if="${u.status.name() == 'ACTIVE' and u.role.name() != 'ADMIN'}"
+                                    th:onclick="'openActionModal(\'Inactivate\', \'/admin/manage/users/' + ${u.id} + '/inactivate\')'"
+                                    class="btn btn-sm btn-warning text-white">
+                                Inactivate
+                            </button>
+
+                            <!-- Activate Button -->
+                            <button type="button"
+                                    th:if="${(u.status.name() == 'INACTIVE' or u.status.name() == 'LOCKED') and u.role.name() != 'ADMIN'}"
+                                    th:onclick="'openActionModal(\'Activate\', \'/admin/manage/users/' + ${u.id} + '/activate\')'"
+                                    class="btn btn-sm btn-success text-white">
+                                Activate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fallback Message -->
+            <div th:if="${baseUsers == null or baseUsers?.isEmpty()}">
+                <p class="text-center text-sm text-base-content/60 mt-6">No users found.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+                <a th:if="${pageNumber > 0}"
+                   th:href="@{/admin/manage/users(page=${pageNumber - 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Previous</a>
+
+                <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
+
+                <a th:if="${hasNextPage}"
+                   th:href="@{/admin/manage/users(page=${pageNumber + 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Next</a>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+<div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+<dialog id="actionModal" class="modal">
+    <form method="dialog" class="modal-box">
+        <h3 id="modalTitle" class="font-bold text-lg">Confirm Action</h3>
+        <p id="modalMessage" class="py-4">Are you sure you want to perform this action?</p>
+        <div class="modal-action">
+            <button class="btn">Cancel</button>
+            <a id="confirmActionBtn" href="#" class="btn btn-primary">Confirm</a>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    function openActionModal(action, url) {
+        document.getElementById('modalTitle').innerText = `Confirm ${action}`;
+        document.getElementById('modalMessage').innerText = `Are you sure you want to ${action.toLowerCase()} this user?`;
+        document.getElementById('confirmActionBtn').setAttribute('href', url);
+        document.getElementById('actionModal').showModal();
+    }
+</script>
+
+</body>
+</html>

@@ -14,7 +14,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -27,12 +29,13 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
     public void onApplicationEvent(ContextRefreshedEvent event) {
         log.info("Creating default users if not exists");
         List.of(
-                createAdmin("admin", "admin@123"),
-                createUser("sahil", "sahil@123"),
-                createUser("jetha", "jetha@123"),
-                createUser("daya", "daya@123"),
-                createUser("champak", "champak@123"),
-                createUser("tapu", "tapu@123")
+                createAdmin("admin", "admin@gmail.com", "admin@123"),
+                createUser("sahil", "sahil@gmail.com", "sahil@123"),
+                createUser("john", "john.doe@example.com", "john@123"),
+                createUser("alex", "alex@example.com", "alex@123"),
+                createUser("mike", "mike.jordan@example.com", "mike@123"),
+                createUser("nina", "nina.ross@example.com", "nina@123"),
+                createUser("jane", "jane.doe@example.com", "jane@123")
         ).forEach(user -> initService.createUserIfNotExists(user));
 
         log.info("Creating default subjects if not exists");
@@ -154,24 +157,30 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
 
     }
 
-    private Admin createAdmin(String username, String password) {
+    private Admin createAdmin(String username, String email, String password) {
         Admin admin = new Admin();
         admin.setUsername(username);
+        admin.setEmail(email);
         admin.setPassword(password);
         admin.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
         admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        admin.setZoneId("UTC");
+        admin.setStatus(BaseUser.Status.ACTIVE);
         return admin;
     }
 
-    private User createUser(String username, String password) {
+    private User createUser(String username, String email, String password) {
         User user = new User();
         user.setUsername(username);
+        user.setEmail(email);
         user.setPassword(password);
         user.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
         user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         user.setEnrolledExams(List.of());
         user.setCompletedExams(List.of());
         user.setUserExamResults(List.of());
+        user.setZoneId("UTC");
+        user.setStatus(BaseUser.Status.ACTIVE);
         return user;
     }
 

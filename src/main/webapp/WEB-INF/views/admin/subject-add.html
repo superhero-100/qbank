@@ -27,7 +27,8 @@
             <p th:if="${error}" th:text="${error}"
                class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
 
-            <form th:action="@{/admin/manage/subjects/save}" method="post" th:object="${addSubjectRequest}" novalidate
+            <form id="subjectForm" th:action="@{/admin/manage/subjects/save}" method="post"
+                  th:object="${addSubjectRequest}" novalidate
                   class="space-y-6">
 
                 <!-- Subject Name -->
@@ -64,8 +65,14 @@
 
                 <!-- Submit + Cancel -->
                 <div class="flex justify-end gap-4">
-                    <a th:href="@{/admin/manage/subjects}" class="btn btn-ghost">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Save Subject</button>
+                    <button type="button" class="btn btn-primary"
+                            th:onclick="|openCancelConfirmModal('@{/admin/manage/subjects}')|">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary"
+                            onclick="openSaveSubjectConfirmModal()">
+                        Save Subject
+                    </button>
                 </div>
             </form>
         </section>
@@ -76,6 +83,38 @@
 <div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 <div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+<div th:replace="~{/fragments/modal :: configurableModal}"></div>
+
+<script>
+    function openSaveSubjectConfirmModal() {
+        document.getElementById('modalTitle').innerText = 'Save Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to save this subject?';
+        document.getElementById('confirmActionBtn').innerText = 'Save';
+        document.getElementById('confirmActionBtn').className = 'btn btn-primary';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            document.getElementById('subjectForm').submit();
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+
+    function openCancelConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Cancel Confirmation';
+        document.getElementById('modalMessage').innerText = 'Are you sure you want to cancel and discard changes?';
+        document.getElementById('confirmActionBtn').innerText = 'Yes, Cancel';
+        document.getElementById('confirmActionBtn').className = 'btn btn-warning';
+        document.getElementById('modalCancelBtn').innerText = 'Stay';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+</script>
 
 </body>
 </html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+</head>
+<body class="bg-base-200 min-h-screen flex items-center justify-center">
+
+<div class="card w-full max-w-md shadow-lg bg-base-100 p-6">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-error mb-4">An Error Occurred</h1>
+        <p class="text-base-content mb-6" th:text="${message}">Something went wrong. Please try again later.</p>
+
+        <a th:href="@{/login}" class="btn btn-primary">Back to Login</a>
+    </div>
+</div>
+
+</body>
+</html>

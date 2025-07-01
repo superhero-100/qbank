@@ -28,11 +28,12 @@
             <p th:if="${error}" th:text="${error}"
                class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
 
-            <form th:action="@{/admin/manage/questions/edit}" method="post" th:object="${updateQuestionRequest}" novalidate
+            <form id="questionForm" th:action="@{/admin/manage/questions/edit}" method="post"
+                  th:object="${updateQuestionRequest}" novalidate
                   class="space-y-6">
 
                 <!-- Hidden ID Field -->
-                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{id}"/>
 
                 <!-- Question Text -->
                 <div>
@@ -124,8 +125,14 @@
 
                 <!-- Submit + Cancel -->
                 <div class="flex justify-end gap-4 mt-6">
-                    <a th:href="@{/admin/manage/questions}" class="btn btn-ghost">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Update Question</button>
+                    <button type="button" class="btn btn-ghost"
+                            th:onclick="|openCancelConfirmModal('@{/admin/manage/questions}')|">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary"
+                            onclick="openUpdateQuestionConfirmModal()">
+                        Update Question
+                    </button>
                 </div>
 
             </form>
@@ -156,15 +163,6 @@
     const optionCEditor = new RichTextEditor("#editor_optionC", editorcfg);
     const optionDEditor = new RichTextEditor("#editor_optionD", editorcfg);
 
-    // Sync editor content to hidden fields on submit
-    document.querySelector("form").addEventListener("submit", function () {
-        document.getElementById("hidden_questionText").value = questionEditor.getHTMLCode();
-        document.getElementById("hidden_optionA").value = optionAEditor.getHTMLCode();
-        document.getElementById("hidden_optionB").value = optionBEditor.getHTMLCode();
-        document.getElementById("hidden_optionC").value = optionCEditor.getHTMLCode();
-        document.getElementById("hidden_optionD").value = optionDEditor.getHTMLCode();
-    });
-
     window.addEventListener("DOMContentLoaded", function () {
         questionEditor.setHTMLCode(document.getElementById("hidden_questionText").value || "");
         optionAEditor.setHTMLCode(document.getElementById("hidden_optionA").value || "");
@@ -172,6 +170,44 @@
         optionCEditor.setHTMLCode(document.getElementById("hidden_optionC").value || "");
         optionDEditor.setHTMLCode(document.getElementById("hidden_optionD").value || "");
     });
+</script>
+
+<div th:replace="~{/fragments/modal :: configurableModal}"></div>
+
+<script>
+    function openUpdateQuestionConfirmModal() {
+        document.getElementById('modalTitle').innerText = 'Update Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to update this subject?';
+        document.getElementById('confirmActionBtn').innerText = 'Update';
+        document.getElementById('confirmActionBtn').className = 'btn btn-primary';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            document.getElementById("hidden_questionText").value = questionEditor.getHTMLCode();
+            document.getElementById("hidden_optionA").value = optionAEditor.getHTMLCode();
+            document.getElementById("hidden_optionB").value = optionBEditor.getHTMLCode();
+            document.getElementById("hidden_optionC").value = optionCEditor.getHTMLCode();
+            document.getElementById("hidden_optionD").value = optionDEditor.getHTMLCode();
+
+            document.getElementById('questionForm').submit();
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+
+    function openCancelConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Cancel Confirmation';
+        document.getElementById('modalMessage').innerText = 'Are you sure you want to cancel and discard changes?';
+        document.getElementById('confirmActionBtn').innerText = 'Yes, Cancel';
+        document.getElementById('confirmActionBtn').className = 'btn btn-warning';
+        document.getElementById('modalCancelBtn').innerText = 'Stay';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
 </script>
 
 </body>

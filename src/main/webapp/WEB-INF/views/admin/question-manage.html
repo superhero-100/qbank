@@ -156,8 +156,10 @@
                         <div class="card-actions justify-end">
                             <a th:href="@{'/admin/manage/questions/' + ${q.id} + '/edit'}"
                                class="btn btn-sm btn-info text-white">Edit</a>
-                            <a th:href="@{'/admin/manage/questions/' + ${q.id} + '/delete'}"
-                               class="btn btn-sm btn-error text-white">Delete</a>
+                            <button type="button" class="btn btn-sm btn-error text-white"
+                                    th:onclick="|openDeleteQuestionConfirmModal('@{/admin/manage/questions/{id}/delete(id=${q.id})}')|">
+                                Delete
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -190,6 +192,24 @@
 <div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 <div th:replace="~{/admin/fragments/support :: tags}"></div>
+
+<div th:replace="~{/fragments/modal :: configurableModal}"></div>
+
+<script>
+    function openDeleteQuestionConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Delete Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to delete this question?';
+        document.getElementById('confirmActionBtn').innerText = 'Delete';
+        document.getElementById('confirmActionBtn').className = 'btn btn-primary';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+</script>
 
 </body>
 </html>

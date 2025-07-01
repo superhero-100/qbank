@@ -1,0 +1,13 @@
+<!-- /fragments/modal.html -->
+<div th:fragment="configurableModal">
+  <dialog id="actionModal" class="modal">
+    <form method="dialog" class="modal-box">
+      <h3 id="modalTitle" class="font-bold text-lg">Modal Title</h3>
+      <p id="modalMessage" class="py-4">Are you sure you want to proceed?</p>
+      <div class="modal-action">
+        <button id="modalCancelBtn" type="button" class="btn" onclick="document.getElementById('actionModal').close()">Cancel</button>
+        <button id="confirmActionBtn" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+</div>

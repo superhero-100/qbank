@@ -8,7 +8,6 @@ import com.example.qbankapi.dto.model.QuestionViewPageDto;
 import com.example.qbankapi.dto.model.UpdateQuestionDto;
 import com.example.qbankapi.dto.request.AddQuestionRequestDto;
 import com.example.qbankapi.dto.request.UpdateQuestionRequestDto;
-import com.example.qbankapi.dto.response.QuestionResponseDto;
 import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.entity.Subject;
 import com.example.qbankapi.exception.QuestionNotFoundException;

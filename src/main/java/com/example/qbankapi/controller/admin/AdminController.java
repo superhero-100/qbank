@@ -1,11 +1,10 @@
 package com.example.qbankapi.controller.admin;
 
+import com.example.qbankapi.dto.model.UserFilterDto;
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.*;
-import com.example.qbankapi.exception.InSufficientQuestionsException;
-import com.example.qbankapi.exception.QuestionNotFoundException;
-import com.example.qbankapi.exception.SubjectAlreadyExistsException;
-import com.example.qbankapi.exception.SubjectNotFoundException;
+import com.example.qbankapi.exception.*;
+import com.example.qbankapi.service.BaseUserService;
 import com.example.qbankapi.service.ExamService;
 import com.example.qbankapi.service.QuestionService;
 import com.example.qbankapi.service.SubjectService;
@@ -30,6 +29,7 @@ public class AdminController {
     private final SubjectService subjectService;
     private final QuestionService questionService;
     private final ExamService examService;
+    private final BaseUserService baseUserService;
 
     @GetMapping("/home")
     public String getDashboardPage() {
@@ -135,7 +135,6 @@ public class AdminController {
         return "/admin/question-manage";
     }
 
-
     @GetMapping("/manage/questions/add")
     public String getAddQuestionPage(Model model) {
         model.addAttribute("subjects", subjectService.getSubjectDtoList());
@@ -145,11 +144,12 @@ public class AdminController {
 
     @PostMapping("/manage/questions/save")
     public String addQuestion(
-            @Valid @ModelAttribute("addSubjectRequest") AddQuestionRequestDto addQuestionRequest,
+            @Valid @ModelAttribute("addQuestionRequest") AddQuestionRequestDto addQuestionRequest,
             BindingResult bindingResult,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("subjects", subjectService.getSubjectDtoList());
             return "/admin/question-add";
         }
 
@@ -199,6 +199,7 @@ public class AdminController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("subjects", subjectService.getSubjectDtoList());
             return "/admin/question-edit";
         }
 
@@ -289,6 +290,48 @@ public class AdminController {
 
         model.addAttribute("message", "Exam created successfully");
         return "/admin/success";
+    }
+
+    @GetMapping("/manage/users")
+    public String getManageUsersPage(
+            @Valid @ModelAttribute("filter") UserFilterDto userFilterDto,
+            Model model,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "/admin/user-manage";
+        }
+
+        BaseUserViewPageDto baseUserViewPageDto = baseUserService.getFilteredUsers(userFilterDto);
+        model.addAttribute("filter", userFilterDto);
+
+        model.addAttribute("baseUsers", baseUserViewPageDto.getBaseUsers());
+        model.addAttribute("pageNumber", baseUserViewPageDto.getPage());
+        model.addAttribute("pageSize", baseUserViewPageDto.getPageSize());
+        model.addAttribute("hasNextPage", baseUserViewPageDto.getHasNextPage());
+        return "/admin/user-manage";
+    }
+
+    @GetMapping("/manage/users/{id}/activate")
+    public String activateUser(@PathVariable("id") Long id, Model model) {
+        try {
+            baseUserService.activateUser(id);
+        } catch (UserNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/admin/error";
+        }
+        return "redirect:/admin/manage/users";
+    }
+
+    @GetMapping("/manage/users/{id}/inactivate")
+    public String inactivateUser(@PathVariable("id") Long id, Model model) {
+        try {
+            baseUserService.inactivateUser(id);
+        } catch (UserNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "/admin/error";
+        }
+        return "redirect:/admin/manage/users";
     }
 
 //    private final UserService userService;

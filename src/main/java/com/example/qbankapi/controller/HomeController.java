@@ -2,6 +2,9 @@ package com.example.qbankapi.controller;
 
 import com.example.qbankapi.dto.request.LoginUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
+import com.example.qbankapi.exception.AccountNotActiveException;
+import com.example.qbankapi.exception.AdminNotFoundException;
+import com.example.qbankapi.exception.UserNotFoundException;
 import com.example.qbankapi.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,23 +77,31 @@ public class HomeController {
             return "login";
         }
 
-        Optional<BaseUser> optionalBaseUser = authenticationService.authenticate(loginUserRequest);
-        if (optionalBaseUser.isPresent()) {
-            BaseUser baseUser = optionalBaseUser.get();
-            log.info("Authentication successful for user ID: {}, Role: {}", baseUser.getId(), baseUser.getRole());
+        try {
+            Optional<BaseUser> optionalBaseUser = authenticationService.authenticate(loginUserRequest);
+            if (optionalBaseUser.isPresent()) {
+                BaseUser baseUser = optionalBaseUser.get();
+                log.info("Authentication successful for user ID: {}, Role: {}", baseUser.getId(), baseUser.getRole());
 
-            session.setAttribute(IS_USER_VERIFIED, Boolean.TRUE);
-            session.setAttribute(USER_ID, baseUser.getId());
-            session.setAttribute(USER_ROLE, baseUser.getRole());
-            log.info("User attributes set in session IS_USER_VERIFIED, USER_ID, USER_ROLE");
+                session.setAttribute(IS_USER_VERIFIED, Boolean.TRUE);
+                session.setAttribute(USER_ID, baseUser.getId());
+                session.setAttribute(USER_ROLE, baseUser.getRole());
+                log.info("User attributes set in session IS_USER_VERIFIED, USER_ID, USER_ROLE");
 
-            log.info("Redirecting to: /");
-            return "redirect:/";
+                log.info("Redirecting to: /");
+                return "redirect:/";
+            } else {
+                log.warn("Authentication failed for username: {}", loginUserRequest.getUsername());
+                model.addAttribute("error", "Invalid Username Or Password");
+                return "login";
+            }
+        } catch (AccountNotActiveException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "error";
+        } catch (UserNotFoundException | AdminNotFoundException ex) {
+            model.addAttribute("message", ex.getMessage());
+            return "error";
         }
-
-        log.warn("Authentication failed for username: {}", loginUserRequest.getUsername());
-        model.addAttribute("error", "Invalid Username Or Password");
-        return "login";
     }
 
     @GetMapping("/logout")
