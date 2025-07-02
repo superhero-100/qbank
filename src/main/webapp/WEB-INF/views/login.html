@@ -17,13 +17,9 @@
         <p class="text-base-content text-sm mt-1">Login</p>
     </div>
 
-    <!-- Error Message -->
-    <p th:if="${error}" th:text="${error}"
-       class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
-
     <!-- Login Form -->
-    <form th:action="@{/login}" method="post" th:object="${loginUserRequest}" novalidate class="space-y-4">
-        <!-- Username -->
+    <form th:action="@{/login}" method="post" th:object="${loginBaseUserRequest}" novalidate class="space-y-4">
+        <!-- BaseUserIdentifier -->
         <div>
             <label for="username" class="label">
                 <span class="label-text font-semibold">Username</span>
@@ -32,11 +28,12 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
                     <i class="fas fa-user"></i>
                 </span>
-                <input id="username" th:field="*{username}" type="text"
+                <input id="username" th:field="*{baseUserIdentifier}" type="text"
                        placeholder="Enter username"
                        class="input input-bordered w-full pl-10"/>
             </div>
-            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-error text-xs mt-1"></p>
+            <p th:if="${#fields.hasErrors('baseUserIdentifier')}" th:errors="*{baseUserIdentifier}"
+               class="text-error text-xs mt-1"></p>
         </div>
 
         <!-- Password -->

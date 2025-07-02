@@ -8,11 +8,10 @@ import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
-public class LoginUserRequestDto {
+public class LoginBaseUserRequestDto {
 
-    @NotBlank(message = "Username must not be blank")
-    @Size(min = 4, max = 20, message = "Username must be between 4 and 20 characters")
-    private String username;
+    @NotBlank(message = "Username or email must not be blank")
+    private String baseUserIdentifier;
 
     @NotBlank(message = "Password must not be blank")
 //    @Pattern(

@@ -5,11 +5,11 @@ import com.example.qbankapi.exception.base.EntityNotFoundException;
 public class AdminNotFoundException extends EntityNotFoundException {
 
     public AdminNotFoundException() {
-        super();
+        super("Admin not found");
     }
 
     public AdminNotFoundException(String message) {
-        super("Admin not found");
+        super(message);
     }
 
     public AdminNotFoundException(Throwable cause) {

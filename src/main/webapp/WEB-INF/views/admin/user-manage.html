@@ -121,7 +121,7 @@
                             <!-- Inactivate Button -->
                             <button type="button"
                                     th:if="${u.status.name() == 'ACTIVE' and u.role.name() != 'ADMIN'}"
-                                    th:onclick="'openActionModal(\'Inactivate\', \'/admin/manage/users/' + ${u.id} + '/inactivate\')'"
+                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/inactivate(id=${u.id})}')|"
                                     class="btn btn-sm btn-warning text-white">
                                 Inactivate
                             </button>
@@ -129,7 +129,7 @@
                             <!-- Activate Button -->
                             <button type="button"
                                     th:if="${(u.status.name() == 'INACTIVE' or u.status.name() == 'LOCKED') and u.role.name() != 'ADMIN'}"
-                                    th:onclick="'openActionModal(\'Activate\', \'/admin/manage/users/' + ${u.id} + '/activate\')'"
+                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/activate(id=${u.id})}')|"
                                     class="btn btn-sm btn-success text-white">
                                 Activate
                             </button>
@@ -164,22 +164,34 @@
 
 <div th:replace="~{/admin/fragments/support :: tags}"></div>
 
-<dialog id="actionModal" class="modal">
-    <form method="dialog" class="modal-box">
-        <h3 id="modalTitle" class="font-bold text-lg">Confirm Action</h3>
-        <p id="modalMessage" class="py-4">Are you sure you want to perform this action?</p>
-        <div class="modal-action">
-            <button class="btn">Cancel</button>
-            <a id="confirmActionBtn" href="#" class="btn btn-primary">Confirm</a>
-        </div>
-    </form>
-</dialog>
+<div th:replace="~{/fragments/modal :: configurableModal}"></div>
 
 <script>
-    function openActionModal(action, url) {
-        document.getElementById('modalTitle').innerText = `Confirm ${action}`;
-        document.getElementById('modalMessage').innerText = `Are you sure you want to ${action.toLowerCase()} this user?`;
-        document.getElementById('confirmActionBtn').setAttribute('href', url);
+    function openUserActivateConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Activate Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to activate this user?';
+        document.getElementById('confirmActionBtn').innerText = 'Activate';
+        document.getElementById('confirmActionBtn').className = 'btn btn-success';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+
+    function openUserInactivateConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Deactivate Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to deactivate this user?';
+        document.getElementById('confirmActionBtn').innerText = 'Deactivate';
+        document.getElementById('confirmActionBtn').className = 'btn btn-warning';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
         document.getElementById('actionModal').showModal();
     }
 </script>

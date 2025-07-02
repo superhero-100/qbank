@@ -1,5 +1,6 @@
 package com.example.qbankapi.interceptor;
 
+import com.example.qbankapi.entity.BaseUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -8,26 +9,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static com.example.qbankapi.interceptor.constant.Variable.IS_BASE_USER_VERIFIED;
+import static com.example.qbankapi.interceptor.constant.Variable.BASE_USER_ID;
+import static com.example.qbankapi.interceptor.constant.Variable.BASE_USER_ROLE;
 
 @Slf4j
 @Component
-public class SessionValidationInterceptor implements HandlerInterceptor {
+public class TeacherSessionValidationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.debug("Intercepting request URI: {}", request.getRequestURI());
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
 
         if (session != null) {
-            Object isVerified = session.getAttribute(IS_BASE_USER_VERIFIED);
+            Object id = session.getAttribute(BASE_USER_ID);
+            Object role = session.getAttribute(BASE_USER_ROLE);
 
-            log.debug("Session found. IS_BASE_USER_VERIFIED={}", isVerified);
+            log.debug("Session found. BASE_USER_ID={}, BASE_USER_ROLE={}", id, role);
 
-            if (Boolean.TRUE.equals(session.getAttribute(IS_BASE_USER_VERIFIED))) {
-                log.debug("Request session validated");
+            if (BaseUser.Role.USER.equals(role)) {
+                log.debug("Teacher session validated");
                 return true;
+            } else {
+                log.debug("Session exists but role is not USER: {}", role);
             }
         } else {
             log.debug("No session found");
