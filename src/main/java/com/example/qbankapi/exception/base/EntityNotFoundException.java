@@ -1,6 +1,8 @@
 package com.example.qbankapi.exception.base;
 
-public class EntityNotFoundException extends RuntimeException {
+import com.example.qbankapi.exception.AppRuntimeException;
+
+public class EntityNotFoundException extends AppRuntimeException {
 
     public EntityNotFoundException() {
         super();

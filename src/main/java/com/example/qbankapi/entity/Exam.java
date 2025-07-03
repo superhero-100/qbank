@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,7 +31,7 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_question",
+            name = "exam_question_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
@@ -41,23 +40,23 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_user_enrolled",
+            name = "exam_participant_user_enrolled_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
     )
     @ToString.Exclude
-    private List<User> enrolledUsers;
+    private List<ParticipantUser> enrolledParticipantUsers;
 
     @ManyToMany
     @JoinTable(
-            name = "exam_user_completed",
+            name = "exam_participant_user_completed_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
     )
     @ToString.Exclude
-    private List<User> completedUsers;
+    private List<ParticipantUser> completedParticipantUsers;
 
     @OneToOne
     @JoinColumn(name = "analytics_id")

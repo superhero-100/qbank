@@ -10,12 +10,12 @@
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/admin/fragments/header :: tag}"></div>
+<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="p-6">
-                    <a th:href="@{/admin/manage/subjects/add}" class="btn btn-success">Add New Subject</a>
+                    <a th:href="@{/adminUser/manage/subjects/add}" class="btn btn-success">Add New Subject</a>
                 </div>
             </div>
 
@@ -38,13 +38,13 @@
                         <p class="text-sm text-gray-500" th:text="${subject.description}">Subject Description</p>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
-                        <a th:href="@{'/admin/manage/subjects/' + ${subject.id} + '/edit'}"
+                        <a th:href="@{'/adminUser/manage/subjects/' + ${subject.id} + '/edit'}"
                            class="btn btn-sm btn-primary">Edit</a>
-                        <a th:href="@{/admin/manage/questions(subjectId=${subject.id})}"
+                        <a th:href="@{/adminUser/manage/questions(subjectId=${subject.id})}"
                            class="btn btn-sm btn-neutral">View Questions</a>
-                        <a th:href="@{/admin/manage/exams(subjectId=${subject.id})}"
+                        <a th:href="@{/adminUser/manage/exams(subjectId=${subject.id})}"
                            class="btn btn-sm btn-neutral">View Exams</a>
-                        <!-- <a th:href="@{'/admin/manage/subjects/delete/' + ${subject.id}}" class="btn btn-sm btn-error">Delete</a> -->
+                        <!-- <a th:href="@{'/adminUser/manage/subjects/delete/' + ${subject.id}}" class="btn btn-sm btn-error">Delete</a> -->
                     </div>
                 </div>
             </div>
@@ -53,9 +53,9 @@
     </main>
 </div>
 
-<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
 
-<div th:replace="~{/admin/fragments/support :: tags}"></div>
+<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
 
 </body>
 </html>

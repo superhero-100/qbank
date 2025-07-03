@@ -11,7 +11,7 @@
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/user/fragments/header :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
 
 <div class="container mx-auto mt-10 fade-in px-4">
 
@@ -116,14 +116,14 @@
 
     <!-- Back to Home Button -->
     <div class="text-center mt-6 mb-10">
-        <a th:href="@{/user/home}" class="btn btn-primary btn-wide text-md text-md">Back to Home</a>
+        <a th:href="@{/participantUser/home}" class="btn btn-primary btn-wide text-md text-md">Back to Home</a>
     </div>
 
 </div>
 
-<div th:replace="~{/user/fragments/footer :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
 
-<div th:replace="~{/user/fragments/support :: tags}"></div>
+<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
 
 </body>
 </html>

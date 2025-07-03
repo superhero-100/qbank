@@ -12,9 +12,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "admin_tbl")
+@Table(name = "admin_user_tbl")
 @DiscriminatorValue("ADMIN")
-public class Admin extends BaseUser {
+public class AdminUser extends BaseUser {
 
     @Column(name = "zone_id")
     private String zoneId;

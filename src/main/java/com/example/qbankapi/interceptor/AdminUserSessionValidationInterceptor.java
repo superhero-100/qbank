@@ -9,12 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static com.example.qbankapi.interceptor.constant.Variable.BASE_USER_ID;
-import static com.example.qbankapi.interceptor.constant.Variable.BASE_USER_ROLE;
+import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
+import static com.example.qbankapi.interceptor.constant.Variable.USER_ROLE;
 
 @Slf4j
 @Component
-public class AdminSessionValidationInterceptor implements HandlerInterceptor {
+public class AdminUserSessionValidationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -23,16 +23,16 @@ public class AdminSessionValidationInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session != null) {
-            Object id = session.getAttribute(BASE_USER_ID);
-            Object role = session.getAttribute(BASE_USER_ROLE);
+            Object userId = session.getAttribute(USER_ID);
+            Object userRole = session.getAttribute(USER_ROLE);
 
-            log.debug("Session found. BASE_USER_ID={}, BASE_USER_ROLE={}", id, role);
+            log.debug("Session found. USER_ID={}, USER_ROLE={}", userId, userRole);
 
-            if (BaseUser.Role.ADMIN.equals(role)) {
+            if (BaseUser.Role.ADMIN.equals(userRole)) {
                 log.debug("Admin session validated");
                 return true;
             } else {
-                log.debug("Session exists but role is not ADMIN: {}", role);
+                log.debug("Session exists but role is not ADMIN: {}", userRole);
             }
         } else {
             log.debug("No session found");

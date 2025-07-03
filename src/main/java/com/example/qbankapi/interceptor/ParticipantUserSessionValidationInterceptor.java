@@ -1,5 +1,6 @@
 package com.example.qbankapi.interceptor;
 
+import com.example.qbankapi.entity.BaseUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -8,26 +9,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static com.example.qbankapi.interceptor.constant.Variable.IS_BASE_USER_VERIFIED;
+import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
+import static com.example.qbankapi.interceptor.constant.Variable.USER_ROLE;
 
 @Slf4j
 @Component
-public class SessionValidationInterceptor implements HandlerInterceptor {
+public class ParticipantUserSessionValidationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.debug("Intercepting request URI: {}", request.getRequestURI());
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
 
         if (session != null) {
-            Object isVerified = session.getAttribute(IS_BASE_USER_VERIFIED);
+            Object userId = session.getAttribute(USER_ID);
+            Object userRole = session.getAttribute(USER_ROLE);
 
-            log.debug("Session found. IS_BASE_USER_VERIFIED={}", isVerified);
+            log.debug("Session found. USER_ID={}, USER_ROLE={}", userId, userRole);
 
-            if (Boolean.TRUE.equals(session.getAttribute(IS_BASE_USER_VERIFIED))) {
-                log.debug("Request session validated");
+            if (BaseUser.Role.PARTICIPANT.equals(userRole)) {
+                log.debug("Participant session validated");
                 return true;
+            } else {
+                log.debug("Session exists but role is not PARTICIPANT: {}", userRole);
             }
         } else {
             log.debug("No session found");

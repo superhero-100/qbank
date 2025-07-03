@@ -11,7 +11,7 @@
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/user/fragments/header :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
 
 <!-- Exams Section -->
 <div class="container mx-auto px-4 py-10 fade-in">
@@ -56,8 +56,8 @@
                 <td th:text="${exam.totalQuestions}">20</td>
                 <td th:text="${exam.totalEnrolledUsers}">15</td>
                 <td class="text-center">
-                    <a th:href="@{'/user/exam/enroll/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">
-                        <i class="fas fa-user-plus mr-1"></i> Enroll Exam
+                    <a th:href="@{'/participantUser/exam/enroll/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">
+                        <i class="fas fa-participantUser-plus mr-1"></i> Enroll Exam
                     </a>
                 </td>
             </tr>
@@ -66,9 +66,9 @@
     </div>
 </div>
 
-<div th:replace="~{/user/fragments/footer :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
 
-<div th:replace="~{/user/fragments/support :: tags}"></div>
+<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
 
 </body>
 </html>

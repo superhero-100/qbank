@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppInitService {
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final SubjectDao subjectDao;
     private final BaseUserDao baseUserDao;
     private final QuestionDao questionDao;
@@ -39,56 +39,56 @@ public class AppInitService {
     }
 
     @Transactional
-    public void createAndSaveAdminIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
-        Admin admin = new Admin();
-        admin.setUsername(username);
-        admin.setEmail(email);
-        admin.setPassword(bCryptPasswordEncoder.encode(password));
-        admin.setCreatedAt(createdAt);
-        admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        admin.setStatus(status);
-        admin.setZoneId(zoneId);
+    public void createAndSaveAdminUserIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
+        AdminUser adminUser = new AdminUser();
+        adminUser.setUsername(username);
+        adminUser.setEmail(email);
+        adminUser.setPassword(passwordEncoder.encode(password));
+        adminUser.setCreatedAt(createdAt);
+        adminUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        adminUser.setStatus(status);
+        adminUser.setZoneId(zoneId);
 
-        baseUserDao.findByUsername(admin.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
-            baseUserDao.save(admin);
-            log.info("Admin with username: {} created", admin.getUsername());
+        baseUserDao.findByUsername(adminUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
+            baseUserDao.save(adminUser);
+            log.info("Admin with username: {} created", adminUser.getUsername());
         });
     }
 
     @Transactional
-    public void createAndSaveTeacherIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
-        Teacher teacher = new Teacher();
-        teacher.setUsername(username);
-        teacher.setEmail(email);
-        teacher.setPassword(bCryptPasswordEncoder.encode(password));
-        teacher.setCreatedAt(createdAt);
-        teacher.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        teacher.setStatus(status);
-        teacher.setZoneId(zoneId);
+    public void createAndSaveInstructorIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
+        InstructorUser instructorUser = new InstructorUser();
+        instructorUser.setUsername(username);
+        instructorUser.setEmail(email);
+        instructorUser.setPassword(passwordEncoder.encode(password));
+        instructorUser.setCreatedAt(createdAt);
+        instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        instructorUser.setStatus(status);
+        instructorUser.setZoneId(zoneId);
 
-        baseUserDao.findByUsername(teacher.getUsername()).ifPresentOrElse(baseUser -> log.info("Teacher with username: {} exists", baseUser.getUsername()), () -> {
-            baseUserDao.save(teacher);
-            log.info("Teacher with username: {} created", teacher.getUsername());
+        baseUserDao.findByUsername(instructorUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Teacher with username: {} exists", baseUser.getUsername()), () -> {
+            baseUserDao.save(instructorUser);
+            log.info("Teacher with username: {} created", instructorUser.getUsername());
         });
     }
 
     @Transactional
-    public void createAndSaveUserIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(bCryptPasswordEncoder.encode(password));
-        user.setCreatedAt(createdAt);
-        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        user.setEnrolledExams(List.of());
-        user.setCompletedExams(List.of());
-        user.setUserExamResults(List.of());
-        user.setStatus(status);
-        user.setZoneId(zoneId);
+    public void createAndSaveParticipantIfNotExists(String username, String email, String password, ZonedDateTime createdAt, BaseUser.Status status, String zoneId) {
+        ParticipantUser participantUser = new ParticipantUser();
+        participantUser.setUsername(username);
+        participantUser.setEmail(email);
+        participantUser.setPassword(passwordEncoder.encode(password));
+        participantUser.setCreatedAt(createdAt);
+        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        participantUser.setEnrolledExams(List.of());
+        participantUser.setCompletedExams(List.of());
+        participantUser.setUserExamResults(List.of());
+        participantUser.setStatus(status);
+        participantUser.setZoneId(zoneId);
 
-        baseUserDao.findByUsername(user.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
-            baseUserDao.save(user);
-            log.info("Admin with username: {} created", user.getUsername());
+        baseUserDao.findByUsername(participantUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
+            baseUserDao.save(participantUser);
+            log.info("Admin with username: {} created", participantUser.getUsername());
         });
     }
 

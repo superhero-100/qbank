@@ -11,7 +11,7 @@
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/user/fragments/header :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
 
 <!-- Main Content -->
 <!-- Main Content -->
@@ -42,7 +42,7 @@
                 <td class="opacity-80" th:text="${subject.description}">Description goes here</td>
                 <td class="text-center">
                     <a class="btn btn-sm btn-neutral"
-                       th:href="@{/user/exams(subjectId=${subject.id})}">
+                       th:href="@{/participantUser/exams(subjectId=${subject.id})}">
                         <i class="fas fa-eye mr-1"></i> View Exams
                     </a>
                 </td>
@@ -52,9 +52,9 @@
     </div>
 </main>
 
-<div th:replace="~{/user/fragments/footer :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
 
-<div th:replace="~{/user/fragments/support :: tags}"></div>
+<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
 
 </body>
 </html>

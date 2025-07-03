@@ -1,20 +1,21 @@
 package com.example.qbankapi.service;
 
-import com.example.qbankapi.dao.AdminDao;
+import com.example.qbankapi.dao.AdminUserDao;
 import com.example.qbankapi.dao.BaseUserDao;
-import com.example.qbankapi.dao.TeacherDao;
-import com.example.qbankapi.dao.UserDao;
+import com.example.qbankapi.dao.InstructorUserDao;
+import com.example.qbankapi.dao.ParticipantUserDao;
 import com.example.qbankapi.dto.request.LoginBaseUserRequestDto;
-import com.example.qbankapi.entity.Admin;
+import com.example.qbankapi.entity.AdminUser;
 import com.example.qbankapi.entity.BaseUser;
-import com.example.qbankapi.entity.Teacher;
-import com.example.qbankapi.entity.User;
-import com.example.qbankapi.exception.AccountNotActiveException;
-import com.example.qbankapi.exception.AdminNotFoundException;
-import com.example.qbankapi.exception.TeacherNotFoundException;
-import com.example.qbankapi.exception.UserNotFoundException;
+import com.example.qbankapi.entity.InstructorUser;
+import com.example.qbankapi.entity.ParticipantUser;
+import com.example.qbankapi.exception.base.impl.AccountNotActiveException;
+import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +30,10 @@ import java.util.Optional;
 public class AuthenticationService {
 
     private final BaseUserDao baseUserDao;
-    private final AdminDao adminDao;
-    private final TeacherDao teacherDao;
-    private final UserDao userDao;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final AdminUserDao adminUserDao;
+    private final InstructorUserDao instructorUserDao;
+    private final ParticipantUserDao participantUserDao;
 
     @Transactional
     public Optional<BaseUser> authenticateBaseUser(LoginBaseUserRequestDto loginBaseUserRequest) {
@@ -49,45 +51,45 @@ public class AuthenticationService {
         if (optionalUser.isPresent()) {
             BaseUser baseUser = optionalUser.get();
             if (!baseUser.getStatus().equals(BaseUser.Status.ACTIVE)) {
-                log.warn("User account with identifier: {} is {}", loginBaseUserRequest.getBaseUserIdentifier(), baseUser.getStatus());
+                log.warn("BaseUser account with identifier: {} is {}", loginBaseUserRequest.getBaseUserIdentifier(), baseUser.getStatus());
                 throw new AccountNotActiveException("your account is locked or inactive");
             }
             log.info("BaseUser with username: {}, email: {} found", baseUser.getUsername(), baseUser.getEmail());
-            if (baseUser.getPassword().equals(loginBaseUserRequest.getPassword())) {
+            if (passwordEncoder.matches(loginBaseUserRequest.getPassword(), baseUser.getPassword())) {
                 log.info("Authenticate attempt for BaseUser with identifier: {} successful", loginBaseUserRequest.getBaseUserIdentifier());
                 if (loginBaseUserRequest.getZoneId() == null || !ZoneId.getAvailableZoneIds().contains(loginBaseUserRequest.getZoneId())) {
                     loginBaseUserRequest.setZoneId(ZoneId.systemDefault().getId());
                 }
                 switch (baseUser.getRole()) {
                     case ADMIN -> {
-                        Admin admin = adminDao.findById(baseUser.getId())
-                                .orElseThrow(() -> new AdminNotFoundException(
-                                        String.format("Admin not found with id %d", baseUser.getId())
+                        AdminUser adminUser = adminUserDao.findById(baseUser.getId())
+                                .orElseThrow(() -> new AdminUserNotFoundException(
+                                        String.format("Admin user not found with id %d", baseUser.getId())
                                 ));
-                        admin.setZoneId(loginBaseUserRequest.getZoneId());
-                        admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-                        adminDao.update(admin);
-                        log.info("Admin with id: {} timezone id: {} updated", admin.getId(), loginBaseUserRequest.getZoneId());
+                        adminUser.setZoneId(loginBaseUserRequest.getZoneId());
+                        adminUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+                        adminUserDao.update(adminUser);
+                        log.info("Admin with id: {} timezone id: {} updated", adminUser.getId(), loginBaseUserRequest.getZoneId());
                     }
-                    case TEACHER -> {
-                        Teacher teacher = teacherDao.findById(baseUser.getId())
-                                .orElseThrow(() -> new TeacherNotFoundException(
-                                        String.format("Admin not found with id %d", baseUser.getId())
+                    case INSTRUCTOR -> {
+                        InstructorUser instructorUser = instructorUserDao.findById(baseUser.getId())
+                                .orElseThrow(() -> new InstructorUserNotFoundException(
+                                        String.format("Instructor user not found with id %d", baseUser.getId())
                                 ));
-                        teacher.setZoneId(loginBaseUserRequest.getZoneId());
-                        teacher.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-                        teacherDao.update(teacher);
-                        log.info("Teacher with id: {} timezone id: {} updated", teacher.getId(), loginBaseUserRequest.getZoneId());
+                        instructorUser.setZoneId(loginBaseUserRequest.getZoneId());
+                        instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+                        instructorUserDao.update(instructorUser);
+                        log.info("Instructor with id: {} timezone id: {} updated", instructorUser.getId(), loginBaseUserRequest.getZoneId());
                     }
-                    case USER -> {
-                        User user = userDao.findById(baseUser.getId())
-                                .orElseThrow(() -> new UserNotFoundException(
-                                        String.format("User not found with id %d", baseUser.getId())
+                    case PARTICIPANT -> {
+                        ParticipantUser participantUser = participantUserDao.findById(baseUser.getId())
+                                .orElseThrow(() -> new ParticipantUserNotFoundException(
+                                        String.format("Participant not found with id %d", baseUser.getId())
                                 ));
-                        user.setZoneId(loginBaseUserRequest.getZoneId());
-                        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-                        userDao.update(user);
-                        log.info("User with id: {} timezone id: {} updated", user.getId(), loginBaseUserRequest.getZoneId());
+                        participantUser.setZoneId(loginBaseUserRequest.getZoneId());
+                        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+                        participantUserDao.update(participantUser);
+                        log.info("BaseUser with id: {} timezone id: {} updated", participantUser.getId(), loginBaseUserRequest.getZoneId());
                     }
                     default -> log.error("Unhandled role: {} for timezone checking ", baseUser.getRole());
                 }

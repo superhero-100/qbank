@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -26,9 +25,9 @@ public class UserExamResult {
     private LocalDateTime submittedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "participant_user_id")
     @ToString.Exclude
-    private User user;
+    private ParticipantUser participantUser;
 
     @ManyToOne
     @JoinColumn(name = "exam_id")

@@ -15,9 +15,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "teacher_tbl")
-@DiscriminatorValue("TEACHER")
-public class Teacher extends BaseUser {
+@Table(name = "instructor_user_tbl")
+@DiscriminatorValue("INSTRUCTOR")
+public class InstructorUser extends BaseUser {
 
     @Column(name = "zone_id")
     private String zoneId;

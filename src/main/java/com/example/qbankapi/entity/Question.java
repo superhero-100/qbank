@@ -22,7 +22,7 @@ public class Question {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "question_options",
+            name = "question_option_tbl",
             joinColumns = @JoinColumn(name = "question_id")
     )
     @Column(name = "option_value", columnDefinition = "MEDIUMTEXT")

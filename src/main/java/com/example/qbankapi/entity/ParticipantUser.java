@@ -1,11 +1,8 @@
 package com.example.qbankapi.entity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -13,19 +10,19 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_tbl")
-@DiscriminatorValue("USER")
-public class User extends BaseUser {
+@Table(name = "participant_user_tbl")
+@DiscriminatorValue("PARTICIPANT")
+public class ParticipantUser extends BaseUser {
 
-    @ManyToMany(mappedBy = "enrolledUsers")
+    @ManyToMany(mappedBy = "enrolledParticipantUsers")
     @ToString.Exclude
     private List<Exam> enrolledExams;
 
-    @ManyToMany(mappedBy = "completedUsers")
+    @ManyToMany(mappedBy = "completedParticipantUsers")
     @ToString.Exclude
     private List<Exam> completedExams;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "participantUser")
     @ToString.Exclude
     private List<UserExamResult> userExamResults;
 

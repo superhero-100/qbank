@@ -1,4 +1,4 @@
-package com.example.qbankapi.controller.user;
+package com.example.qbankapi.controller.participant;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

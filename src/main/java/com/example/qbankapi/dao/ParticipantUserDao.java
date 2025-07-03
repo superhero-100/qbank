@@ -1,6 +1,6 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.entity.User;
+import com.example.qbankapi.entity.ParticipantUser;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -9,18 +9,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class UserDao {
+public class ParticipantUserDao {
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Optional<User> findById(Long id) {
-        List<User> userList = entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class).setParameter("id", id).getResultList();
-        return userList.isEmpty() ? Optional.empty() : Optional.of(userList.getFirst());
+    public Optional<ParticipantUser> findById(Long id) {
+        List<ParticipantUser> participantUserList = entityManager.createQuery("SELECT u FROM ParticipantUser u WHERE u.id = :id", ParticipantUser.class).setParameter("id", id).getResultList();
+        return participantUserList.isEmpty() ? Optional.empty() : Optional.of(participantUserList.getFirst());
     }
 
-    public void update(User user) {
-        entityManager.merge(user);
+    public void update(ParticipantUser participantUser) {
+        entityManager.merge(participantUser);
     }
 
 //    public void save(User user) {

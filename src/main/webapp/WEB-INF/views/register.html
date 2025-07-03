@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | QBank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div th:replace="~{/fragments/global-head :: tags}"></div>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+
+<div class="w-full max-w-md p-8 rounded-2xl shadow-2xl bg-base-100 animate-fade-in">
+
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-primary">Q<span class="text-warning">bank</span></h1>
+        <p class="mt-2 text-sm text-base-content/70">Create Your Account</p>
+    </div>
+
+    <!-- If role is present, show form -->
+    <div th:if="${role != null}">
+        <form th:action="@{/register(role=${role})}" method="post" th:object="${registerBaseUserRequest}" class="space-y-5">
+
+            <!-- Hidden role -->
+            <input type="hidden" th:field="*{role}"/>
+
+            <!-- Hidden zoneId -->
+            <input type="hidden" th:field="*{zoneId}" id="zoneId"/>
+
+            <!-- Username -->
+            <div>
+                <label for="username" class="label">
+                    <span class="label-text font-semibold text-base">Username</span>
+                </label>
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-user"></i>
+                </span>
+                    <input id="username" th:field="*{username}" type="text"
+                           placeholder="Enter your username"
+                           class="input input-bordered w-full pl-10"/>
+                </div>
+                <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
+                   class="text-error text-xs mt-1"></p>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label for="email" class="label">
+                    <span class="label-text font-semibold text-base">Email</span>
+                </label>
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-envelope"></i>
+                </span>
+                    <input id="email" th:field="*{email}" type="text"
+                           placeholder="Enter your email"
+                           class="input input-bordered w-full pl-10"/>
+                </div>
+                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+                   class="text-error text-xs mt-1"></p>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label for="password" class="label">
+                    <span class="label-text font-semibold text-base">Password</span>
+                </label>
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-lock"></i>
+                </span>
+                    <input id="password" th:field="*{password}" type="password"
+                           placeholder="Create a password"
+                           class="input input-bordered w-full pl-10"/>
+                </div>
+                <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
+                   class="text-error text-xs mt-1"></p>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label for="confirmPassword" class="label">
+                    <span class="label-text font-semibold text-base">Confirm Password</span>
+                </label>
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-base-content/40">
+                    <i class="fas fa-lock"></i>
+                </span>
+                    <input id="confirmPassword" th:field="*{confirmPassword}" type="password"
+                           placeholder="Re-enter password"
+                           class="input input-bordered w-full pl-10"/>
+                </div>
+                <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"
+                   class="text-error text-xs mt-1"></p>
+            </div>
+
+            <!-- Submit -->
+            <div>
+                <button type="submit" class="btn btn-primary btn-block text-base font-semibold">
+                    Register as <th:block th:text="${role}"></th:block>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- If role not present, show selection -->
+    <div th:if="${role == null}" class="text-center space-y-4">
+        <p class="text-sm text-base-content/70 mb-2">Choose registration type:</p>
+        <a th:href="@{/register(role='PARTICIPANT')}" class="btn btn-primary w-full">Register as Participant</a>
+        <a th:href="@{/register(role='INSTRUCTOR')}" class="btn btn-primary w-full">Register as Instructor</a>
+    </div>
+
+</div>
+
+<!-- Auto-assign zoneId -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const zoneId = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const zoneField = document.getElementById("zoneId");
+        if (zoneField) {
+            zoneField.value = zoneId;
+        }
+    });
+</script>
+
+</body>
+</html>

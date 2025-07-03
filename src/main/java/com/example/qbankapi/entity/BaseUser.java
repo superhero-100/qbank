@@ -40,7 +40,7 @@ public class BaseUser extends Auditable {
     }
 
     public enum Role {
-        ADMIN, USER, TEACHER
+        ADMIN, INSTRUCTOR, PARTICIPANT
     }
 
     public enum Status {

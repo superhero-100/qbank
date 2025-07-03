@@ -12,7 +12,7 @@
 
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/user/fragments/header :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
 
 <!-- Main Content -->
 <main class="container mx-auto my-8 px-4">
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Exam Form -->
-    <form th:action="@{/user/exam/submit}" method="post"
+    <form th:action="@{/participantUser/exam/submit}" method="post"
           class="card bg-base-100 shadow-lg p-6 space-y-6"
           id="exam-form">
 
@@ -113,9 +113,9 @@
 
 </main>
 
-<div th:replace="~{/user/fragments/footer :: tag}"></div>
+<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
 
-<div th:replace="~{/user/fragments/support :: tags}"></div>
+<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
 
 <dialog id="submitConfirmModal" class="modal">
     <div class="modal-box border border-success">
@@ -174,8 +174,8 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                const basePath = window.location.pathname.split("/user/exam/question")[0];
-                window.location.href = basePath + "/user/exam/exit";
+                const basePath = window.location.pathname.split("/participantUser/exam/question")[0];
+                window.location.href = basePath + "/participantUser/exam/exit";
             };
         });
     });
@@ -184,8 +184,8 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                const basePath = window.location.pathname.split("/user/exam/question")[0];
-                window.location.href = basePath + "/user/exam/exit";
+                const basePath = window.location.pathname.split("/participantUser/exam/question")[0];
+                window.location.href = basePath + "/participantUser/exam/exit";
             };
         });
     });

@@ -62,84 +62,84 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
 
 //        Admin
         log.info("Creating default admin if not exists");
-        initService.createAndSaveAdminIfNotExists(
+        initService.createAndSaveAdminUserIfNotExists(
                 "admin",
-                "admin@school.com",
-                "Admin@100",
+                "admin@gmail.com",
+                "admin@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(100)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
 //        Teacher
-        log.info("Creating default teacher if not exists");
-        initService.createAndSaveTeacherIfNotExists(
+        log.info("Creating default instructor if not exists");
+        initService.createAndSaveInstructorIfNotExists(
                 "rahul.sharma",
-                "rahul.sharma.teacher@school.com",
-                "Teach@101",
+                "rahul.sharma@gmail.com",
+                "rahul@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(40)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "priya.verma",
-                "priya.verma.teacher@school.com",
-                "Teach@102",
+                "priya.verma@gmail.com",
+                "priya@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(50)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "arjun.patel",
-                "arjun.patel.teacher@school.com",
-                "Teach@103",
+                "arjun.patel@gmail.com",
+                "arjun@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(45)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "neha.jain",
-                "neha.jain.teacher@school.com",
-                "Teach@104",
+                "neha.jain@gmail.com",
+                "neha@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(41)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "vishal.rana",
-                "vishal.rana.teacher@school.com",
-                "Teach@105",
+                "vishal.rana@gmail.com",
+                "vishal@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(55)),
                 BaseUser.Status.INACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "anita.mehra",
-                "anita.mehra.teacher@school.com",
-                "Teach@106",
+                "anita.mehra@gmail.com",
+                "anita@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(57)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "amit.dubey",
-                "amit.dubey.teacher@school.com",
-                "Teach@107",
+                "amit.dubey@gmail.com",
+                "amit@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(48)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveTeacherIfNotExists(
+        initService.createAndSaveInstructorIfNotExists(
                 "kiran.kapoor",
-                "kiran.kapoor.teacher@school.com",
-                "Teach@108",
+                "kiran.kapoor@gmail.com",
+                "kiran@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(56)),
                 BaseUser.Status.INACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
@@ -147,109 +147,109 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
 
 //        User
         log.info("Creating default user if not exists");
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "sahil.kanojiya",
-                "sahil.kanojiya.student@school.com",
-                "sahil@101",
+                "sahil.kanojiya@gmail.com",
+                "sahil@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(20)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "rohit.kumar",
-                "rohit.kumar.student@school.com",
-                "rohit@101",
+                "rohit.kumar@gmail.com",
+                "rohit@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(25)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "sneha.rathi",
-                "sneha.rathi.student@school.com",
-                "sneha@101",
+                "sneha.rathi@gmail.com",
+                "sneha@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(27)),
                 BaseUser.Status.INACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "deepak.nair",
-                "deepak.nair.student@school.com",
-                "deepak@101",
+                "deepak.nair@gmail.com",
+                "deepak@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(17)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "ritu.sen",
-                "ritu.sen.student@school.com",
-                "ritu@101",
+                "ritu.sen@gmail.com",
+                "ritu@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(19)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "manish.goel",
-                "manish.goel.student@school.com",
-                "manish@101",
+                "manish.goel@gmail.com",
+                "manish@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(30)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "divya.modi",
-                "divya.modi.student@school.com",
-                "divya@101",
+                "divya.modi@gmail.com",
+                "divya@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(28)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "sachin.singh",
-                "sachin.singh.student@school.com",
-                "sachin@101",
+                "sachin.singh@gmail.com",
+                "sachin@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(23)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "pooja.bhatt",
-                "pooja.bhatt.student@school.com",
-                "pooja@101",
+                "pooja.bhatt@gmail.com",
+                "pooja@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(24)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "alok.joshi",
-                "alok.joshi.student@school.com",
-                "alok@101",
+                "alok.joshi@gmail.com",
+                "alok@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(21)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "meena.yadav",
-                "meena.yadav.student@school.com",
-                "meena@101",
+                "meena.yadav@gmail.com",
+                "meena@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(22)),
                 BaseUser.Status.ACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-        initService.createAndSaveUserIfNotExists(
+        initService.createAndSaveParticipantIfNotExists(
                 "nikhil.raut",
-                "nikhil.raut.student@school.com",
-                "nikhil@101",
+                "nikhil.raut@gmail.com",
+                "nikhil@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(14)),
                 BaseUser.Status.INACTIVE,
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
