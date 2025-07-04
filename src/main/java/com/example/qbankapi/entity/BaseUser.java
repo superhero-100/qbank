@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @Entity
 @Table(name = "base_user_tbl")
 @Inheritance(strategy = InheritanceType.JOINED)

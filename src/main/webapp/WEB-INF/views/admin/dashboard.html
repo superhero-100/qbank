@@ -6,16 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <div th:replace="~{/fragments/toast :: toast-style}"></div>
 
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
@@ -23,7 +24,7 @@
         <h1 class="text-center text-4xl font-extrabold text-primary py-9">Welcome, Admin 👋</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <a th:href="@{/adminUser/manage/subjects}"
+            <a th:href="@{/admin/manage/subjects}"
                class="card bg-primary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/books.png" alt="Subjects"/></figure>
@@ -32,7 +33,7 @@
                 </div>
             </a>
 
-            <a th:href="@{/adminUser/manage/questions}"
+            <a th:href="@{/admin/manage/questions}"
                class="card bg-secondary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/faq.png" alt="Questions"/></figure>
@@ -41,7 +42,7 @@
                 </div>
             </a>
 
-            <a th:href="@{/adminUser/manage/exams}"
+            <a th:href="@{/admin/manage/exams}"
                class="card bg-warning text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/test-passed.png" alt="Exams"/></figure>
@@ -50,7 +51,7 @@
                 </div>
             </a>
 
-            <a th:href="@{/adminUser/manage/users}"
+            <a th:href="@{/admin/manage/users}"
                class="card bg-accent text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/group.png" alt="Users"/></figure>
@@ -59,7 +60,7 @@
                 </div>
             </a>
 
-            <a th:href="@{/adminUser/view/analytics}"
+            <a th:href="@{/admin/view/analytics}"
                class="card bg-info text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/combo-chart.png" alt="Results"/></figure>
@@ -74,9 +75,18 @@
 
 </div>
 
-<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
 
-<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
+<script th:if="${message != null}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
+</script>
 
 </body>
 </html>

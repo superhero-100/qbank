@@ -25,20 +25,17 @@ public class SubjectDao {
         entityManager.persist(subject);
     }
 
-//    public List<Subject> findAll() {
-//        log.trace("Entering findAll()");
-//        List<Subject> subjectList = entityManager.createQuery("SELECT s FROM Subject s", Subject.class).getResultList();
-//        log.trace("Exiting findAll()");
-//        return subjectList;
-//    }
-//
-//    public void update(Subject subject) {
-//        entityManager.merge(subject);
-//    }
-//
-//    public Optional<Subject> findById(Long id) {
-//        List<Subject> subjectList = entityManager.createQuery("SELECT s FROM Subject s WHERE s.id = :id", Subject.class).setParameter("id", id).getResultList();
-//        return subjectList.isEmpty() ? Optional.empty() : Optional.of(subjectList.getFirst());
-//    }
+    public List<Subject> findAll() {
+        return entityManager.createQuery("SELECT s FROM Subject s", Subject.class).getResultList();
+    }
+
+    public Optional<Subject> findById(Long id) {
+        List<Subject> subjectList = entityManager.createQuery("SELECT s FROM Subject s WHERE s.id = :id", Subject.class).setParameter("id", id).getResultList();
+        return subjectList.isEmpty() ? Optional.empty() : Optional.of(subjectList.getFirst());
+    }
+
+    public void update(Subject subject) {
+        entityManager.merge(subject);
+    }
 
 }

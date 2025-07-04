@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @Entity
 @Table(name = "admin_user_tbl")
 @DiscriminatorValue("ADMIN")

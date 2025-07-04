@@ -1,0 +1,78 @@
+<th:block th:fragment="toast-style">
+    <style>
+        @keyframes slide-in {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slide-out {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .animate-slide-in {
+            animation: slide-in 0.4s ease-out forwards;
+        }
+
+        .animate-slide-out {
+            animation: slide-out 0.4s ease-in forwards;
+        }
+    </style>
+</th:block>
+
+<th:block th:fragment="toast-html-script">
+    <div id="toast-container" class="fixed z-50 flex flex-col gap-3 w-full max-w-xs px-4 pointer-events-none"></div>
+
+    <script>
+        function showToast(message, type = 'info', position = 'top-right') {
+            const iconMap = {
+                success: '<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200"><i class="fas fa-check text-lg"></i></div>',
+                error: '<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200"><i class="fas fa-times text-lg"></i></div>',
+                warning: '<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200"><i class="fas fa-exclamation text-lg"></i></div>',
+                info: '<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg dark:bg-blue-800 dark:text-blue-200"><i class="fas fa-info text-lg"></i></div>'
+            };
+
+            const positionMap = {
+                'top-left': 'top-4 left-4 items-start',
+                'top-center': 'top-4 left-1/2 -translate-x-1/2 items-center',
+                'top-right': 'top-4 right-4 items-end',
+                'bottom-left': 'bottom-4 left-4 items-start',
+                'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2 items-center',
+                'bottom-right': 'bottom-4 right-4 items-end'
+            };
+
+            let containerId = `toast-container-${position}`;
+            let container = document.getElementById(containerId);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = containerId;
+                container.className = `fixed z-50 flex flex-col gap-3 w-full max-w-xs px-4 pointer-events-none ${positionMap[position] || positionMap['top-right']}`;
+                container.style.transform += '';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 animate-slide-in pointer-events-auto`;
+            toast.setAttribute('role', 'alert');
+
+            toast.innerHTML = `
+            ${iconMap[type] || iconMap['info']}
+            <div class="ms-3 text-sm font-normal">${message}</div>
+            <button type="button"
+                class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                aria-label="Close"
+                onclick="this.closest('div[role=alert]').remove()">
+                <span class="sr-only">Close</span>
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('animate-slide-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 5000);
+        }
+    </script>
+</th:block>

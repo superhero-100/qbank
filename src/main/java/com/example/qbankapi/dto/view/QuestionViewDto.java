@@ -1,5 +1,4 @@
-package com.example.qbankapi.dto.model;
-
+package com.example.qbankapi.dto.view;
 
 import com.example.qbankapi.entity.Question;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuestionDto {
+public class QuestionViewDto {
 
     private Long id;
 
@@ -27,6 +26,6 @@ public class QuestionDto {
 
     private Long marks;
 
-    private Long subjectId;
+    private String subjectName;
 
 }

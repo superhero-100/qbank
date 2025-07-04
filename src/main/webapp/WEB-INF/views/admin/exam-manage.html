@@ -10,12 +10,12 @@
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
@@ -28,12 +28,12 @@
                 </div>
 
                 <div class="p-6">
-                    <a th:href="@{/adminUser/manage/exams/create}" class="btn btn-success">Create New Exam</a>
+                    <a th:href="@{/admin/manage/exams/create}" class="btn btn-success">Create New Exam</a>
                 </div>
             </div>
 
             <!-- Filter Panel -->
-            <form th:action="@{/adminUser/manage/exams}" th:object="${filter}" method="get"
+            <form th:action="@{/admin/manage/exams}" th:object="${filter}" method="get"
                   class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 
                 <!-- Subject -->
@@ -152,9 +152,7 @@
 
 </div>
 
-<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 </body>
 </html>

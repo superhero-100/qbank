@@ -1,6 +1,6 @@
 package com.example.qbankapi.exception.base.impl;
 
-import com.example.qbankapi.exception.AppRuntimeException;
+import com.example.qbankapi.exception.base.AppRuntimeException;
 
 public class AccountNotActiveException extends AppRuntimeException {
 

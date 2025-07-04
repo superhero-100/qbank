@@ -5,12 +5,16 @@ import com.example.qbankapi.dto.request.RegisterBaseUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.ParticipantUser;
+import com.example.qbankapi.exception.base.impl.EmailAlreadyExistsException;
+import com.example.qbankapi.exception.base.impl.PasswordMismatchException;
+import com.example.qbankapi.exception.base.impl.UsernameAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.Email;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -25,28 +29,31 @@ public class BaseUserService {
     private final BaseUserDao baseUserDao;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
-    public boolean validateUsernameIfExists(String username) {
-        log.debug("Validating existence of username: {}", username);
-        boolean exists = baseUserDao.findByUsername(username).isPresent();
-        log.info("Username '{}' exists: {}", username, exists);
-        return exists;
-    }
-
-    @Transactional(readOnly = true)
-    public boolean validateEmailIfExists(String email) {
-        log.debug("Validating existence of email: {}", email);
-        boolean exists = baseUserDao.findByEmail(email).isPresent();
-        log.info("Email '{}' exists: {}", email, exists);
-        return exists;
-    }
-
     @Transactional
     public Optional<BaseUser> registerBaseUser(RegisterBaseUserRequestDto registerBaseUserRequest) {
         log.info("Initiating user registration for username: {}, role: {}", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getRole());
 
+        if (baseUserDao.findByUsername(registerBaseUserRequest.getUsername()).isPresent()) {
+            log.warn("Registration failed: username '{}' already exists", registerBaseUserRequest.getUsername());
+
+            throw new UsernameAlreadyExistsException("Username already exists.");
+        }
+
+        if (baseUserDao.findByEmail(registerBaseUserRequest.getEmail()).isPresent()) {
+            log.warn("Registration failed: email '{}' already exists", registerBaseUserRequest.getEmail());
+
+            throw new EmailAlreadyExistsException("Email already exists.");
+        }
+
+        if (!registerBaseUserRequest.getPassword().equals(registerBaseUserRequest.getConfirmPassword())) {
+            log.warn("Registration failed: password and confirm password do not match for username '{}'", registerBaseUserRequest.getUsername());
+
+            throw new PasswordMismatchException("Password and confirm password do not match.");
+        }
+
         if (registerBaseUserRequest.getZoneId() == null || !ZoneId.getAvailableZoneIds().contains(registerBaseUserRequest.getZoneId())) {
             log.warn("Invalid or null Zone ID '{}'. Using system default.", registerBaseUserRequest.getZoneId());
+
             registerBaseUserRequest.setZoneId(ZoneId.systemDefault().getId());
         }
 
@@ -61,8 +68,11 @@ public class BaseUserService {
                 instructorUser.setStatus(BaseUser.Status.ACTIVE);
                 instructorUser.setZoneId(registerBaseUserRequest.getZoneId());
 
+                instructorUser.setRoleValue(BaseUser.Role.INSTRUCTOR.name());
+
                 baseUserDao.save(instructorUser);
                 log.info("Instructor user '{}' registered successfully.", instructorUser.getUsername());
+
                 return Optional.of(instructorUser);
             }
             case PARTICIPANT -> {
@@ -78,12 +88,16 @@ public class BaseUserService {
                 participantUser.setStatus(BaseUser.Status.ACTIVE);
                 participantUser.setZoneId(registerBaseUserRequest.getZoneId());
 
+                participantUser.setRoleValue(BaseUser.Role.PARTICIPANT.name());
+
                 baseUserDao.save(participantUser);
                 log.info("Participant user '{}' registered successfully.", participantUser.getUsername());
+
                 return Optional.of(participantUser);
             }
             default -> {
                 log.error("User registration failed: unsupported role '{}'", registerBaseUserRequest.getRole());
+
                 return Optional.empty();
             }
         }

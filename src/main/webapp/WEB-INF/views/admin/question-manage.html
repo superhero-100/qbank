@@ -6,16 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <div th:replace="~{/fragments/toast :: toast-style}"></div>
 
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
@@ -28,12 +29,12 @@
                 </div>
 
                 <div class="p-6">
-                    <a th:href="@{/adminUser/manage/questions/add}" class="btn btn-success">Add New Question</a>
+                    <a th:href="@{/admin/manage/questions/add}" class="btn btn-success">Add New Question</a>
                 </div>
             </div>
 
             <!-- Filter Panel -->
-            <form th:action="@{/adminUser/manage/questions}" th:object="${filter}" method="get"
+            <form th:action="@{/admin/manage/questions}" th:object="${filter}" method="get"
                   class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
                 <!-- Subject -->
@@ -154,10 +155,10 @@
 
                         <!-- Actions -->
                         <div class="card-actions justify-end">
-                            <a th:href="@{'/adminUser/manage/questions/' + ${q.id} + '/edit'}"
+                            <a th:href="@{/admin/manage/questions/{id}/edit(id=${q.id})}"
                                class="btn btn-sm btn-info text-white">Edit</a>
                             <button type="button" class="btn btn-sm btn-error text-white"
-                                    th:onclick="|openDeleteQuestionConfirmModal('@{/adminUser/manage/questions/{id}/delete(id=${q.id})}')|">
+                                    th:onclick="|openDeleteQuestionConfirmModal('@{/admin/manage/questions/{id}/delete(id=${q.id})}')|">
                                 Delete
                             </button>
                         </div>
@@ -174,13 +175,13 @@
             <div class="flex justify-between items-center mt-6">
 
                 <a th:if="${pageNumber > 0}"
-                   th:href="@{/adminUser/manage/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   th:href="@{/admin/manage/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Previous</a>
 
                 <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
 
                 <a th:if="${hasNextPage}"
-                   th:href="@{/adminUser/manage/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   th:href="@{/admin/manage/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Next</a>
 
             </div>
@@ -189,10 +190,7 @@
 
 </div>
 
-<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
-
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
 <div th:replace="~{/fragments/modal :: configurableModal}"></div>
 
 <script>
@@ -209,6 +207,18 @@
 
         document.getElementById('actionModal').showModal();
     }
+</script>
+
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
+
+<script th:if="${message != null}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
 </script>
 
 </body>

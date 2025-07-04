@@ -3,10 +3,7 @@ package com.example.qbankapi.controller;
 import com.example.qbankapi.dto.request.LoginBaseUserRequestDto;
 import com.example.qbankapi.dto.request.RegisterBaseUserRequestDto;
 import com.example.qbankapi.entity.BaseUser;
-import com.example.qbankapi.exception.base.impl.AccountNotActiveException;
-import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.*;
 import com.example.qbankapi.service.AuthenticationService;
 import com.example.qbankapi.service.BaseUserService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -34,7 +32,7 @@ public class HomeController {
     private final BaseUserService baseUserService;
 
     @GetMapping("/")
-    public String index(HttpSession session) {
+    public String index(HttpSession session, RedirectAttributes redirectAttributes, @ModelAttribute("message") String message, @ModelAttribute("messageType") String messageType) {
         BaseUser.Role role = (BaseUser.Role) session.getAttribute(USER_ROLE);
         log.info("Session role: {}", role);
 
@@ -44,6 +42,13 @@ public class HomeController {
             case PARTICIPANT -> "/participant/home";
             default -> "/login";
         };
+
+        if (message != null) {
+            redirectAttributes.addFlashAttribute("message", message);
+            if (messageType != null) {
+                redirectAttributes.addFlashAttribute("messageType", messageType);
+            }
+        }
 
         log.info("Redirecting to: {}", redirectUrl);
         return "redirect:" + redirectUrl;
@@ -69,6 +74,7 @@ public class HomeController {
                 default -> log.warn("Invalid parameter passed role: " + role);
             }
         }
+
         model.addAttribute("registerBaseUserRequest", new RegisterBaseUserRequestDto());
 
         log.info("Rendering register page");
@@ -80,7 +86,8 @@ public class HomeController {
             @Valid @ModelAttribute("registerBaseUserRequest") RegisterBaseUserRequestDto registerBaseUserRequest,
             BindingResult bindingResult,
             Model model,
-            HttpSession session
+            HttpSession session,
+            RedirectAttributes redirectAttributes
     ) {
         log.info("Register attempt with username: {}, email: {}", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getEmail());
 
@@ -91,27 +98,10 @@ public class HomeController {
             return "register";
         }
 
-        if (baseUserService.validateUsernameIfExists(registerBaseUserRequest.getUsername())) {
-            model.addAttribute("role", registerBaseUserRequest.getRole());
-            bindingResult.rejectValue("username", "Username.Invalid", "Username already exists.");
-            return "register";
-        } else if (baseUserService.validateEmailIfExists(registerBaseUserRequest.getEmail())) {
-            model.addAttribute("role", registerBaseUserRequest.getRole());
-            bindingResult.rejectValue("email", "Email.Invalid", "Email already exists.");
-            return "register";
-        } else if (!registerBaseUserRequest.getPassword().equals(registerBaseUserRequest.getConfirmPassword())) {
-            model.addAttribute("role", registerBaseUserRequest.getRole());
-            bindingResult.rejectValue("confirmPassword", "ConfirmPassword.Invalid", "Password and confirm password must be same.");
-            return "register";
-        }
-
         try {
             Optional<BaseUser> optionalBaseUser = baseUserService.registerBaseUser(registerBaseUserRequest);
             if (optionalBaseUser.isPresent()) {
                 BaseUser baseUser = optionalBaseUser.get();
-
-                System.out.println("___");
-                System.out.println(baseUser);
                 log.info("Register successful for BaseUser ID: {}, Role: {}", baseUser.getId(), baseUser.getRole());
 
                 session.setAttribute(IS_USER_VERIFIED, Boolean.TRUE);
@@ -119,15 +109,39 @@ public class HomeController {
                 session.setAttribute(USER_ROLE, baseUser.getRole());
                 log.info("BaseUser attributes set in session IS_USER_VERIFIED, USER_ID, USER_ROLE");
 
+                redirectAttributes.addFlashAttribute("message", "Registration successful!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+
                 log.info("Redirecting to: /");
                 return "redirect:/";
             } else {
                 log.warn("Register failed for BaseUser username: {}, email: {}", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getEmail());
+
                 model.addAttribute("message", "Unexpected role type provided. Please contact support.");
                 return "error";
             }
+        } catch (UsernameAlreadyExistsException ex) {
+            log.error("Registration failed: Username '{}' already exists", registerBaseUserRequest.getUsername(), ex);
+
+            model.addAttribute("role", registerBaseUserRequest.getRole());
+            bindingResult.rejectValue("username", "Username.Invalid", "Username already exists.");
+            return "register";
+        } catch (EmailAlreadyExistsException ex) {
+            log.error("Registration failed: Email '{}' already exists", registerBaseUserRequest.getEmail(), ex);
+
+            model.addAttribute("role", registerBaseUserRequest.getRole());
+            bindingResult.rejectValue("email", "Email.Invalid", "Email already exists.");
+            return "register";
+        } catch (PasswordMismatchException ex) {
+            log.error("Registration failed: Password mismatch for username '{}'", registerBaseUserRequest.getUsername(), ex);
+
+            model.addAttribute("role", registerBaseUserRequest.getRole());
+            bindingResult.rejectValue("confirmPassword", "ConfirmPassword.Invalid", "Password and confirm password must be same.");
+            return "register";
         } catch (DataIntegrityViolationException ex) {
-            model.addAttribute("message", "User already exists with the provided email or username.");
+            log.error("Unexpected data integrity violation during registration for username '{}', email '{}'", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getEmail(), ex);
+
+            model.addAttribute("message", "An unexpected data integrity error occurred. Please contact support.");
             return "error";
         }
     }
@@ -155,7 +169,8 @@ public class HomeController {
             @Valid @ModelAttribute("loginBaseUserRequest") LoginBaseUserRequestDto loginBaseUserRequest,
             BindingResult bindingResult,
             Model model,
-            HttpSession session
+            HttpSession session,
+            RedirectAttributes redirectAttributes
     ) {
         log.info("Login attempt with BaseUser identifier: {}", loginBaseUserRequest.getBaseUserIdentifier());
 
@@ -186,6 +201,9 @@ public class HomeController {
                 session.setAttribute(USER_ID, baseUser.getId());
                 session.setAttribute(USER_ROLE, baseUser.getRole());
                 log.info("BaseUser attributes set in session IS_USER_VERIFIED, USER_ID, USER_ROLE");
+
+                redirectAttributes.addFlashAttribute("message", "Login successful!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
 
                 log.info("Redirecting to: /");
                 return "redirect:/";

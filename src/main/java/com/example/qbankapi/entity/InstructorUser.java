@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @Entity
 @Table(name = "instructor_user_tbl")
 @DiscriminatorValue("INSTRUCTOR")

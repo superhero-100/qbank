@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @Entity
 @Table(name = "participant_user_tbl")
 @DiscriminatorValue("PARTICIPANT")

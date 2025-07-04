@@ -12,12 +12,12 @@
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
 
@@ -28,7 +28,7 @@
             <p th:if="${error}" th:text="${error}"
                class="text-error text-sm bg-error/10 px-3 py-2 rounded mb-4 text-center"></p>
 
-            <form id="questionForm" th:action="@{/adminUser/manage/questions/save}" method="post"
+            <form id="questionForm" th:action="@{/admin/manage/questions/save}" method="post"
                   th:object="${addQuestionRequest}" novalidate
                   class="space-y-6">
 
@@ -123,7 +123,7 @@
                 <!-- Submit + Cancel -->
                 <div class="flex justify-end gap-4 mt-6">
                     <button type="button" class="btn btn-ghost"
-                            th:onclick="|openCancelConfirmModal('@{/adminUser/manage/questions}')|">
+                            th:onclick="|openCancelConfirmModal('@{/admin/manage/questions}')|">
                         Cancel
                     </button>
                     <button type="button" class="btn btn-primary"
@@ -139,9 +139,7 @@
 
 </div>
 
-<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 <script>
     RTE_DefaultConfig.url_base = 'richtexteditor';
@@ -173,9 +171,9 @@
 
 <script>
     function openSaveQuestionConfirmModal() {
-        document.getElementById('modalTitle').innerText = 'Update Confirmation';
-        document.getElementById('modalMessage').innerText = 'Do you want to update this subject?';
-        document.getElementById('confirmActionBtn').innerText = 'Update';
+        document.getElementById('modalTitle').innerText = 'Create Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to create this question?';
+        document.getElementById('confirmActionBtn').innerText = 'Create';
         document.getElementById('confirmActionBtn').className = 'btn btn-primary';
         document.getElementById('modalCancelBtn').innerText = 'Cancel';
 

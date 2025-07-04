@@ -30,6 +30,21 @@ public class OrmConfig {
     @Value("${spring.datasource.driver-class-name}")
     private String dbDriver;
 
+    @Value("${spring.hibernate.entity.base_package.path}")
+    private String entityBasePackagePath;
+
+    @Value("${spring.hibernate.dialect}")
+    private String dialect;
+
+    @Value("${spring.hibernate.hbm2ddl.auto}")
+    private String hbm2ddlAuto;
+
+    @Value("${spring.hibernate.show_sql}")
+    private String showSql;
+
+    @Value("${spring.hibernate.format_sql}")
+    private String formatSql;
+
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -44,14 +59,14 @@ public class OrmConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(dataSource);
-        entityManagerFactoryBean.setPackagesToScan("com.example.qbankapi.entity");
+        entityManagerFactoryBean.setPackagesToScan(entityBasePackagePath);
         entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Properties props = new Properties();
-        props.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
-        props.put("hibernate.hbm2ddl.auto", "update");
-        props.put("hibernate.show_sql", "true");
-        props.put("hibernate.format_sql", "true");
+        props.put("hibernate.dialect", dialect);
+        props.put("hibernate.hbm2ddl.auto", hbm2ddlAuto);
+        props.put("hibernate.show_sql", showSql);
+        props.put("hibernate.format_sql", formatSql);
         entityManagerFactoryBean.setJpaProperties(props);
 
         return entityManagerFactoryBean;

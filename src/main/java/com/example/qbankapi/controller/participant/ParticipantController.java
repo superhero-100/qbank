@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+public class ParticipantController {
 
 //    private final UserService userService;
 //    private final SubjectService subjectService;
