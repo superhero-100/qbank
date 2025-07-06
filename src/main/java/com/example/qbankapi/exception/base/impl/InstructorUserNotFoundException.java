@@ -1,8 +1,8 @@
 package com.example.qbankapi.exception.base.impl;
 
-import com.example.qbankapi.exception.base.EntityNotFoundException;
+import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 
-public class InstructorUserNotFoundException extends EntityNotFoundException {
+public class InstructorUserNotFoundException extends BaseUserNotFoundException {
 
     public InstructorUserNotFoundException() {
         super("Instructor user not found");

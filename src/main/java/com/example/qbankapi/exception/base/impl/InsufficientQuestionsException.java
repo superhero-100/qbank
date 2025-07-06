@@ -2,17 +2,17 @@ package com.example.qbankapi.exception.base.impl;
 
 import com.example.qbankapi.exception.base.AppRuntimeException;
 
-public class InSufficientQuestionsException extends AppRuntimeException {
+public class InsufficientQuestionsException extends AppRuntimeException {
 
-    public InSufficientQuestionsException() {
+    public InsufficientQuestionsException() {
         super("InSufficient questions exception");
     }
 
-    public InSufficientQuestionsException(String message) {
+    public InsufficientQuestionsException(String message) {
         super(message);
     }
 
-    public InSufficientQuestionsException(Throwable cause) {
+    public InsufficientQuestionsException(Throwable cause) {
         super(cause);
     }
 }

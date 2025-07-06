@@ -100,7 +100,7 @@ public class QuestionDao {
     public List<Question> findRandomQuestions(Long subjectId, Integer totalQuestions, Question.Complexity complexity, Integer marks) {
         return entityManager.createNativeQuery(RANDOM_QUESTIONS_QUERY_SQL, Question.class)
                 .setParameter("subjectId", subjectId)
-                .setParameter("complexity", complexity.toString())
+                .setParameter("complexity", complexity.ordinal())
                 .setParameter("marks", marks)
                 .setParameter("limit", totalQuestions)
                 .getResultList();

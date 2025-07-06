@@ -1,63 +1,4 @@
-<!--&lt;!&ndash; fragments/support.html &ndash;&gt;-->
-<!--<th:block th:fragment="tag">-->
-
-<!--    &lt;!&ndash; Header &ndash;&gt;-->
-<!--    <header class="navbar bg-base-100 shadow-md px-6 z-50 sticky top-0 transition-all duration-300">-->
-
-<!--        &lt;!&ndash; Logo &ndash;&gt;-->
-<!--        <div class="flex-1">-->
-<!--            <a th:href="@{/}" class="flex items-center gap-3 text-2xl font-extrabold text-primary tracking-wide">-->
-<!--                <div class="flex flex-col leading-tight">-->
-<!--                    <div class="logo">Q<span class="text-warning">bank</span></div>-->
-<!--                </div>-->
-<!--            </a>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Navigation &ndash;&gt;-->
-<!--        <nav class="hidden md:flex space-x-6 font-medium text-base-content">-->
-<!--            <a th:href="@{/participantUser/subjects}"-->
-<!--               th:classappend="${#httpServletRequest.requestURI.contains('/subjects')} ? 'text-warning font-bold' : ''">-->
-<!--                <i class="fas fa-book mr-1"></i>Subjects-->
-<!--            </a>-->
-<!--            <a th:href="@{/participantUser/exams}"-->
-<!--               th:classappend="${#httpServletRequest.requestURI.contains('/exams')} ? 'text-warning font-bold' : ''">-->
-<!--                <i class="fas fa-file-alt mr-1"></i>Exams-->
-<!--            </a>-->
-<!--            <a th:href="@{/participantUser/history}"-->
-<!--               th:classappend="${#httpServletRequest.requestURI.contains('/history')} ? 'text-warning font-bold' : ''">-->
-<!--                <i class="fas fa-history mr-1"></i>History-->
-<!--            </a>-->
-<!--        </nav>-->
-
-<!--        &lt;!&ndash; Profile Avatar &ndash;&gt;-->
-<!--        <div class="flex-none">-->
-<!--            <div class="dropdown dropdown-end">-->
-<!--                <label tabindex="0" class="avatar avatar-placeholder cursor-pointer">-->
-<!--                    <div class="bg-neutral text-neutral-content w-12 h-12 rounded-full !flex items-center justify-center">-->
-<!--                        <span class="text-lg font-bold">S</span>-->
-<!--                    </div>-->
-<!--                </label>-->
-
-<!--                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-44">-->
-<!--                    <li>-->
-<!--                        <a th:href="@{/participantUser/profile}" class="flex items-center">-->
-<!--                            <i class="fas fa-participantUser mr-2 text-primary"></i> Profile-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <a onclick="logoutModal.showModal()" class="flex items-center text-error">-->
-<!--                            <i class="fas fa-sign-out-alt mr-2"></i> Logout-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </header>-->
-
-<!--</th:block>-->
-
-
-<!-- fragments/support.html -->
+<!-- fragments/header.html -->
 <th:block th:fragment="tag">
 
     <!-- Header -->
@@ -72,21 +13,19 @@
 
         <!-- Navigation -->
         <nav id="nav-tabs" class="hidden md:flex gap-6 items-center font-medium text-base-content flex-grow justify-center">
-            <a th:href="@{/participantUser/home}" class="hover:text-warning flex items-center gap-2">
+            <a th:href="@{/participant/home}" class="hover:text-warning flex items-center gap-2">
                 <i class="fas fa-home"></i><span>Dashboard</span>
             </a>
-            <a th:href="@{/participantUser/subjects}" class="hover:text-warning flex items-center gap-2">
+            <a th:href="@{/participant/subjects}" class="hover:text-warning flex items-center gap-2">
                 <i class="fas fa-book"></i><span>Subjects</span>
             </a>
-            <a th:href="@{/participantUser/exams}" class="hover:text-warning flex items-center gap-2">
+            <a th:href="@{/participant/exams}" class="hover:text-warning flex items-center gap-2">
                 <i class="fas fa-file-alt"></i><span>Exams</span>
             </a>
-            <a th:href="@{/participantUser/history}" class="hover:text-warning flex items-center gap-2">
+            <a th:href="@{/participant/history}" class="hover:text-warning flex items-center gap-2">
                 <i class="fas fa-history"></i><span>History</span>
             </a>
         </nav>
-
-        <!-- Profile Avatar -->
 
         <!-- Profile Avatar -->
         <div class="flex-none">
@@ -99,8 +38,8 @@
 
                 <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-44">
                     <li>
-                        <a th:href="@{/participantUser/profile}" class="flex items-center">
-                            <i class="fas fa-participantUser mr-2 text-primary"></i> Profile
+                        <a th:href="@{/participant/profile}" class="flex items-center">
+                            <i class="fas fa-user mr-2 text-primary"></i> Profile
                         </a>
                     </li>
                     <li>
@@ -111,30 +50,18 @@
                 </ul>
             </div>
         </div>
-
-
-<!--        <div class="flex items-center ml-4">-->
-<!--            <div class="dropdown dropdown-end">-->
-<!--                <label tabindex="0" class="avatar avatar-placeholder cursor-pointer">-->
-<!--                    <div class="bg-neutral text-neutral-content w-12 h-12 rounded-full flex items-center justify-center">-->
-<!--                        <span class="text-lg font-bold" th:text="${#strings.substring(username, 0, 1)}">S</span>-->
-<!--                    </div>-->
-<!--                </label>-->
-
-<!--                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-44">-->
-<!--                    <li>-->
-<!--                        <a th:href="@{/participantUser/profile}" class="flex items-center">-->
-<!--                            <i class="fas fa-participantUser mr-2 text-primary"></i> Profile-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <a onclick="logoutModal.showModal()" class="flex items-center text-error cursor-pointer">-->
-<!--                            <i class="fas fa-sign-out-alt mr-2"></i> Logout-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            </div>-->
-<!--        </div>-->
     </header>
+
+    <!-- Logout Modal -->
+    <dialog id="logoutModal" class="modal">
+        <form method="dialog" class="modal-box">
+            <h3 class="font-bold text-lg">Confirm Logout</h3>
+            <p class="py-4">Are you sure you want to log out?</p>
+            <div class="modal-action">
+                <button class="btn">Cancel</button>
+                <a th:href="@{/logout}" class="btn btn-error">Yes, Logout</a>
+            </div>
+        </form>
+    </dialog>
 
 </th:block>

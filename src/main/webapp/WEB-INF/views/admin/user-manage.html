@@ -5,17 +5,18 @@
     <title>QBank Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+    <th:block th:replace="~{/fragments/toast :: toast-style}"></th:block>
 
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/adminUser/fragments/header :: tag}"></div>
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/adminUser/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
@@ -29,7 +30,7 @@
             </div>
 
             <!-- Filter Panel -->
-            <form th:action="@{/adminUser/manage/users}" th:object="${filter}" method="get"
+            <form th:action="@{/admin/manage/users}" th:object="${filter}" method="get"
                   class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
                 <!-- Role -->
@@ -121,7 +122,7 @@
                             <!-- Inactivate Button -->
                             <button type="button"
                                     th:if="${u.status.name() == 'ACTIVE' and u.role.name() != 'ADMIN'}"
-                                    th:onclick="|openUserInactivateConfirmModal('@{/adminUser/manage/users/{id}/inactivate(id=${u.id})}')|"
+                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/inactivate(id=${u.id})}')|"
                                     class="btn btn-sm btn-warning text-white">
                                 Inactivate
                             </button>
@@ -129,7 +130,7 @@
                             <!-- Activate Button -->
                             <button type="button"
                                     th:if="${(u.status.name() == 'INACTIVE' or u.status.name() == 'LOCKED') and u.role.name() != 'ADMIN'}"
-                                    th:onclick="|openUserInactivateConfirmModal('@{/adminUser/manage/users/{id}/activate(id=${u.id})}')|"
+                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/activate(id=${u.id})}')|"
                                     class="btn btn-sm btn-success text-white">
                                 Activate
                             </button>
@@ -146,13 +147,13 @@
             <!-- Pagination -->
             <div class="flex justify-between items-center mt-6">
                 <a th:if="${pageNumber > 0}"
-                   th:href="@{/adminUser/manage/users(page=${pageNumber - 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   th:href="@{/admin/manage/users(page=${pageNumber - 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Previous</a>
 
                 <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
 
                 <a th:if="${hasNextPage}"
-                   th:href="@{/adminUser/manage/users(page=${pageNumber + 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   th:href="@{/admin/manage/users(page=${pageNumber + 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Next</a>
             </div>
         </section>
@@ -160,9 +161,7 @@
 
 </div>
 
-<div th:replace="~{/adminUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/adminUser/fragments/support :: tags}"></div>
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 <div th:replace="~{/fragments/modal :: configurableModal}"></div>
 
@@ -194,6 +193,18 @@
 
         document.getElementById('actionModal').showModal();
     }
+</script>
+
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
+
+<script th:if="${message != null}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
 </script>
 
 </body>

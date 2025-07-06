@@ -1,8 +1,8 @@
 package com.example.qbankapi.exception.base.impl;
 
-import com.example.qbankapi.exception.base.EntityNotFoundException;
+import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 
-public class ParticipantUserNotFoundException extends EntityNotFoundException {
+public class ParticipantUserNotFoundException extends BaseUserNotFoundException {
 
     public ParticipantUserNotFoundException() {
         super("Participant user not found");

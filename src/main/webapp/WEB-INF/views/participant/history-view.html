@@ -11,7 +11,7 @@
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
+<div th:replace="~{/participant/fragments/header :: tag}"></div>
 
 <!-- History Section -->
 <div class="container mx-auto px-4 py-10 fade-in">
@@ -52,7 +52,7 @@
                 <td th:text="${record.totalEnrolledUsers}">120</td>
                 <td class="text-center">
                     <a class="btn btn-sm btn-warning"
-                       th:href="@{|/participantUser/result/exam/${record.resultId}|}">
+                       th:href="@{|/participant/result/exam/${record.resultId}|}">
                         <i class="fas fa-eye mr-1"></i> View
                     </a>
                 </td>
@@ -63,9 +63,7 @@
 
 </div>
 
-<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
+<div th:replace="~{/participant/fragments/footer :: tag}"></div>
 
 </body>
 </html>

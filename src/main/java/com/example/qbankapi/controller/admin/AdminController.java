@@ -1,16 +1,16 @@
 package com.example.qbankapi.controller.admin;
 
-import com.example.qbankapi.dto.model.ExamFilterDto;
-import com.example.qbankapi.dto.model.QuestionFilterDto;
+import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.*;
+import com.example.qbankapi.dto.view.BaseUserPageViewDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.dto.view.QuestionPageViewDto;
-import com.example.qbankapi.dto.model.SubjectDto;
-import com.example.qbankapi.dto.model.QuestionDto;
-import com.example.qbankapi.exception.base.impl.InSufficientQuestionsException;
+import com.example.qbankapi.exception.base.BaseUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
 import com.example.qbankapi.exception.base.impl.QuestionNotFoundException;
 import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
 import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
+import com.example.qbankapi.service.BaseUserService;
 import com.example.qbankapi.service.ExamService;
 import com.example.qbankapi.service.QuestionService;
 import com.example.qbankapi.service.SubjectService;
@@ -37,8 +37,8 @@ public class AdminController {
     private final SubjectService subjectService;
     private final QuestionService questionService;
     private final ExamService examService;
-//    private final BaseUserService baseUserService;
-//    private final UserService userService;
+    private final BaseUserService baseUserService;
+//    private final ParticipantUserService userService;
 
     @GetMapping("/home")
     public String getDashboardPage() {
@@ -245,14 +245,14 @@ public class AdminController {
 
     @GetMapping("/manage/questions/{id}/edit")
     public String getEditQuestionPage(
-            @PathVariable("id") Long id,
+            @PathVariable("id") Long questionId,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
             UpdateQuestionRequestDto updateQuestionRequest = new UpdateQuestionRequestDto();
 
-            QuestionDto questionDto = questionService.getQuestionDtoById(id);
+            QuestionDto questionDto = questionService.getQuestionDtoById(questionId);
 
             updateQuestionRequest.setId(questionDto.getId());
             updateQuestionRequest.setText(questionDto.getText());
@@ -271,7 +271,7 @@ public class AdminController {
             log.info("Rendering question-edit page");
             return "admin/question-edit";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", id, ex);
+            log.error("Question not found with id: {}", questionId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -340,8 +340,13 @@ public class AdminController {
         try {
             questionService.deactivateQuestion(questionId);
 
-            model.addAttribute("message", "Question deleted successfully");
-            return "admin/success";
+            log.debug("Question deactivated with id: {}", questionId);
+
+            redirectAttributes.addFlashAttribute("message", "Question deleted successfully");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/manage/questions";
         } catch (QuestionNotFoundException ex) {
             log.error("Question not found with id: {}", questionId, ex);
 
@@ -369,6 +374,7 @@ public class AdminController {
     ) {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+
             return "admin/exam-manage";
         }
 
@@ -405,6 +411,7 @@ public class AdminController {
     ) {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+
             return "admin/exam-add";
         }
 
@@ -431,13 +438,14 @@ public class AdminController {
 
         try {
             examService.createExam(createExamRequestDto, (Long) session.getAttribute(USER_ID));
+            log.info("Exam created with description: {}", createExamRequestDto.getDescription());
 
             redirectAttributes.addFlashAttribute("message", "Exam created successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
 
             log.info("Redirecting to /admin/manage/exams");
             return "redirect:/admin/manage/exams";
-        } catch (InSufficientQuestionsException ex) {
+        } catch (InsufficientQuestionsException ex) {
             log.error("Critical error: InSufficientQuestions", ex);
 
             redirectAttributes.addFlashAttribute("message", "Unable to complete the operation due to insufficient available questions");
@@ -448,46 +456,78 @@ public class AdminController {
         }
     }
 
-//    @GetMapping("/manage/users")
-//    public String getManageUsersPage(
-//            @Valid @ModelAttribute("filter") UserFilterDto userFilterDto,
-//            Model model,
-//            BindingResult bindingResult
-//    ) {
-//        if (bindingResult.hasErrors()) {
-//            return "admin/user-manage";
-//        }
-//
-//        BaseUserViewPageDto baseUserViewPageDto = baseUserService.getFilteredUsers(userFilterDto);
-//        model.addAttribute("filter", userFilterDto);
-//
-//        model.addAttribute("baseUsers", baseUserViewPageDto.getBaseUsers());
-//        model.addAttribute("pageNumber", baseUserViewPageDto.getPage());
-//        model.addAttribute("pageSize", baseUserViewPageDto.getPageSize());
-//        model.addAttribute("hasNextPage", baseUserViewPageDto.getHasNextPage());
-//        return "admin/user-manage";
-//    }
+    @GetMapping("/manage/users")
+    public String getManageUsersPage(
+            @Valid @ModelAttribute("filter") BaseUserFilterDto userFilterDto,
+            Model model,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "admin/user-manage";
+        }
 
-//    @GetMapping("/manage/users/{id}/activate")
-//    public String activateUser(@PathVariable("id") Long id, Model model) {
-//        try {
-//            baseUserService.activateUser(id);
-//        } catch (UserNotFoundException ex) {
-//            model.addAttribute("message", ex.getMessage());
-//            return "admin/error";
-//        }
-//        return "redirect:/admin/manage/users";
-//    }
+        BaseUserPageViewDto baseUserViewPageDto = baseUserService.getFilteredUsers(userFilterDto);
+        model.addAttribute("filter", userFilterDto);
 
-//    @GetMapping("/manage/users/{id}/inactivate")
-//    public String inactivateUser(@PathVariable("id") Long id, Model model) {
-//        try {
-//            baseUserService.inactivateUser(id);
-//        } catch (UserNotFoundException ex) {
-//            model.addAttribute("message", ex.getMessage());
-//            return "admin/error";
-//        }
-//        return "redirect:/admin/manage/users";
-//    }
+        model.addAttribute("baseUsers", baseUserViewPageDto.getBaseUsers());
+        model.addAttribute("pageNumber", baseUserViewPageDto.getPage());
+        model.addAttribute("pageSize", baseUserViewPageDto.getPageSize());
+        model.addAttribute("hasNextPage", baseUserViewPageDto.getHasNextPage());
+
+        log.info("Rendering user-manage page");
+        return "admin/user-manage";
+    }
+
+    @GetMapping("/manage/users/{id}/activate")
+    public String activateUser(
+            @PathVariable("id") Long userId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            baseUserService.activateUser(userId);
+            log.debug("BaseUser activated with id: {}", userId);
+
+            redirectAttributes.addFlashAttribute("message", "User activated successfully");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        } catch (BaseUserNotFoundException ex) {
+            log.error("BaseUser not found with id: {}", userId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. BaseUser not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        }
+    }
+
+    @GetMapping("/manage/users/{id}/inactivate")
+    public String inactivateUser(
+            @PathVariable("id") Long userId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            baseUserService.inactivateUser(userId);
+            log.debug("BaseUser inactivated with id: {}", userId);
+
+            redirectAttributes.addFlashAttribute("message", "User inactivated successfully");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        } catch (BaseUserNotFoundException ex) {
+            log.error("BaseUser not found with id: {}", userId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. BaseUser not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        }
+    }
 
 }

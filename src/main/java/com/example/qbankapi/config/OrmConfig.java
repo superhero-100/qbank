@@ -52,6 +52,7 @@ public class OrmConfig {
         dataSource.setUsername(dbUsername);
         dataSource.setPassword(dbPassword);
         dataSource.setDriverClassName(dbDriver);
+
         return dataSource;
     }
 

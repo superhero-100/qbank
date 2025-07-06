@@ -5,7 +5,7 @@
     <title>QBank Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
 
 </head>
 <body class="bg-base-200 text-base-content font-sans">
@@ -68,7 +68,7 @@
                 <!-- Submit + Cancel -->
                 <div class="flex justify-end gap-4">
                     <button type="button" class="btn btn-primary"
-                            th:onclick="|openCancelConfirmModal('@{/adminUser/manage/subjects}')|">
+                            th:onclick="|openCancelConfirmModal('@{/admin/manage/subjects}')|">
                         Cancel
                     </button>
                     <button type="button" class="btn btn-primary"

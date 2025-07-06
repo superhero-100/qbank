@@ -5,15 +5,13 @@
     <title>Subjects - Qbank</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- TailwindCSS + DaisyUI -->
-    <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
 
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
 
-<div th:replace="~{/participantUser/fragments/header :: tag}"></div>
+<div th:replace="~{/participant/fragments/header :: tag}"></div>
 
-<!-- Main Content -->
 <!-- Main Content -->
 <main class="container mx-auto px-4 py-10 fade-in">
     <div class=" flex items-center justify-center gap-3 text-center mb-6 text-primary">
@@ -42,7 +40,7 @@
                 <td class="opacity-80" th:text="${subject.description}">Description goes here</td>
                 <td class="text-center">
                     <a class="btn btn-sm btn-neutral"
-                       th:href="@{/participantUser/exams(subjectId=${subject.id})}">
+                       th:href="@{/participant/exams(subjectId=${subject.id})}">
                         <i class="fas fa-eye mr-1"></i> View Exams
                     </a>
                 </td>
@@ -52,9 +50,7 @@
     </div>
 </main>
 
-<div th:replace="~{/participantUser/fragments/footer :: tag}"></div>
-
-<div th:replace="~{/participantUser/fragments/support :: tags}"></div>
+<div th:replace="~{/participant/fragments/footer :: tag}"></div>
 
 </body>
 </html>

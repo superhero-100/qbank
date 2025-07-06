@@ -1,23 +1,28 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.*;
+import com.example.qbankapi.dto.model.ExamDto;
 import com.example.qbankapi.dto.model.ExamFilterDto;
+import com.example.qbankapi.dto.model.ExamSubmissionDto;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
+import com.example.qbankapi.dto.view.ExamViewDto;
 import com.example.qbankapi.entity.*;
-import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.InSufficientQuestionsException;
-import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
+import com.example.qbankapi.exception.base.impl.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,10 +34,10 @@ public class ExamService {
     private final SubjectDao subjectDao;
     private final QuestionDao questionDao;
     private final ExamAnalyticsDao examAnalyticsDao;
-//    private final UserDao userDao;
-//    private final UserAnalyticsDao userAnalyticsDao;
-//    private final UserExamResultDao userExamResultDao;
-//    private final UserAnswerDao userAnswerDao;
+    private final ParticipantUserDao participantUserDao;
+    private final UserAnalyticsDao userAnalyticsDao;
+    private final UserExamResultDao userExamResultDao;
+    private final UserAnswerDao userAnswerDao;
 
     @Transactional(readOnly = true)
     public ExamPageViewDto getFilteredExams(ExamFilterDto examFilterDto) {
@@ -68,12 +73,7 @@ public class ExamService {
             examFilterDto.setPage(0);
         }
 
-        log.info("Final applied filters - subjectId: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
-                examFilterDto.getSubjectId(),
-                examFilterDto.getSortBy(),
-                examFilterDto.getSortOrder(),
-                examFilterDto.getPageSize(),
-                examFilterDto.getPage());
+        log.info("Final applied filters - subjectId: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}", examFilterDto.getSubjectId(), examFilterDto.getSortBy(), examFilterDto.getSortOrder(), examFilterDto.getPageSize(), examFilterDto.getPage());
 
         ExamPageViewDto examPageViewDto = examDao.findFilteredExams(examFilterDto);
 
@@ -84,8 +84,13 @@ public class ExamService {
 
     @Transactional
     public void createExam(CreateExamRequestDto createExamRequestDto, Long adminId) {
+        log.info("Starting exam creation for adminId: {}", adminId);
+
         AdminUser admin = adminUserDao.findById(adminId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id", adminId)));
+        log.debug("Admin found: {}", admin.getId());
+
         Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
+        log.debug("Subject found: {}", subject.getId());
 
         ExamAnalytics examAnalytics = new ExamAnalytics();
         examAnalytics.setTotalSubmissions(0);
@@ -93,14 +98,8 @@ public class ExamService {
         examAnalytics.setHighestScore(0D);
         examAnalytics.setLowestScore(0D);
 
-        Integer totalMarks = (
-                (createExamRequestDto.getTotal1MarkQuestions() * 1) +
-                        (createExamRequestDto.getTotal2MarkQuestions() * 2) +
-                        (createExamRequestDto.getTotal3MarkQuestions() * 3) +
-                        (createExamRequestDto.getTotal4MarkQuestions() * 4) +
-                        (createExamRequestDto.getTotal5MarkQuestions() * 5) +
-                        (createExamRequestDto.getTotal6MarkQuestions() * 6)
-        );
+        Integer totalMarks = ((createExamRequestDto.getTotal1MarkQuestions()) + (createExamRequestDto.getTotal2MarkQuestions() * 2) + (createExamRequestDto.getTotal3MarkQuestions() * 3) + (createExamRequestDto.getTotal4MarkQuestions() * 4) + (createExamRequestDto.getTotal5MarkQuestions() * 5) + (createExamRequestDto.getTotal6MarkQuestions() * 6));
+        log.info("Total calculated marks: {}", totalMarks);
 
         ZoneId userZoneId = ZoneId.of(admin.getZoneId());
 
@@ -141,141 +140,144 @@ public class ExamService {
         if (total == null || total <= 0) return;
 
         List<Question> questions = questionDao.findRandomQuestions(subjectId, total, complexity, marks);
+
         if (questions.size() < total) {
-            throw new InSufficientQuestionsException(String.format("Not enough questions for marks: %d, complexity: %s", marks, complexity));
+            throw new InsufficientQuestionsException(String.format("Not enough questions for marks: %d, complexity: %s", marks, complexity));
         }
 
         targetList.addAll(questions);
     }
 
-//    @Transactional(readOnly = true)
-//    public List<ExamDetailsDto> getAllExamsInDto(Long userId) {
-//        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
-//
-//        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(user.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
-//
+    @Transactional(readOnly = true)
+    public List<ExamViewDto> getAllExamsInDto(Long userId) {
+//        ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
+//        find exams by the start date end date and by participant user           process query's
+//        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(participantUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
 //        return examDao.findAllByEnrollmentEndDate(nowUtc, user)
-//                .stream()
-//                .map(exam -> ExamDetailsDto.builder()
-//                        .id(exam.getId())
-//                        .description(exam.getDescription())
-//                        .totalMarks(exam.getTotalMarks())
-//                        .subjectName(exam.getSubject().getName())
-//                        .totalQuestions(exam.getQuestions().size())
-//                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
-//                        .build())
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public ExamDto getExamInDtoById(Long id) {
-//        Exam exam = examDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Exam Not Found"));
-//        return ExamDto.builder()
-//                .id(exam.getId())
-//                .description(exam.getDescription())
-//                .totalMarks(exam.getTotalMarks())
-//                .subjectName(exam.getSubject().getName())
-//                .totalQuestions(exam.getQuestions().size())
-//                .totalEnrolledUsers(exam.getEnrolledUsers().size())
-//                .questions(exam.getQuestions()
-//                        .stream()
-//                        .map(question -> ExamQuestionDto.builder()
-//                                .id(question.getId())
-//                                .text(question.getText())
-//                                .options(question.getOptions())
-//                                .correctAnswer(question.getCorrectAnswer())
-//                                .complexity(question.getComplexity())
-//                                .build())
-//                        .collect(Collectors.toList()))
-//                .build();
-//    }
-//
-//    @Transactional
-//    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
-//        User user = userDao.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
-//
-//        Exam exam = examDao.findById(submissionDto.getExamId())
-//                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", submissionDto.getExamId())));
-//
-//        ExamAnalytics examAnalytics = exam.getAnalytics();
-//
-//        int totalCorrect = 0;
-//        int attempted = 0;
-//        List<UserAnswer> userAnswers = new ArrayList<>();
-//
-//        for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
-//            Long questionId = entry.getKey();
-//            Optional<Question.Option> givenNullableAnswer = Optional.ofNullable(entry.getValue());
-//
-//            Question question = questionDao.findById(questionId)
-//                    .orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
-//
-//            Boolean isCorrect = false;
-//            if (givenNullableAnswer.isPresent()) {
-//                isCorrect = givenNullableAnswer.get().equals(question.getCorrectAnswer());
-//            }
-//
-//            if (givenNullableAnswer.isPresent()) attempted++;
-//            if (isCorrect) totalCorrect++;
-//
-//            UserAnswer userAnswer = new UserAnswer();
-//            userAnswer.setQuestion(question);
-//            userAnswer.setAnswerGiven(givenNullableAnswer.isPresent() ? givenNullableAnswer.get() : null);
-//            userAnswer.setIsCorrect(isCorrect);
-//            userAnswers.add(userAnswer);
-//        }
-//
-//        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
-//        UserAnalytics userAnalytics = new UserAnalytics();
-//        userAnalytics.setAttemptedQuestions(attempted);
-//        userAnalytics.setCorrectAnswers(totalCorrect);
-//        userAnalytics.setAccuracy(accuracy);
-//        userAnalyticsDao.save(userAnalytics);
-//
-//        UserExamResult userExamResult = new UserExamResult();
-//        userExamResult.setSubmittedAt(LocalDateTime.now());
-//        userExamResult.setTotalScore(totalCorrect);
-//        userExamResult.setUser(user);
-//        userExamResult.setExam(exam);
-//        userExamResult.setAnalytics(userAnalytics);
-//        userExamResult.setAnswers(userAnswers);
-//
-//        userAnswers.forEach(ans -> ans.setUserExamResult(userExamResult));
-//        userExamResultDao.save(userExamResult);
-//
-//        userAnalytics.setUserExamResult(userExamResult);
-//        userAnalyticsDao.update(userAnalytics);
-//
-//        userAnswers.stream().forEach(userAnswer -> {
-//            userAnswer.setUserExamResult(userExamResult);
-//            userAnswerDao.save(userAnswer);
-//        });
-//
-//        Integer previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
-//        Double previousAvg = examAnalytics.getAverageScore() != null ? examAnalytics.getAverageScore() : 0.0;
-//
-//        Integer updatedCount = previousCount + 1;
-//        Double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
-//
-//        examAnalytics.setTotalSubmissions(updatedCount);
-//        examAnalytics.setAverageScore(updatedAvg);
-//        examAnalytics.setHighestScore(Math.max(examAnalytics.getHighestScore(), totalCorrect * 1.0));
-//        examAnalytics.setLowestScore(previousCount == 0 ? totalCorrect * 1.0 : Math.min(examAnalytics.getLowestScore(), totalCorrect * 1.0));
-//
-//        examAnalyticsDao.update(examAnalytics);
-//
-//        exam.getEnrolledUsers().add(user);
-//        examDao.save(exam);
-//
-//        user.getUserExamResults().add(userExamResult);
-//        user.getEnrolledExams().add(exam);
-//        user.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-//        userDao.update(user);
-//
-//        return userExamResult.getId();
-//    }
-//
+        return examDao.findAllExams().stream().map(exam -> ExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).totalQuestions(exam.getQuestions().size()).totalEnrolledUsers(exam.getEnrolledParticipantUsers().size()).build()).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamViewDto> getExamsInDtoBySubjectId(Long subjectId, Long userId) {
+//        ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
+//        find exams by the start date end date and by participant user           process query's
+//        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(participantUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
+//        return examDao.findAllByEnrollmentEndDateAndSubjectId(nowUtc, subjectId, user)
+        return examDao.findAllExamsBySubjectId(subjectId).stream().map(exam -> ExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).totalQuestions(exam.getQuestions().size()).totalEnrolledUsers(exam.getEnrolledParticipantUsers().size()).build()).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ExamDto getExamInDtoById(Long id) {
+        Exam exam = examDao.findById(id).orElseThrow(() -> new ExamNotFoundException(String.format("Exam Not Found with id: %d", id)));
+        return ExamDto.builder()
+                .id(exam.getId())
+                .description(exam.getDescription())
+                .totalMarks(exam.getTotalMarks())
+                .subjectName(exam.getSubject().getName())
+                .totalQuestions(exam.getQuestions().size())
+                .totalEnrolledUsers(exam.getEnrolledParticipantUsers().size())
+                .questions(exam.getQuestions()
+                        .stream()
+                        .map(question -> ExamDto.ExamQuestionDto.builder()
+                                .id(question.getId())
+                                .text(question.getText())
+                                .options(question.getOptions())
+                                .correctAnswer(question.getCorrectAnswer())
+                                .complexity(question.getComplexity())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    @Transactional
+    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
+        ParticipantUser participantUser = participantUserDao.findById(userId)
+                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
+
+        Exam exam = examDao.findById(submissionDto.getExamId())
+                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", submissionDto.getExamId())));
+
+        ExamAnalytics examAnalytics = exam.getAnalytics();
+
+        int totalCorrect = 0;
+        int attempted = 0;
+        List<UserAnswer> userAnswers = new ArrayList<>();
+
+        for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
+            Long questionId = entry.getKey();
+            Optional<Question.Option> givenNullableAnswer = Optional.ofNullable(entry.getValue());
+
+            Question question = questionDao.findById(questionId)
+                    .orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
+
+            boolean isCorrect = false;
+            if (givenNullableAnswer.isPresent()) {
+                isCorrect = givenNullableAnswer.get().equals(question.getCorrectAnswer());
+            }
+
+            if (givenNullableAnswer.isPresent()) attempted++;
+            if (isCorrect) totalCorrect++;
+
+            UserAnswer userAnswer = new UserAnswer();
+            userAnswer.setQuestion(question);
+            userAnswer.setAnswerGiven(givenNullableAnswer.orElse(null));
+            userAnswer.setIsCorrect(isCorrect);
+            userAnswers.add(userAnswer);
+        }
+
+        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
+        UserAnalytics userAnalytics = new UserAnalytics();
+        userAnalytics.setAttemptedQuestions(attempted);
+        userAnalytics.setCorrectAnswers(totalCorrect);
+        userAnalytics.setAccuracy(accuracy);
+        userAnalyticsDao.save(userAnalytics);
+
+        UserExamResult userExamResult = new UserExamResult();
+        //local date used for submit exam
+        userExamResult.setSubmittedAt(LocalDateTime.now());
+        userExamResult.setTotalScore(totalCorrect);
+        userExamResult.setParticipantUser(participantUser);
+        userExamResult.setExam(exam);
+        userExamResult.setAnalytics(userAnalytics);
+        userExamResult.setAnswers(userAnswers);
+
+        userAnswers.forEach(ans -> ans.setUserExamResult(userExamResult));
+        userExamResultDao.save(userExamResult);
+
+        userAnalytics.setUserExamResult(userExamResult);
+        userAnalyticsDao.update(userAnalytics);
+
+        userAnswers.forEach(userAnswer -> {
+            userAnswer.setUserExamResult(userExamResult);
+            userAnswerDao.save(userAnswer);
+        });
+
+        int previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
+        double previousAvg = examAnalytics.getAverageScore() != null ? examAnalytics.getAverageScore() : 0.0;
+
+        int updatedCount = previousCount + 1;
+        Double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
+
+        examAnalytics.setTotalSubmissions(updatedCount);
+        examAnalytics.setAverageScore(updatedAvg);
+        examAnalytics.setHighestScore(Math.max(examAnalytics.getHighestScore(), totalCorrect * 1.0));
+        examAnalytics.setLowestScore(previousCount == 0 ? totalCorrect * 1.0 : Math.min(examAnalytics.getLowestScore(), totalCorrect * 1.0));
+
+        examAnalyticsDao.update(examAnalytics);
+
+        exam.getEnrolledParticipantUsers().add(participantUser);
+        //      add in completed participant users
+
+        examDao.save(exam);
+
+        participantUser.getUserExamResults().add(userExamResult);
+        participantUser.getEnrolledExams().add(exam);
+        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        participantUserDao.update(participantUser);
+
+        return userExamResult.getId();
+    }
+
 //    @Transactional
 //    public void enrollExam(Long userId, Long examId) {
 //        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id: %d", userId)));
@@ -286,25 +288,6 @@ public class ExamService {
 //        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
 //        userDao.update(user);
 //        examDao.update(exam);
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public List<ExamDetailsDto> getExamsInDtoBySubjectId(Long subjectId, Long userId) {
-//        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(String.format("User not found with id %d", userId)));
-//
-//        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(user.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
-//
-//        return examDao.findAllByEnrollmentEndDateAndSubjectId(nowUtc, subjectId, user)
-//                .stream()
-//                .map(exam -> ExamDetailsDto.builder()
-//                        .id(exam.getId())
-//                        .description(exam.getDescription())
-//                        .totalMarks(exam.getTotalMarks())
-//                        .subjectName(exam.getSubject().getName())
-//                        .totalQuestions(exam.getQuestions().size())
-//                        .totalEnrolledUsers(exam.getEnrolledUsers().size())
-//                        .build())
-//                .collect(Collectors.toList());
 //    }
 
 }

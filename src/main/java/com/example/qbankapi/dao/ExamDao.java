@@ -4,12 +4,14 @@ import com.example.qbankapi.dto.model.ExamFilterDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.dto.view.ExamViewDto;
 import com.example.qbankapi.entity.Exam;
+import com.example.qbankapi.entity.ParticipantUser;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class ExamDao {
@@ -63,6 +65,14 @@ public class ExamDao {
         entityManager.persist(exam);
     }
 
+    public List<Exam> findAllExams() {
+        return entityManager.createQuery("SELECT e FROM Exam e", Exam.class).getResultList();
+    }
+
+    public List<Exam> findAllExamsBySubjectId(Long subjectId) {
+        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.subject.id = :subjectId", Exam.class).setParameter("subjectId", subjectId).getResultList();
+    }
+
 //    public List<Exam> findAllByEnrollmentEndDate(ZonedDateTime nowUtc, User user) {
 //        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND :user NOT MEMBER OF e.enrolledUsers", Exam.class).setParameter("nowUtc", nowUtc).setParameter("user", user).getResultList();
 //    }
@@ -70,12 +80,12 @@ public class ExamDao {
 //    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc, Long subjectId, User user) {
 //        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId AND :user NOT MEMBER OF e.enrolledUsers", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).setParameter("user", user).getResultList();
 //    }
-//
-//    public Optional<Exam> findById(Long id) {
-//        List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
-//        return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
-//    }
-//
+
+    public Optional<Exam> findById(Long id) {
+        List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();
+        return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
+    }
+
 //    public void update(Exam exam) {
 //        entityManager.merge(exam);
 //    }
