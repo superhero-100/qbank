@@ -4,8 +4,8 @@ import com.example.qbankapi.dao.ParticipantUserDao;
 import com.example.qbankapi.dto.view.ParticipantUserEnrolledExamDetailsViewDto;
 import com.example.qbankapi.dto.view.ParticipantUserProfileStatsViewDto;
 import com.example.qbankapi.entity.ParticipantUser;
-import com.example.qbankapi.entity.UserAnalytics;
-import com.example.qbankapi.entity.UserExamResult;
+import com.example.qbankapi.entity.ParticipantUserExamAnalytics;
+import com.example.qbankapi.entity.ParticipantUserExamResult;
 import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class ParticipantUserService {
     @Transactional(readOnly = true)
     public List<ParticipantUserEnrolledExamDetailsViewDto> getAllEnrolledExamDtoList(Long id) {
         ParticipantUser participantUser = participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant User not found with id: %d",id)));
-        return participantUser.getUserExamResults().stream()
+        return participantUser.getParticipantUserExamResults().stream()
                 .map(userExamResult -> ParticipantUserEnrolledExamDetailsViewDto.builder()
                         .id(userExamResult.getExam().getId())
                         .description(userExamResult.getExam().getDescription())
@@ -51,30 +51,30 @@ public class ParticipantUserService {
         ParticipantUser participantUser = participantUserDao.findById(participantUserId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", participantUserId)));
 
-        List<UserExamResult> results = participantUser.getUserExamResults();
+        List<ParticipantUserExamResult> results = participantUser.getParticipantUserExamResults();
 
         int totalExams = results.size();
         double avgScore = results.stream()
-                .mapToInt(UserExamResult::getTotalScore)
+                .mapToInt(ParticipantUserExamResult::getTotalScore)
                 .average().orElse(0.0);
 
         int totalAttempted = results.stream()
-                .map(UserExamResult::getAnalytics)
-                .mapToInt(UserAnalytics::getAttemptedQuestions)
+                .map(ParticipantUserExamResult::getAnalytics)
+                .mapToInt(ParticipantUserExamAnalytics::getAttemptedQuestions)
                 .sum();
 
         int totalCorrect = results.stream()
-                .map(UserExamResult::getAnalytics)
-                .mapToInt(UserAnalytics::getCorrectAnswers)
+                .map(ParticipantUserExamResult::getAnalytics)
+                .mapToInt(ParticipantUserExamAnalytics::getCorrectAnswers)
                 .sum();
 
         double avgAccuracy = results.stream()
-                .map(UserExamResult::getAnalytics)
-                .mapToDouble(UserAnalytics::getAccuracy)
+                .map(ParticipantUserExamResult::getAnalytics)
+                .mapToDouble(ParticipantUserExamAnalytics::getAccuracy)
                 .average().orElse(0.0);
 
         List<ParticipantUserProfileStatsViewDto.RecentExamViewDto> recent = results.stream()
-                .sorted(Comparator.comparing(UserExamResult::getSubmittedAt).reversed())
+                .sorted(Comparator.comparing(ParticipantUserExamResult::getSubmittedAt).reversed())
                 .limit(5)
                 .map(r -> ParticipantUserProfileStatsViewDto.RecentExamViewDto.builder()
                         .examDescription(r.getExam().getDescription())

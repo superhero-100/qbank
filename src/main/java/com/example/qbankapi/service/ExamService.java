@@ -201,7 +201,7 @@ public class ExamService {
 
         int totalCorrect = 0;
         int attempted = 0;
-        List<UserAnswer> userAnswers = new ArrayList<>();
+        List<ParticipantUserQuestionAnswer> participantUserQuestionAnswers = new ArrayList<>();
 
         for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
             Long questionId = entry.getKey();
@@ -218,38 +218,38 @@ public class ExamService {
             if (givenNullableAnswer.isPresent()) attempted++;
             if (isCorrect) totalCorrect++;
 
-            UserAnswer userAnswer = new UserAnswer();
-            userAnswer.setQuestion(question);
-            userAnswer.setAnswerGiven(givenNullableAnswer.orElse(null));
-            userAnswer.setIsCorrect(isCorrect);
-            userAnswers.add(userAnswer);
+            ParticipantUserQuestionAnswer participantUserQuestionAnswer = new ParticipantUserQuestionAnswer();
+            participantUserQuestionAnswer.setQuestion(question);
+            participantUserQuestionAnswer.setAnswerGiven(givenNullableAnswer.orElse(null));
+            participantUserQuestionAnswer.setIsCorrect(isCorrect);
+            participantUserQuestionAnswers.add(participantUserQuestionAnswer);
         }
 
         Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
-        UserAnalytics userAnalytics = new UserAnalytics();
-        userAnalytics.setAttemptedQuestions(attempted);
-        userAnalytics.setCorrectAnswers(totalCorrect);
-        userAnalytics.setAccuracy(accuracy);
-        userAnalyticsDao.save(userAnalytics);
+        ParticipantUserExamAnalytics participantUserExamAnalytics = new ParticipantUserExamAnalytics();
+        participantUserExamAnalytics.setAttemptedQuestions(attempted);
+        participantUserExamAnalytics.setCorrectAnswers(totalCorrect);
+        participantUserExamAnalytics.setAccuracy(accuracy);
+        userAnalyticsDao.save(participantUserExamAnalytics);
 
-        UserExamResult userExamResult = new UserExamResult();
+        ParticipantUserExamResult participantUserExamResult = new ParticipantUserExamResult();
         //local date used for submit exam
-        userExamResult.setSubmittedAt(LocalDateTime.now());
-        userExamResult.setTotalScore(totalCorrect);
-        userExamResult.setParticipantUser(participantUser);
-        userExamResult.setExam(exam);
-        userExamResult.setAnalytics(userAnalytics);
-        userExamResult.setAnswers(userAnswers);
+        participantUserExamResult.setSubmittedAt(LocalDateTime.now());
+        participantUserExamResult.setTotalScore(totalCorrect);
+        participantUserExamResult.setParticipantUser(participantUser);
+        participantUserExamResult.setExam(exam);
+        participantUserExamResult.setAnalytics(participantUserExamAnalytics);
+        participantUserExamResult.setAnswers(participantUserQuestionAnswers);
 
-        userAnswers.forEach(ans -> ans.setUserExamResult(userExamResult));
-        userExamResultDao.save(userExamResult);
+        participantUserQuestionAnswers.forEach(ans -> ans.setParticipantUserExamResult(participantUserExamResult));
+        userExamResultDao.save(participantUserExamResult);
 
-        userAnalytics.setUserExamResult(userExamResult);
-        userAnalyticsDao.update(userAnalytics);
+        participantUserExamAnalytics.setParticipantUserExamResult(participantUserExamResult);
+        userAnalyticsDao.update(participantUserExamAnalytics);
 
-        userAnswers.forEach(userAnswer -> {
-            userAnswer.setUserExamResult(userExamResult);
-            userAnswerDao.save(userAnswer);
+        participantUserQuestionAnswers.forEach(participantUserQuestionAnswer -> {
+            participantUserQuestionAnswer.setParticipantUserExamResult(participantUserExamResult);
+            userAnswerDao.save(participantUserQuestionAnswer);
         });
 
         int previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
@@ -266,16 +266,16 @@ public class ExamService {
         examAnalyticsDao.update(examAnalytics);
 
         exam.getEnrolledParticipantUsers().add(participantUser);
-        //      add in completed participant users
+        // add in completed participant users
 
         examDao.save(exam);
 
-        participantUser.getUserExamResults().add(userExamResult);
+        participantUser.getParticipantUserExamResults().add(participantUserExamResult);
         participantUser.getEnrolledExams().add(exam);
         participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         participantUserDao.update(participantUser);
 
-        return userExamResult.getId();
+        return participantUserExamResult.getId();
     }
 
 //    @Transactional

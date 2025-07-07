@@ -9,8 +9,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_analytics_tbl")
-public class UserAnalytics {
+@Table(name = "participant_user_exam_analytics_tbl")
+public class ParticipantUserExamAnalytics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,6 @@ public class UserAnalytics {
 
     @OneToOne(mappedBy = "analytics")
     @ToString.Exclude
-    private UserExamResult userExamResult;
+    private ParticipantUserExamResult participantUserExamResult;
 
 }

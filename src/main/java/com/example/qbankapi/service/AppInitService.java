@@ -82,7 +82,7 @@ public class AppInitService {
         participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         participantUser.setEnrolledExams(List.of());
         participantUser.setCompletedExams(List.of());
-        participantUser.setUserExamResults(List.of());
+        participantUser.setParticipantUserExamResults(List.of());
         participantUser.setStatus(status);
         participantUser.setZoneId(zoneId);
 

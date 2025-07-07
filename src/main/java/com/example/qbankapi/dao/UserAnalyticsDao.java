@@ -1,6 +1,6 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.entity.UserAnalytics;
+import com.example.qbankapi.entity.ParticipantUserExamAnalytics;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -12,11 +12,11 @@ public class UserAnalyticsDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void save(UserAnalytics analytics) {
+    public void save(ParticipantUserExamAnalytics analytics) {
         entityManager.persist(analytics);
     }
 
-    public void update(UserAnalytics analytics) {
+    public void update(ParticipantUserExamAnalytics analytics) {
         entityManager.merge(analytics);
     }
 

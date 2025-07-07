@@ -15,6 +15,9 @@ public class ExamAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "total_enrollments")
+    private Integer totalEnrollments;
+
     @Column(name = "total_submissions")
     private Integer totalSubmissions;
 

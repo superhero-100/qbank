@@ -17,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.Email;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -87,7 +86,7 @@ public class BaseUserService {
                 participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
                 participantUser.setEnrolledExams(List.of());
                 participantUser.setCompletedExams(List.of());
-                participantUser.setUserExamResults(List.of());
+                participantUser.setParticipantUserExamResults(List.of());
                 participantUser.setStatus(BaseUser.Status.ACTIVE);
                 participantUser.setZoneId(registerBaseUserRequest.getZoneId());
 

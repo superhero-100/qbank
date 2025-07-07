@@ -9,8 +9,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_answer_tbl")
-public class UserAnswer {
+@Table(name = "participant_user_question_answer_tbl")
+public class ParticipantUserQuestionAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +22,14 @@ public class UserAnswer {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
-    @ManyToOne
-    @JoinColumn(name = "question_id")
-    @ToString.Exclude
-    private Question question;
+//    @ManyToOne
+//    @JoinColumn(name = "question_id")
+//    @ToString.Exclude
+//    private Question question;
 
     @ManyToOne
     @JoinColumn(name = "user_exam_result_id")
     @ToString.Exclude
-    private UserExamResult userExamResult;
+    private ParticipantUserExamResult participantUserExamResult;
 
 }

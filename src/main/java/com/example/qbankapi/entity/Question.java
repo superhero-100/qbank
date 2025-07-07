@@ -45,14 +45,24 @@ public class Question {
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
+    @ToString.Exclude
     private Subject subject;
+
+    @ManyToMany(mappedBy = "questions")
+    @ToString.Exclude
+    private List<Exam> associatedExams;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_base_user_id")
+    @ToString.Exclude
+    private BaseUser createdByBaseUser;
 
     public enum Complexity {
         EASY, MEDIUM, HARD,
     }
 
     public enum Option {
-        A,B,C,D
+        A, B, C, D,
     }
 
 }

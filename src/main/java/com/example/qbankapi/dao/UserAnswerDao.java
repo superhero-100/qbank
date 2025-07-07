@@ -1,6 +1,6 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.entity.UserAnswer;
+import com.example.qbankapi.entity.ParticipantUserQuestionAnswer;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -12,8 +12,8 @@ public class UserAnswerDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void save(UserAnswer userAnswer) {
-        entityManager.persist(userAnswer);
+    public void save(ParticipantUserQuestionAnswer participantUserQuestionAnswer) {
+        entityManager.persist(participantUserQuestionAnswer);
     }
 
 }

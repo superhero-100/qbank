@@ -78,7 +78,7 @@
 <div th:replace="~{/admin/fragments/footer :: tag}"></div>
 <div th:replace="~{/fragments/toast :: toast-html-script}"></div>
 
-<script th:if="${message != null}" th:inline="javascript">
+<script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
     let message = [[${message}]];
     let type = [[${messageType} ?: 'info']];
     let position = [[${toastPosition} ?: 'top-right']];

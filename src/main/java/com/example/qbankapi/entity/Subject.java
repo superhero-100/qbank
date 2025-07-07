@@ -32,4 +32,8 @@ public class Subject {
     @ToString.Exclude
     private List<Exam> exams;
 
+    @ManyToMany(mappedBy = "assignedSubjects")
+    @ToString.Exclude
+    private List<InstructorUser> assignedInstructors;
+
 }

@@ -1,9 +1,8 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.UserExamResultDao;
-import com.example.qbankapi.dto.view.ParticipantUserEnrolledExamDetailsViewDto;
 import com.example.qbankapi.dto.view.ParticipantUserExamResultViewDto;
-import com.example.qbankapi.entity.UserExamResult;
+import com.example.qbankapi.entity.ParticipantUserExamResult;
 import com.example.qbankapi.exception.base.impl.UserExamResultNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,21 +21,21 @@ public class UserExamResultService {
     @Transactional
     public ParticipantUserExamResultViewDto getUserExamResultInDtoById(Long id) {
         // ex name
-        UserExamResult userExamResult = userExamResultDao.findById(id).orElseThrow(() -> new UserExamResultNotFoundException(String.format("UserExamResult not found with id: %d", id)));
+        ParticipantUserExamResult participantUserExamResult = userExamResultDao.findById(id).orElseThrow(() -> new UserExamResultNotFoundException(String.format("UserExamResult not found with id: %d", id)));
         return ParticipantUserExamResultViewDto.builder()
-                .id(userExamResult.getId())
-                .username(userExamResult.getParticipantUser().getUsername())
-                .totalScore(userExamResult.getTotalScore())
-                .submittedAt(userExamResult.getSubmittedAt())
+                .id(participantUserExamResult.getId())
+                .username(participantUserExamResult.getParticipantUser().getUsername())
+                .totalScore(participantUserExamResult.getTotalScore())
+                .submittedAt(participantUserExamResult.getSubmittedAt())
                 .exam(ParticipantUserExamResultViewDto.ExamViewDto.builder()
-                        .id(userExamResult.getExam().getId())
-                        .description(userExamResult.getExam().getDescription())
-                        .totalMarks(userExamResult.getExam().getTotalMarks())
-                        .subjectName(userExamResult.getExam().getSubject().getName())
-                        .totalQuestions(userExamResult.getExam().getQuestions().size())
-                        .totalEnrolledUsers(userExamResult.getExam().getEnrolledParticipantUsers().size())
+                        .id(participantUserExamResult.getExam().getId())
+                        .description(participantUserExamResult.getExam().getDescription())
+                        .totalMarks(participantUserExamResult.getExam().getTotalMarks())
+                        .subjectName(participantUserExamResult.getExam().getSubject().getName())
+                        .totalQuestions(participantUserExamResult.getExam().getQuestions().size())
+                        .totalEnrolledUsers(participantUserExamResult.getExam().getEnrolledParticipantUsers().size())
                         .build())
-                .answers(userExamResult.getAnswers().stream()
+                .answers(participantUserExamResult.getAnswers().stream()
                         .map(userAnswer -> ParticipantUserExamResultViewDto.ParticipantUserAnswerViewDto.builder()
                                 .id(userAnswer.getId())
                                 .answerGiven(userAnswer.getAnswerGiven())
@@ -51,10 +50,10 @@ public class UserExamResultService {
                                 .build())
                         .collect(Collectors.toList()))
                 .analytics(ParticipantUserExamResultViewDto.ParticipantUserAnalyticsViewDto.builder()
-                        .id(userExamResult.getAnalytics().getId())
-                        .attemptedQuestions(userExamResult.getAnalytics().getAttemptedQuestions())
-                        .correctAnswers(userExamResult.getAnalytics().getCorrectAnswers())
-                        .accuracy(userExamResult.getAnalytics().getAccuracy())
+                        .id(participantUserExamResult.getAnalytics().getId())
+                        .attemptedQuestions(participantUserExamResult.getAnalytics().getAttemptedQuestions())
+                        .correctAnswers(participantUserExamResult.getAnalytics().getCorrectAnswers())
+                        .accuracy(participantUserExamResult.getAnalytics().getAccuracy())
                         .build())
                 .build();
     }

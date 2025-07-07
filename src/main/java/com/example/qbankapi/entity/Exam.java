@@ -31,7 +31,7 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_question_tbl",
+            name = "exam_associated_question_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
@@ -40,7 +40,7 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_participant_user_enrolled_tbl",
+            name = "exam_enrolled_participant_user_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
@@ -50,7 +50,7 @@ public class Exam extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "exam_participant_user_completed_tbl",
+            name = "exam_completed_participant_user_tbl",
             joinColumns = @JoinColumn(name = "exam_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
@@ -58,11 +58,21 @@ public class Exam extends Auditable {
     @ToString.Exclude
     private List<ParticipantUser> completedParticipantUsers;
 
+    @ManyToMany
+    @JoinTable(
+            name = "exam_associated_participant_user_exam_result_tbl",
+            joinColumns = @JoinColumn(name = "exam_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+
+    )
+    @ToString.Exclude
+    private List<ParticipantUserExamResult> participantUserExamResults;
+
+
     @OneToOne
     @JoinColumn(name = "analytics_id")
     @ToString.Exclude
     private ExamAnalytics analytics;
-
 
 
     // Enrollment Period
@@ -73,12 +83,17 @@ public class Exam extends Auditable {
     private ZonedDateTime enrollmentEndDate;
 
 
-
     // Exam Period
     @Column(name = "exam_start_date")
     private ZonedDateTime examStartDate;
 
     @Column(name = "exam_end_date")
     private ZonedDateTime examEndDate;
+
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_base_user_id")
+    @ToString.Exclude
+    private BaseUser createdByBaseUser;
 
 }

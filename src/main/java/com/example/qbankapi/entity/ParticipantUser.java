@@ -14,6 +14,9 @@ import java.util.List;
 @DiscriminatorValue("PARTICIPANT")
 public class ParticipantUser extends BaseUser {
 
+    @Column(name = "zone_id")
+    private String zoneId;
+
     @ManyToMany(mappedBy = "enrolledParticipantUsers")
     @ToString.Exclude
     private List<Exam> enrolledExams;
@@ -24,9 +27,6 @@ public class ParticipantUser extends BaseUser {
 
     @OneToMany(mappedBy = "participantUser")
     @ToString.Exclude
-    private List<UserExamResult> userExamResults;
-
-    @Column(name = "zone_id")
-    private String zoneId;
+    private List<ParticipantUserExamResult> participantUserExamResults;
 
 }

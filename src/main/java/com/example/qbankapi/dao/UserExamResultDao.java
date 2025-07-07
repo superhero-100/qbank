@@ -1,6 +1,6 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.entity.UserExamResult;
+import com.example.qbankapi.entity.ParticipantUserExamResult;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -14,13 +14,13 @@ public class UserExamResultDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void save(UserExamResult result) {
+    public void save(ParticipantUserExamResult result) {
         entityManager.persist(result);
     }
 
-    public Optional<UserExamResult> findById(Long id) {
-        List<UserExamResult> userExamResultList = entityManager.createQuery("SELECT uer FROM UserExamResult uer WHERE uer.id = :id", UserExamResult.class).setParameter("id", id).getResultList();
-        return userExamResultList.isEmpty() ? Optional.empty() : Optional.of(userExamResultList.getFirst());
+    public Optional<ParticipantUserExamResult> findById(Long id) {
+        List<ParticipantUserExamResult> participantUserExamResultList = entityManager.createQuery("SELECT uer FROM ParticipantUserExamResult uer WHERE uer.id = :id", ParticipantUserExamResult.class).setParameter("id", id).getResultList();
+        return participantUserExamResultList.isEmpty() ? Optional.empty() : Optional.of(participantUserExamResultList.getFirst());
     }
 
 }

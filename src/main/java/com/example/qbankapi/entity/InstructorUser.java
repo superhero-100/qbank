@@ -5,10 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +19,22 @@ public class InstructorUser extends BaseUser {
 
     @Column(name = "zone_id")
     private String zoneId;
+
+    @ManyToMany
+    @JoinTable(
+            name = "instructor_user_assigned_subject_tbl",
+            joinColumns = @JoinColumn(name = "instructor_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
+    @ToString.Exclude
+    private List<Subject> assignedSubjects;
+
+    @OneToMany(mappedBy = "createdByBaseUser")
+    @ToString.Exclude
+    private List<Exam> createdExams;
+
+    @OneToMany(mappedBy = "createdByBaseUser")
+    @ToString.Exclude
+    private List<Question> createdQuestions;
 
 }

@@ -2,10 +2,8 @@ package com.example.qbankapi.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,5 +16,13 @@ public class AdminUser extends BaseUser {
 
     @Column(name = "zone_id")
     private String zoneId;
+
+    @OneToMany(mappedBy = "createdByBaseUser")
+    @ToString.Exclude
+    private List<Exam> createdExams;
+
+    @OneToMany(mappedBy = "createdByBaseUser")
+    @ToString.Exclude
+    private List<Question> createdQuestions;
 
 }
