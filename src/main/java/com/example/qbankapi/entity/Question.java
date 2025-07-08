@@ -17,7 +17,7 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text" , columnDefinition = "MEDIUMTEXT")
+    @Column(name = "text", columnDefinition = "MEDIUMTEXT")
     private String text;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -26,7 +26,6 @@ public class Question {
             joinColumns = @JoinColumn(name = "question_id")
     )
     @Column(name = "option_value", columnDefinition = "MEDIUMTEXT")
-    @ToString.Exclude
     private List<String> options;
 
     @Enumerated(EnumType.ORDINAL)
@@ -41,7 +40,7 @@ public class Question {
     private Long marks;
 
     @Column(name = "is_active")
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
@@ -51,6 +50,10 @@ public class Question {
     @ManyToMany(mappedBy = "questions")
     @ToString.Exclude
     private List<Exam> associatedExams;
+
+    @OneToMany(mappedBy = "question")
+    @ToString.Exclude
+    private List<ParticipantUserExamQuestionAnswer> participantUserExamQuestionAnswers;
 
     @ManyToOne
     @JoinColumn(name = "created_by_base_user_id")

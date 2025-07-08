@@ -25,7 +25,7 @@ public class ParticipantUserExamAnalytics {
     @Column(name = "accuracy")
     private Double accuracy;
 
-    @OneToOne(mappedBy = "analytics")
+    @OneToOne(mappedBy = "participantUserExamAnalytics")
     @ToString.Exclude
     private ParticipantUserExamResult participantUserExamResult;
 

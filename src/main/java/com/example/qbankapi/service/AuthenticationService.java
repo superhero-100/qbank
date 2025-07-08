@@ -9,7 +9,7 @@ import com.example.qbankapi.entity.AdminUser;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.ParticipantUser;
-import com.example.qbankapi.exception.base.impl.AccountNotActiveException;
+import com.example.qbankapi.exception.base.impl.BaseUserAccountNotActiveException;
 import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
@@ -52,7 +52,7 @@ public class AuthenticationService {
             BaseUser baseUser = optionalUser.get();
             if (!baseUser.getStatus().equals(BaseUser.Status.ACTIVE)) {
                 log.warn("BaseUser account with identifier: {} is {}", loginBaseUserRequest.getBaseUserIdentifier(), baseUser.getStatus());
-                throw new AccountNotActiveException("your account is locked or inactive");
+                throw new BaseUserAccountNotActiveException("your account is locked or inactive");
             }
             log.info("BaseUser with username: {}, email: {} found", baseUser.getUsername(), baseUser.getEmail());
             if (passwordEncoder.matches(loginBaseUserRequest.getPassword(), baseUser.getPassword())) {

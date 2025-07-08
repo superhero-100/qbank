@@ -30,7 +30,7 @@ public class ExamAnalytics {
     @Column(name = "lowest_score")
     private Double lowestScore;
 
-    @OneToOne(mappedBy = "analytics")
+    @OneToOne(mappedBy = "examAnalytics")
     @ToString.Exclude
     private Exam exam;
 

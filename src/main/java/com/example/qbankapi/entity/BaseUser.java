@@ -39,12 +39,12 @@ public class BaseUser extends Auditable {
         return Role.valueOf(roleValue);
     }
 
-    public enum Role {
-        ADMIN, INSTRUCTOR, PARTICIPANT
-    }
-
     public enum Status {
         ACTIVE, INACTIVE, LOCKED
+    }
+
+    public enum Role {
+        ADMIN, INSTRUCTOR, PARTICIPANT
     }
 
 }

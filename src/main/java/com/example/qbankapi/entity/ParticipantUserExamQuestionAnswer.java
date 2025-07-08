@@ -10,7 +10,7 @@ import javax.persistence.*;
 @ToString
 @Entity
 @Table(name = "participant_user_question_answer_tbl")
-public class ParticipantUserQuestionAnswer {
+public class ParticipantUserExamQuestionAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +22,14 @@ public class ParticipantUserQuestionAnswer {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
-//    @ManyToOne
-//    @JoinColumn(name = "question_id")
-//    @ToString.Exclude
-//    private Question question;
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    @ToString.Exclude
+    private Question question;
 
     @ManyToOne
-    @JoinColumn(name = "user_exam_result_id")
+    @JoinColumn(name = "participant_user_exam_submission_id")
     @ToString.Exclude
-    private ParticipantUserExamResult participantUserExamResult;
+    private ParticipantUserExamSubmission participantUserExamSubmission;
 
 }

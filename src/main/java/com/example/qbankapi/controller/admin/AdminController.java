@@ -1,131 +1,120 @@
-//package com.example.qbankapi.controller.admin;
-//
-//import com.example.qbankapi.dto.model.*;
-//import com.example.qbankapi.dto.request.*;
-//import com.example.qbankapi.dto.view.BaseUserPageViewDto;
-//import com.example.qbankapi.dto.view.ExamPageViewDto;
-//import com.example.qbankapi.dto.view.QuestionPageViewDto;
-//import com.example.qbankapi.exception.base.BaseUserNotFoundException;
-//import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
-//import com.example.qbankapi.exception.base.impl.QuestionNotFoundException;
-//import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
-//import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
-//import com.example.qbankapi.service.BaseUserService;
-//import com.example.qbankapi.service.ExamService;
-//import com.example.qbankapi.service.QuestionService;
-//import com.example.qbankapi.service.SubjectService;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.dao.DataIntegrityViolationException;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.validation.BindingResult;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-//
-//import javax.servlet.http.HttpSession;
-//import javax.validation.Valid;
-//
-//import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
-//
-//@Slf4j
-//@Controller
-//@RequestMapping("/admin")
-//@RequiredArgsConstructor
-//public class AdminController {
-//
-//    private final SubjectService subjectService;
+package com.example.qbankapi.controller.admin;
+
+import com.example.qbankapi.dto.model.SubjectDto;
+import com.example.qbankapi.dto.request.AddSubjectRequestDto;
+import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
+import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
+import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
+import com.example.qbankapi.service.SubjectService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.validation.Valid;
+
+@Slf4j
+@Controller
+@RequestMapping("/admin")
+@RequiredArgsConstructor
+public class AdminController {
+
+    private final SubjectService subjectService;
 //    private final QuestionService questionService;
 //    private final ExamService examService;
 //    private final BaseUserService baseUserService;
-//
-//    @GetMapping("/home")
-//    public String getDashboardPage() {
-//        log.info("Rendering admin dashboard page");
-//        return "admin/dashboard";
-//    }
-//
-//    @GetMapping("/manage/subjects")
-//    public String getManageSubjectsPage(Model model) {
-//        model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
-//
-//        log.info("Rendering subject-manage page");
-//        return "admin/subject-manage";
-//    }
-//
-//    @GetMapping("/manage/subjects/add")
-//    public String getAddSubjectPage(Model model) {
-//        model.addAttribute("addSubjectRequest", new AddSubjectRequestDto());
-//
-//        log.info("Rendering subject-add page");
-//        return "admin/subject-add";
-//    }
-//
-//    @PostMapping("/manage/subjects/save")
-//    public String addSubject(
-//            @Valid @ModelAttribute("addSubjectRequest") AddSubjectRequestDto addSubjectRequest,
-//            BindingResult bindingResult,
-//            RedirectAttributes redirectAttributes
-//    ) {
-//        if (bindingResult.hasErrors()) {
-//            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
-//            return "admin/subject-add";
-//        }
-//
-//        try {
-//            subjectService.createSubject(addSubjectRequest);
-//            log.debug("Subject created with name: {}", addSubjectRequest.getName());
-//
-//            redirectAttributes.addFlashAttribute("message", "Subject created successfully");
-//            redirectAttributes.addFlashAttribute("messageType", "success");
-//
-//            log.info("Redirecting to /admin/manage/subjects");
-//            return "redirect:/admin/manage/subjects";
-//        } catch (SubjectAlreadyExistsException ex) {
-//            log.warn("Subject with name: {} already exists.", addSubjectRequest.getName(), ex);
-//
-//            bindingResult.rejectValue("name", "SubjectName.Invalid", "Subject name already exists.");
-//            return "admin/subject-add";
-//        } catch (DataIntegrityViolationException ex) {
-//            log.error("Critical error: DataIntegrityViolation", ex);
-//
-//            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not created.");
-//            redirectAttributes.addFlashAttribute("messageType", "error");
-//
-//            log.info("Redirecting to /admin/manage/subjects");
-//            return "redirect:/admin/manage/subjects";
-//        }
-//    }
-//
-//    @GetMapping("/manage/subjects/{id}/edit")
-//    public String getEditSubjectPage(
-//            @PathVariable("id") Long subjectId,
-//            Model model,
-//            RedirectAttributes redirectAttributes
-//    ) {
-//        try {
-//            UpdateSubjectRequestDto updateSubjectRequestDto = new UpdateSubjectRequestDto();
-//
-//            SubjectDto subjectDto = subjectService.getSubjectDtoById(subjectId);
-//            updateSubjectRequestDto.setId(subjectDto.getId());
-//            updateSubjectRequestDto.setName(subjectDto.getName());
-//            updateSubjectRequestDto.setDescription(subjectDto.getDescription());
-//
-//            model.addAttribute("updateSubjectRequest", updateSubjectRequestDto);
-//
-//            log.info("Rendering subject-edit page");
-//            return "admin/subject-edit";
-//        } catch (SubjectNotFoundException ex) {
-//            log.error("Subject not found with id: {}", subjectId, ex);
-//
-//            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
-//            redirectAttributes.addFlashAttribute("messageType", "error");
-//
-//            log.info("Redirecting to /admin/manage/subjects");
-//            return "redirect:/admin/manage/subjects";
-//        }
-//    }
-//
+
+    @GetMapping("/home")
+    public String getDashboardPage() {
+        log.info("Rendering admin dashboard page");
+        return "admin/dashboard";
+    }
+
+    @GetMapping("/manage/subjects")
+    public String getManageSubjectsPage(Model model) {
+        model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
+
+        log.info("Rendering subject-manage page");
+        return "admin/subject-manage";
+    }
+
+    @GetMapping("/manage/subjects/add")
+    public String getAddSubjectPage(Model model) {
+        model.addAttribute("addSubjectRequest", new AddSubjectRequestDto());
+
+        log.info("Rendering subject-add page");
+        return "admin/subject-add";
+    }
+
+    @PostMapping("/manage/subjects/save")
+    public String addSubject(
+            @Valid @ModelAttribute("addSubjectRequest") AddSubjectRequestDto addSubjectRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            return "admin/subject-add";
+        }
+
+        try {
+            subjectService.addSubject(addSubjectRequest);
+            log.debug("Subject added with name: {}", addSubjectRequest.getName());
+
+            redirectAttributes.addFlashAttribute("message", "Subject added successfully");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /admin/manage/subjects");
+            return "redirect:/admin/manage/subjects";
+        } catch (SubjectAlreadyExistsException ex) {
+            log.warn("Subject with name: {} already exists.", addSubjectRequest.getName(), ex);
+
+            bindingResult.rejectValue("name", "SubjectName.Invalid", "Subject name already exists.");
+            return "admin/subject-add";
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Critical error: DataIntegrityViolation", ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not created.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/subjects");
+            return "redirect:/admin/manage/subjects";
+        }
+    }
+
+    @GetMapping("/manage/subjects/{id}/edit")
+    public String getEditSubjectPage(
+            @PathVariable("id") Long subjectId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            UpdateSubjectRequestDto updateSubjectRequestDto = new UpdateSubjectRequestDto();
+
+            SubjectDto subjectDto = subjectService.getSubjectDtoById(subjectId);
+            updateSubjectRequestDto.setId(subjectDto.getId());
+            updateSubjectRequestDto.setName(subjectDto.getName());
+            updateSubjectRequestDto.setDescription(subjectDto.getDescription());
+
+            model.addAttribute("updateSubjectRequest", updateSubjectRequestDto);
+
+            log.info("Rendering subject-edit page");
+            return "admin/subject-edit";
+        } catch (SubjectNotFoundException ex) {
+            log.error("Subject not found with id: {}", subjectId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/subjects");
+            return "redirect:/admin/manage/subjects";
+        }
+    }
+
 //    @PostMapping("/manage/subjects/edit")
 //    public String editSubject(
 //            @Valid @ModelAttribute("updateSubjectRequest") UpdateSubjectRequestDto updateSubjectRequest,
@@ -523,5 +512,5 @@
 //            return "redirect:/admin/manage/users";
 //        }
 //    }
-//
-//}
+
+}

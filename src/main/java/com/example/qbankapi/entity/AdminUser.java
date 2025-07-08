@@ -19,10 +19,10 @@ public class AdminUser extends BaseUser {
 
     @OneToMany(mappedBy = "createdByBaseUser")
     @ToString.Exclude
-    private List<Exam> createdExams;
+    private List<Question> createdQuestions;
 
     @OneToMany(mappedBy = "createdByBaseUser")
     @ToString.Exclude
-    private List<Question> createdQuestions;
+    private List<Exam> createdExams;
 
 }

@@ -212,7 +212,7 @@ public class HomeController {
                 model.addAttribute("error", "Invalid username/email or password");
                 return "login";
             }
-        } catch (AccountNotActiveException ex) {
+        } catch (BaseUserAccountNotActiveException ex) {
             model.addAttribute("message", ex.getMessage());
             return "error";
         } catch (AdminUserNotFoundException | InstructorUserNotFoundException | ParticipantUserNotFoundException ex) {

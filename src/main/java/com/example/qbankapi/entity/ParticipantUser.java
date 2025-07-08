@@ -17,13 +17,13 @@ public class ParticipantUser extends BaseUser {
     @Column(name = "zone_id")
     private String zoneId;
 
-    @ManyToMany(mappedBy = "enrolledParticipantUsers")
+    @OneToMany(mappedBy = "participantUser")
     @ToString.Exclude
-    private List<Exam> enrolledExams;
+    private List<ParticipantUserExamEnrollment> examEnrollments;
 
-    @ManyToMany(mappedBy = "completedParticipantUsers")
+    @OneToMany(mappedBy = "participantUser")
     @ToString.Exclude
-    private List<Exam> completedExams;
+    private List<ParticipantUserExamSubmission> participantUserExamSubmissions;
 
     @OneToMany(mappedBy = "participantUser")
     @ToString.Exclude

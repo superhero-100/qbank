@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 @Repository
-public class UserAnalyticsDao {
+public class ParticipantUserExamAnalyticsDao {
 
     @PersistenceContext
     private EntityManager entityManager;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class UserExamResultDao {
+public class ParticipantUserExamResultDao {
 
     @PersistenceContext
     private EntityManager entityManager;

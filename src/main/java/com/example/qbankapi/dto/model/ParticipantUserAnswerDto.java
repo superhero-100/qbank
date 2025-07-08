@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAnswerDto {
+public class ParticipantUserAnswerDto {
 
     private Long questionId;
 

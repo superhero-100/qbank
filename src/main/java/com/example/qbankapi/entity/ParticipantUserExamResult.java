@@ -3,8 +3,6 @@ package com.example.qbankapi.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.ZonedDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,13 +19,6 @@ public class ParticipantUserExamResult {
     @Column(name = "total_score")
     private Integer totalScore;
 
-    @Column(name = "submitted_at")
-    private ZonedDateTime submittedAt;
-
-    @Column(name = "attempt_status")
-    @Enumerated(EnumType.STRING)
-    private ExamAttemptStatus attemptStatus;
-
     @ManyToOne
     @JoinColumn(name = "participant_user_id")
     @ToString.Exclude
@@ -38,17 +29,14 @@ public class ParticipantUserExamResult {
     @ToString.Exclude
     private Exam exam;
 
-    @OneToMany(mappedBy = "participantUserExamResult")
+    @OneToOne
+    @JoinColumn(name = "participant_user_exam_analytics_id")
     @ToString.Exclude
-    private List<ParticipantUserQuestionAnswer> answers;
+    private ParticipantUserExamAnalytics participantUserExamAnalytics;
 
     @OneToOne
-    @JoinColumn(name = "user_analytics_id")
+    @JoinColumn(name = "participant_user_exam_submission_id")
     @ToString.Exclude
-    private ParticipantUserExamAnalytics analytics;
-
-    public enum ExamAttemptStatus {
-        SUBMITTED, NOT_ATTEMPTED,
-    }
+    private ParticipantUserExamSubmission participantUserExamSubmission;
 
 }

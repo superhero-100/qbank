@@ -31,6 +31,7 @@ public class AppInitService {
         subject.setDescription(description);
         subject.setQuestions(List.of());
         subject.setExams(List.of());
+        subject.setAssignedInstructors(List.of());
 
         subjectDao.findByName(subject.getName()).ifPresentOrElse(sub -> log.info("Subject with name: {} exists", sub.getName()), () -> {
             subjectDao.save(subject);
@@ -48,6 +49,8 @@ public class AppInitService {
         adminUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         adminUser.setStatus(status);
         adminUser.setZoneId(zoneId);
+        adminUser.setCreatedQuestions(List.of());
+        adminUser.setCreatedExams(List.of());
 
         baseUserDao.findByUsername(adminUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
             baseUserDao.save(adminUser);
@@ -65,6 +68,9 @@ public class AppInitService {
         instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         instructorUser.setStatus(status);
         instructorUser.setZoneId(zoneId);
+        instructorUser.setAssignedSubjects(List.of());
+        instructorUser.setCreatedQuestions(List.of());
+        instructorUser.setCreatedExams(List.of());
 
         baseUserDao.findByUsername(instructorUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Teacher with username: {} exists", baseUser.getUsername()), () -> {
             baseUserDao.save(instructorUser);
@@ -80,11 +86,11 @@ public class AppInitService {
         participantUser.setPassword(passwordEncoder.encode(password));
         participantUser.setCreatedAt(createdAt);
         participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        participantUser.setEnrolledExams(List.of());
-        participantUser.setCompletedExams(List.of());
-        participantUser.setParticipantUserExamResults(List.of());
         participantUser.setStatus(status);
         participantUser.setZoneId(zoneId);
+        participantUser.setExamEnrollments(List.of());
+        participantUser.setParticipantUserExamSubmissions(List.of());
+        participantUser.setParticipantUserExamResults(List.of());
 
         baseUserDao.findByUsername(participantUser.getUsername()).ifPresentOrElse(baseUser -> log.info("Admin with username: {} exists", baseUser.getUsername()), () -> {
             baseUserDao.save(participantUser);
@@ -97,13 +103,20 @@ public class AppInitService {
         Subject subject = new Subject();
         subject.setId(subjectId);
 
+        AdminUser adminUser = new AdminUser();
+        adminUser.setId(1L);
+
         Question question = new Question();
         question.setText(text);
         question.setOptions(options);
         question.setCorrectAnswer(correctAnswer);
         question.setComplexity(complexity);
         question.setMarks(marks);
+        question.setIsActive(true);
         question.setSubject(subject);
+        question.setAssociatedExams(List.of());
+        question.setParticipantUserExamQuestionAnswers(List.of());
+        question.setCreatedByBaseUser(adminUser);
 
         questionDao.findByText(question.getText()).ifPresentOrElse(que -> log.info("Question with id: {} exists", que), () -> {
             questionDao.save(question);
