@@ -40,7 +40,7 @@
                         <option value="ALL">All</option>
                         <option value="USER">User</option>
                         <option value="ADMIN">Admin</option>
-                        <!--            <option value="Teacher">Teacher</option>-->
+                        <option value="INSTRUCTOR">Instructor</option>
                     </select>
                 </div>
 
@@ -118,22 +118,30 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="card-actions justify-end">
+                        <div th:if="${u.role.name() != 'ADMIN'}" class="card-actions justify-end">
+
+                            <!-- View Profile -->
+                            <a th:href="@{/admin/view/users/{id}/profile(id=${u.id})}"
+                               class="btn btn-sm btn-primary text-white">
+                                View Profile
+                            </a>
+
                             <!-- Inactivate Button -->
                             <button type="button"
-                                    th:if="${u.status.name() == 'ACTIVE' and u.role.name() != 'ADMIN'}"
-                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/inactivate(id=${u.id})}')|"
+                                    th:if="${u.status.name() == 'ACTIVE'}"
+                                    th:onclick="|openUserDeactivateConfirmModal('@{/admin/manage/users/{id}/inactivate(id=${u.id})}')|"
                                     class="btn btn-sm btn-warning text-white">
-                                Inactivate
+                                Deactivate
                             </button>
 
                             <!-- Activate Button -->
                             <button type="button"
-                                    th:if="${(u.status.name() == 'INACTIVE' or u.status.name() == 'LOCKED') and u.role.name() != 'ADMIN'}"
-                                    th:onclick="|openUserInactivateConfirmModal('@{/admin/manage/users/{id}/activate(id=${u.id})}')|"
+                                    th:if="${u.status.name() == 'INACTIVE' or u.status.name() == 'LOCKED'}"
+                                    th:onclick="|openUserActivateConfirmModal('@{/admin/manage/users/{id}/activate(id=${u.id})}')|"
                                     class="btn btn-sm btn-success text-white">
                                 Activate
                             </button>
+
                         </div>
                     </div>
                 </div>
@@ -145,7 +153,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-6">
+            <div th:if="${!(baseUsers == null or baseUsers?.isEmpty())}" class="flex justify-between items-center mt-6">
                 <a th:if="${pageNumber > 0}"
                    th:href="@{/admin/manage/users(page=${pageNumber - 1},pageSize=${filter.pageSize},role=${filter.role},status=${filter.status},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Previous</a>
@@ -168,7 +176,7 @@
 <script>
     function openUserActivateConfirmModal(url) {
         document.getElementById('modalTitle').innerText = 'Activate Confirmation';
-        document.getElementById('modalMessage').innerText = 'Do you want to activate this participantUser?';
+        document.getElementById('modalMessage').innerText = 'Do you want to activate this user account?';
         document.getElementById('confirmActionBtn').innerText = 'Activate';
         document.getElementById('confirmActionBtn').className = 'btn btn-success';
         document.getElementById('modalCancelBtn').innerText = 'Cancel';
@@ -180,9 +188,9 @@
         document.getElementById('actionModal').showModal();
     }
 
-    function openUserInactivateConfirmModal(url) {
+    function openUserDeactivateConfirmModal(url) {
         document.getElementById('modalTitle').innerText = 'Deactivate Confirmation';
-        document.getElementById('modalMessage').innerText = 'Do you want to deactivate this participantUser?';
+        document.getElementById('modalMessage').innerText = 'Do you want to deactivate this user account?';
         document.getElementById('confirmActionBtn').innerText = 'Deactivate';
         document.getElementById('confirmActionBtn').className = 'btn btn-warning';
         document.getElementById('modalCancelBtn').innerText = 'Cancel';
@@ -199,8 +207,8 @@
 
 <script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
     let message = [[${message}]];
-    let type = [[${messageType} ?: 'info']];
-    let position = [[${toastPosition} ?: 'top-right']];
+    let type = [[${messageType} ? : 'info']];
+    let position = [[${toastPosition} ? : 'top-right']];
 
     window.addEventListener('DOMContentLoaded', () => {
         showToast(message, type, position);

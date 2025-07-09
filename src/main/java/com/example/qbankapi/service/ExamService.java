@@ -1,133 +1,147 @@
 package com.example.qbankapi.service;
 
+import com.example.qbankapi.dao.*;
+import com.example.qbankapi.dto.model.ExamFilterDto;
+import com.example.qbankapi.dto.request.CreateExamRequestDto;
+import com.example.qbankapi.dto.view.ExamPageViewDto;
+import com.example.qbankapi.entity.*;
+import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
+import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExamService {
 
-//    private final ExamDao examDao;
-//    private final AdminUserDao adminUserDao;
-//    private final SubjectDao subjectDao;
-//    private final QuestionDao questionDao;
-//    private final ExamAnalyticsDao examAnalyticsDao;
+    private final ExamDao examDao;
+    private final AdminUserDao adminUserDao;
+    private final SubjectDao subjectDao;
+    private final QuestionDao questionDao;
+    private final ExamAnalyticsDao examAnalyticsDao;
 //    private final ParticipantUserDao participantUserDao;
 //    private final UserAnalyticsDao userAnalyticsDao;
 //    private final UserExamResultDao userExamResultDao;
 //    private final UserAnswerDao userAnswerDao;
-//
-//    @Transactional(readOnly = true)
-//    public ExamPageViewDto getFilteredExams(ExamFilterDto examFilterDto) {
-//        log.info("Invoked getFilteredExams with initial filter: {}", examFilterDto);
-//
-//        if (examFilterDto.getSubjectId() == null || examFilterDto.getSubjectId() <= 0) {
-//            log.debug("Invalid or missing subjectId. Defaulting to 0");
-//            examFilterDto.setSubjectId(0L);
-//        }
-//
-//        if (examFilterDto.getSortBy() == null || examFilterDto.getSortBy().isBlank()) {
-//            log.debug("Missing sortBy. Defaulting to 'createdAt'");
-//            examFilterDto.setSortBy("createdAt");
-//        }
-//
-//        if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank()) {
-//            log.debug("Missing sortOrder. Defaulting to 'DESC'");
-//            examFilterDto.setSortOrder("DESC");
-//        }
-//
-//        if (examFilterDto.getPageSize() == null || examFilterDto.getPageSize() <= 0) {
-//            log.debug("Missing or invalid pageSize. Defaulting to 10");
-//            examFilterDto.setPageSize(10);
-//        }
-//
-//        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) {
-//            log.warn("Unsupported pageSize: {}. Resetting to default (10)", examFilterDto.getPageSize());
-//            examFilterDto.setPageSize(10);
-//        }
-//
-//        if (examFilterDto.getPage() == null || examFilterDto.getPage() < 0) {
-//            log.debug("Missing or invalid page number. Defaulting to 0");
-//            examFilterDto.setPage(0);
-//        }
-//
-//        log.info("Final applied filters - subjectId: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}", examFilterDto.getSubjectId(), examFilterDto.getSortBy(), examFilterDto.getSortOrder(), examFilterDto.getPageSize(), examFilterDto.getPage());
-//
-//        ExamPageViewDto examPageViewDto = examDao.findFilteredExams(examFilterDto);
-//
-//        log.info("Retrieved {} exams with applied filters", examPageViewDto.getExams().size());
-//
-//        return examPageViewDto;
-//    }
-//
-//    @Transactional
-//    public void createExam(CreateExamRequestDto createExamRequestDto, Long adminId) {
-//        log.info("Starting exam creation for adminId: {}", adminId);
-//
-//        AdminUser admin = adminUserDao.findById(adminId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id", adminId)));
-//        log.debug("Admin found: {}", admin.getId());
-//
-//        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
-//        log.debug("Subject found: {}", subject.getId());
-//
-//        ExamAnalytics examAnalytics = new ExamAnalytics();
-//        examAnalytics.setTotalSubmissions(0);
-//        examAnalytics.setAverageScore(0D);
-//        examAnalytics.setHighestScore(0D);
-//        examAnalytics.setLowestScore(0D);
-//
-//        Integer totalMarks = ((createExamRequestDto.getTotal1MarkQuestions()) + (createExamRequestDto.getTotal2MarkQuestions() * 2) + (createExamRequestDto.getTotal3MarkQuestions() * 3) + (createExamRequestDto.getTotal4MarkQuestions() * 4) + (createExamRequestDto.getTotal5MarkQuestions() * 5) + (createExamRequestDto.getTotal6MarkQuestions() * 6));
-//        log.info("Total calculated marks: {}", totalMarks);
-//
-//        ZoneId userZoneId = ZoneId.of(admin.getZoneId());
-//
-//        Exam exam = new Exam();
-//        exam.setDescription(createExamRequestDto.getDescription());
-//        exam.setTotalMarks(totalMarks);
-//        exam.setSubject(subject);
-//        exam.setQuestions(new ArrayList<>());
-//        exam.setEnrolledParticipantUsers(List.of());
-//        exam.setCompletedParticipantUsers(List.of());
-//        exam.setAnalytics(examAnalytics);
-//        exam.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-//        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-//        exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-//        exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-//        exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-//        exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-//
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal1MarkQuestions(), Question.Complexity.EASY, 1);
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal2MarkQuestions(), Question.Complexity.EASY, 2);
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal3MarkQuestions(), Question.Complexity.MEDIUM, 3);
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal4MarkQuestions(), Question.Complexity.MEDIUM, 4);
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal5MarkQuestions(), Question.Complexity.HARD, 5);
-//        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal6MarkQuestions(), Question.Complexity.HARD, 6);
-//
-//        subject.getExams().add(exam);
-//        examAnalytics.setExam(exam);
-//
-//        admin.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-//
-//        adminUserDao.update(admin);
-//        subjectDao.update(subject);
-//        examAnalyticsDao.save(examAnalytics);
-//        examDao.save(exam);
-//    }
-//
-//    private void addQuestionsIfAvailable(List<Question> targetList, Long subjectId, Integer total, Question.Complexity complexity, int marks) {
-//        if (total == null || total <= 0) return;
-//
-//        List<Question> questions = questionDao.findRandomQuestions(subjectId, total, complexity, marks);
-//
-//        if (questions.size() < total) {
-//            throw new InsufficientQuestionsException(String.format("Not enough questions for marks: %d, complexity: %s", marks, complexity));
-//        }
-//
-//        targetList.addAll(questions);
-//    }
-//
+
+    @Transactional(readOnly = true)
+    public ExamPageViewDto getFilteredExams(ExamFilterDto examFilterDto) {
+        log.info("Invoked getFilteredExams with initial filter: {}", examFilterDto);
+
+        if (examFilterDto.getSubjectId() == null || examFilterDto.getSubjectId() <= 0) {
+            log.debug("Invalid or missing subjectId. Defaulting to 0");
+            examFilterDto.setSubjectId(0L);
+        }
+
+        if (examFilterDto.getSortBy() == null || examFilterDto.getSortBy().isBlank()) {
+            log.debug("Missing sortBy. Defaulting to 'createdAt'");
+            examFilterDto.setSortBy("createdAt");
+        }
+
+        if (examFilterDto.getSortOrder() == null || examFilterDto.getSortOrder().isBlank()) {
+            log.debug("Missing sortOrder. Defaulting to 'DESC'");
+            examFilterDto.setSortOrder("DESC");
+        }
+
+        if (examFilterDto.getPageSize() == null || examFilterDto.getPageSize() <= 0) {
+            log.debug("Missing or invalid pageSize. Defaulting to 10");
+            examFilterDto.setPageSize(10);
+        }
+
+        if (examFilterDto.getPageSize() != 5 && examFilterDto.getPageSize() != 10 && examFilterDto.getPageSize() != 20) {
+            log.warn("Unsupported pageSize: {}. Resetting to default (10)", examFilterDto.getPageSize());
+            examFilterDto.setPageSize(10);
+        }
+
+        if (examFilterDto.getPage() == null || examFilterDto.getPage() < 0) {
+            log.debug("Missing or invalid page number. Defaulting to 0");
+            examFilterDto.setPage(0);
+        }
+
+        log.info("Final applied filters - subjectId: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}", examFilterDto.getSubjectId(), examFilterDto.getSortBy(), examFilterDto.getSortOrder(), examFilterDto.getPageSize(), examFilterDto.getPage());
+
+        ExamPageViewDto examPageViewDto = examDao.findFilteredExams(examFilterDto);
+
+        log.info("Retrieved {} exams with applied filters", examPageViewDto.getExams().size());
+
+        return examPageViewDto;
+    }
+
+    @Transactional
+    public void createExam(CreateExamRequestDto createExamRequestDto, Long adminId) {
+        log.info("Starting exam creation for adminId: {}", adminId);
+
+        AdminUser admin = adminUserDao.findById(adminId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id", adminId)));
+        log.debug("Admin found: {}", admin.getId());
+
+        Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
+        log.debug("Subject found: {}", subject.getId());
+
+        ExamAnalytics examAnalytics = new ExamAnalytics();
+        examAnalytics.setEnrollmentsCount(0);
+        examAnalytics.setSubmissionsCount(0);
+        examAnalytics.setAverageScore(0D);
+        examAnalytics.setHighestScore(0D);
+        examAnalytics.setLowestScore(0D);
+
+        examAnalyticsDao.save(examAnalytics);
+
+        Integer totalMarks = (createExamRequestDto.getTotal1MarkQuestions() + (createExamRequestDto.getTotal2MarkQuestions() * 2) + (createExamRequestDto.getTotal3MarkQuestions() * 3) + (createExamRequestDto.getTotal4MarkQuestions() * 4) + (createExamRequestDto.getTotal5MarkQuestions() * 5) + (createExamRequestDto.getTotal6MarkQuestions() * 6));
+        log.info("Total calculated marks: {}", totalMarks);
+
+        ZoneId userZoneId = ZoneId.of(admin.getZoneId());
+
+        Exam exam = new Exam();
+        exam.setDescription(createExamRequestDto.getDescription());
+        exam.setTotalMarks(totalMarks);
+        exam.setSubject(subject);
+        exam.setQuestions(new ArrayList<>());
+        exam.setParticipantEnrollments(List.of());
+        exam.setParticipantUserExamSubmissions(List.of());
+        exam.setParticipantUserExamResults(List.of());
+        exam.setExamAnalytics(examAnalytics);
+        exam.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
+        exam.setCreatedByBaseUser(admin);
+
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal1MarkQuestions(), Question.Complexity.EASY, 1);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal2MarkQuestions(), Question.Complexity.EASY, 2);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal3MarkQuestions(), Question.Complexity.MEDIUM, 3);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal4MarkQuestions(), Question.Complexity.MEDIUM, 4);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal5MarkQuestions(), Question.Complexity.HARD, 5);
+        addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal6MarkQuestions(), Question.Complexity.HARD, 6);
+
+        examDao.save(exam);
+    }
+
+    private void addQuestionsIfAvailable(List<Question> targetList, Long subjectId, Integer total, Question.Complexity complexity, int marks) {
+        if (total <= 0) return;
+
+        List<Question> questions = questionDao.findRandomQuestions(subjectId, total, complexity, marks);
+        log.debug("Random questions found questionsCount: {}", questions.size());
+
+        if (questions.size() < total) {
+            throw new InsufficientQuestionsException(String.format("Not enough questions for marks: %d, complexity: %s", marks, complexity));
+        }
+
+        targetList.addAll(questions);
+        log.info("Added {} questions to target list for subjectId: {}, complexity: {}, marks: {}", questions.size(), subjectId, complexity, marks);
+    }
+
 //    @Transactional(readOnly = true)
 //    public List<ExamViewDto> getAllExamsInDto(Long userId) {
 ////        ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
@@ -257,7 +271,6 @@ public class ExamService {
 //
 //        return participantUserExamResult.getId();
 //    }
-
 
 
 //    ---

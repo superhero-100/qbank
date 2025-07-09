@@ -3,6 +3,8 @@ package com.example.qbankapi.service;
 import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.SubjectDto;
 import com.example.qbankapi.dto.request.AddSubjectRequestDto;
+import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
+import com.example.qbankapi.dto.view.SubjectInstructorViewDto;
 import com.example.qbankapi.dto.view.SubjectViewDto;
 import com.example.qbankapi.entity.Subject;
 import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,17 +64,37 @@ public class SubjectService {
         return SubjectDto.builder().id(subject.getId()).name(subject.getName()).description(subject.getDescription()).build();
     }
 
-//    @Transactional
-//    public void updateSubject(UpdateSubjectRequestDto updateSubjectRequest) {
-//        Subject subject = subjectDao.findById(updateSubjectRequest.getId())
-//                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", updateSubjectRequest.getId())));
-//        subject.setName(updateSubjectRequest.getName());
-//        subject.setDescription(updateSubjectRequest.getDescription());
-//        subjectDao.update(subject);
-//        log.debug("Subject with name: {} updated.", updateSubjectRequest.getName());
-//    }
+    @Transactional
+    public void updateSubject(UpdateSubjectRequestDto updateSubjectRequest) {
+        Subject subject = subjectDao.findById(updateSubjectRequest.getId())
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", updateSubjectRequest.getId())));
+        subject.setName(updateSubjectRequest.getName());
+        subject.setDescription(updateSubjectRequest.getDescription());
+        subjectDao.update(subject);
+        log.debug("Subject with name: {} updated.", updateSubjectRequest.getName());
+    }
 
-
+    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId,String zoneId) {
+        Subject subject = subjectDao.findById(subjectId)
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
+        return SubjectInstructorViewDto.builder()
+                .subject(SubjectViewDto.builder()
+                        .id(subject.getId())
+                        .name(subject.getName())
+                        .description(subject.getDescription())
+                        .build())
+                .instructorUsers(subject.getAssignedInstructors()
+                        .stream()
+                        .map(instructorUser -> SubjectInstructorViewDto.InstructorUserViewDto.builder()
+                                .id(instructorUser.getId())
+                                .username(instructorUser.getUsername())
+                                .email(instructorUser.getEmail())
+                                .zoneId(instructorUser.getZoneId())
+                                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(zoneId)))
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
 
 //    ---
 

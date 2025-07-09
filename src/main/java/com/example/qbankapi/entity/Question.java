@@ -11,7 +11,7 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "question_tbl")
-public class Question {
+public class Question extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

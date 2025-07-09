@@ -15,7 +15,7 @@ import javax.validation.constraints.Pattern;
 public class BaseUserFilterDto {
 
     @Pattern(
-            regexp = "ALL|USER|ADMIN",
+            regexp = "ALL|USER|ADMIN|INSTRUCTOR",
             message = "Role must be ALL, USER, or ADMIN"
     )
     private String role;

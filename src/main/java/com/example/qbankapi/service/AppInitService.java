@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -112,16 +113,22 @@ public class AppInitService {
         question.setCorrectAnswer(correctAnswer);
         question.setComplexity(complexity);
         question.setMarks(marks);
-        question.setIsActive(true);
+        question.setIsActive(Boolean.TRUE);
         question.setSubject(subject);
         question.setAssociatedExams(List.of());
         question.setParticipantUserExamQuestionAnswers(List.of());
         question.setCreatedByBaseUser(adminUser);
+        question.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
 
         questionDao.findByText(question.getText()).ifPresentOrElse(que -> log.info("Question with id: {} exists", que), () -> {
             questionDao.save(question);
             log.info("Question with id: {} created", question.getId());
         });
+    }
+
+    @Transactional(readOnly = true)
+    public void run(){
     }
 
 }

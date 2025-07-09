@@ -1,42 +1,26 @@
-//package com.example.qbankapi.controller.instructor;
-//
-//import com.example.qbankapi.dto.model.ExamFilterDto;
-//import com.example.qbankapi.dto.request.CreateExamRequestDto;
-//import com.example.qbankapi.dto.view.ExamPageViewDto;
-//import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
-//import com.example.qbankapi.service.ExamService;
-//import com.example.qbankapi.service.SubjectService;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.validation.BindingResult;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.ModelAttribute;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-//
-//import javax.servlet.http.HttpSession;
-//import javax.validation.Valid;
-//
-//import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
-//
-//@Slf4j
-//@Controller
-//@RequiredArgsConstructor
-//@RequestMapping("/instructor")
-//public class InstructorController {
-//
+package com.example.qbankapi.controller.instructor;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Slf4j
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/instructor")
+public class InstructorController {
+
 //    private final ExamService examService;
 //    private final SubjectService subjectService;
-//
-//    @GetMapping("/home")
-//    public String getDashboardPage() {
-//        log.info("Rendering instructor dashboard page");
-//        return "instructor/dashboard";
-//    }
-//
+
+    @GetMapping("/home")
+    public String getDashboardPage() {
+        log.info("Rendering instructor dashboard page");
+        return "instructor/dashboard";
+    }
+
 //    @GetMapping("/manage/exams")
 //    public String getManageExamsPage(
 //            @Valid @ModelAttribute("filter") ExamFilterDto examFilterDto,
@@ -62,7 +46,7 @@
 //        log.info("Rendering exam-manage page");
 //        return "instructor/exam-manage";
 //    }
-//
+
 //    @GetMapping("/manage/exams/create")
 //    public String getCreateExamPage(Model model) {
 //        model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
@@ -71,7 +55,7 @@
 //        log.info("Rendering exam-add page");
 //        return "instructor/exam-add";
 //    }
-//
+
 //    @PostMapping("/manage/exams/save")
 //    public String createExam(
 //            @Valid @ModelAttribute("createExamRequest") CreateExamRequestDto createExamRequestDto,
@@ -126,5 +110,5 @@
 //            return "redirect:/instructor/manage/exams";
 //        }
 //    }
-//
-//}
+
+}

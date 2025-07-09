@@ -134,7 +134,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-6">
+            <div th:if="${!(exams == null or exams?.isEmpty())}" class="flex justify-between items-center mt-6">
 
                 <a th:if="${pageNumber > 0}"
                    th:href="@{/admin/manage/exams(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"

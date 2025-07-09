@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+
+        <div th:if="${participantUserProfileStats != null}">
+            <div class="card bg-base-100 shadow-lg p-6">
+                <h2 class="text-2xl font-bold" th:text="${participantUserProfileStats.username}">Username</h2>
+                <p class="text-sm" th:text="'Email: ' + ${participantUserProfileStats.email}"></p>
+                <p class="text-sm" th:text="'Zone ID: ' + ${participantUserProfileStats.zoneId}"></p>
+                <p class="text-sm" th:text="'Registered At: ' + ${#temporals.format(participantUserProfileStats.registeredAt, 'yyyy-MM-dd HH:mm')}"></p>
+                <p class="text-sm" th:if="${participantUserProfileStats.lastExamTakenAt != null}"
+                   th:text="'Last Exam Taken At: ' + ${#temporals.format(participantUserProfileStats.lastExamTakenAt, 'yyyy-MM-dd HH:mm')}"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Total Exams Enrolled</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.totalExamsEnrolled}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Best Score</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.bestScore}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Worst Score</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.worstScore}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Average Score</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.averageScore}">0.0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Questions Attempted</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.totalQuestionsAttempted}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Correct Answers</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.totalCorrectAnswers}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Accuracy</div>
+                    <div class="stat-value" th:text="${participantUserProfileStats.averageAccuracy + '%'}">0%</div>
+                </div>
+            </div>
+
+            <!-- Recent Exams Table -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium mb-2">Recent Exams</h3>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Accuracy</th>
+                            <th>Submitted At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="exam : ${participantUserProfileStats.recentExams}">
+                            <td th:text="${exam.examDescription}">Exam A</td>
+                            <td th:text="${exam.subjectName}">Subject</td>
+                            <td th:text="${exam.score}">95</td>
+                            <td th:text="${exam.accuracy + '%'}">90%</td>
+                            <td th:text="${#dates.format(exam.submittedAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== INSTRUCTOR PROFILE ======================== -->
+        <div th:if="${instructorUserProfileStats != null}">
+            <div class="card bg-base-100 shadow-lg p-6">
+                <h2 class="text-2xl font-bold" th:text="${instructorUserProfileStats.username}">Username</h2>
+                <p class="text-sm" th:text="'Email: ' + ${instructorUserProfileStats.email}"></p>
+                <p class="text-sm" th:text="'Zone ID: ' + ${instructorUserProfileStats.zoneId}"></p>
+                <p class="text-sm" th:text="'Registered At: ' + ${#temporals.format(instructorUserProfileStats.registeredAt, 'yyyy-MM-dd HH:mm')}"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Created Exams</div>
+                    <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedExams}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Created Questions</div>
+                    <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedQuestions}">0</div>
+                </div>
+                <div class="stat bg-white rounded p-4 shadow">
+                    <div class="stat-title">Assigned Subjects</div>
+                    <div class="stat-value" th:text="${instructorUserProfileStats.totalAssignedSubjects}">0</div>
+                </div>
+            </div>
+
+            <!-- Assigned Subjects -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium">Subjects</h3>
+                <ul class="list-disc pl-5" th:each="subject : ${instructorUserProfileStats.assignedSubjects}">
+                    <li th:text="${subject}">Subject</li>
+                </ul>
+            </div>
+
+            <!-- Recent Created Exams -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium mb-2">Recent Created Exams</h3>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Subject</th>
+                            <th>Total Marks</th>
+                            <th>Created At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="exam : ${instructorUserProfileStats.recentExams}">
+                            <td th:text="${exam.description}">Quiz</td>
+                            <td th:text="${exam.subjectName}">Subject</td>
+                            <td th:text="${exam.totalMarks}">100</td>
+                            <td th:text="${#temporals.format(exam.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Created Questions -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium mb-2">Recent Created Questions</h3>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Subject</th>
+                            <th>Created At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="q : ${instructorUserProfileStats.recentQuestions}">
+                            <td th:text="${q.questionText}">Question?</td>
+                            <td th:text="${q.subjectName}">Subject</td>
+                            <td th:text="${#temporals.format(q.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+</body>
+</html>

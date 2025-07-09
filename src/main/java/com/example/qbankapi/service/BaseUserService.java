@@ -1,10 +1,13 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.BaseUserDao;
+import com.example.qbankapi.dto.model.BaseUserFilterDto;
 import com.example.qbankapi.dto.request.RegisterBaseUserRequestDto;
+import com.example.qbankapi.dto.view.BaseUserPageViewDto;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.ParticipantUser;
+import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.EmailAlreadyExistsException;
 import com.example.qbankapi.exception.base.impl.PasswordMismatchException;
 import com.example.qbankapi.exception.base.impl.UsernameAlreadyExistsException;
@@ -101,78 +104,83 @@ public class BaseUserService {
         }
     }
 
-//    public BaseUserPageViewDto getFilteredUsers(BaseUserFilterDto userFilterDto) {
-//        log.info("Invoked getFilteredUsers with initial filter: {}", userFilterDto);
-//
-//        if (userFilterDto.getRole() == null || userFilterDto.getRole().isBlank()) {
-//            log.debug("Missing role. Defaulting to 'ALL'");
-//            userFilterDto.setRole("ALL");
-//        }
-//
-//        if (userFilterDto.getStatus() == null || userFilterDto.getStatus().isBlank()) {
-//            log.debug("Missing status. Defaulting to 'ALL'");
-//            userFilterDto.setStatus("ALL");
-//        }
-//
-//        if (userFilterDto.getUsernameRegxPattern() == null) {
-//            log.debug("Missing username pattern. Defaulting to empty string");
-//            userFilterDto.setUsernameRegxPattern("");
-//        }
-//
-//        if (userFilterDto.getSortBy() == null || userFilterDto.getSortBy().isBlank()) {
-//            log.debug("Missing sortBy. Defaulting to 'id'");
-//            userFilterDto.setSortBy("id");
-//        }
-//
-//        if (userFilterDto.getSortOrder() == null || userFilterDto.getSortOrder().isBlank()) {
-//            log.debug("Missing sortOrder. Defaulting to 'ASC'");
-//            userFilterDto.setSortOrder("ASC");
-//        }
-//
-//        if (userFilterDto.getPageSize() == null || userFilterDto.getPageSize() <= 0) {
-//            log.debug("Missing or invalid pageSize. Defaulting to 10");
-//            userFilterDto.setPageSize(10);
-//        }
-//
-//        if (userFilterDto.getPageSize() != 5 && userFilterDto.getPageSize() != 10 && userFilterDto.getPageSize() != 20) {
-//            log.warn("Unsupported pageSize: {}. Resetting to default (10)", userFilterDto.getPageSize());
-//            userFilterDto.setPageSize(10);
-//        }
-//
-//        if (userFilterDto.getPage() == null || userFilterDto.getPage() < 0) {
-//            log.debug("Missing or invalid page number. Defaulting to 0");
-//            userFilterDto.setPage(0);
-//        }
-//
-//        log.info("Final applied filters - role: {}, status: {}, usernamePattern: '{}', sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
-//                userFilterDto.getRole(),
-//                userFilterDto.getStatus(),
-//                userFilterDto.getUsernameRegxPattern(),
-//                userFilterDto.getSortBy(),
-//                userFilterDto.getSortOrder(),
-//                userFilterDto.getPageSize(),
-//                userFilterDto.getPage());
-//
-//        BaseUserPageViewDto userPage = baseUserDao.findFilteredUsers(userFilterDto);
-//        log.info("Retrieved {} users with applied filters", userPage.getBaseUsers().size());
-//
-//        return userPage;
-//    }
-//
-//    @Transactional
-//    public void activateUser(Long id) {
-//        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
-//        baseUser.setStatus(BaseUser.Status.ACTIVE);
-//        baseUserDao.update(baseUser);
-//        log.info("User with ID: {} successfully activated", id);
-//    }
-//
-//    @Transactional
-//    public void inactivateUser(Long id) {
-//        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
-//        baseUser.setStatus(BaseUser.Status.INACTIVE);
-//        baseUserDao.update(baseUser);
-//        log.info("User with ID: {} successfully inactivated", id);
-//    }
+    public BaseUserPageViewDto getFilteredUsers(BaseUserFilterDto userFilterDto) {
+        log.info("Invoked getFilteredUsers with initial filter: {}", userFilterDto);
+
+        if (userFilterDto.getRole() == null || userFilterDto.getRole().isBlank()) {
+            log.debug("Missing role. Defaulting to 'ALL'");
+            userFilterDto.setRole("ALL");
+        }
+
+        if (userFilterDto.getStatus() == null || userFilterDto.getStatus().isBlank()) {
+            log.debug("Missing status. Defaulting to 'ALL'");
+            userFilterDto.setStatus("ALL");
+        }
+
+        if (userFilterDto.getUsernameRegxPattern() == null) {
+            log.debug("Missing username pattern. Defaulting to empty string");
+            userFilterDto.setUsernameRegxPattern("");
+        }
+
+        if (userFilterDto.getSortBy() == null || userFilterDto.getSortBy().isBlank()) {
+            log.debug("Missing sortBy. Defaulting to 'id'");
+            userFilterDto.setSortBy("id");
+        }
+
+        if (userFilterDto.getSortOrder() == null || userFilterDto.getSortOrder().isBlank()) {
+            log.debug("Missing sortOrder. Defaulting to 'ASC'");
+            userFilterDto.setSortOrder("ASC");
+        }
+
+        if (userFilterDto.getPageSize() == null || userFilterDto.getPageSize() <= 0) {
+            log.debug("Missing or invalid pageSize. Defaulting to 10");
+            userFilterDto.setPageSize(10);
+        }
+
+        if (userFilterDto.getPageSize() != 5 && userFilterDto.getPageSize() != 10 && userFilterDto.getPageSize() != 20) {
+            log.warn("Unsupported pageSize: {}. Resetting to default (10)", userFilterDto.getPageSize());
+            userFilterDto.setPageSize(10);
+        }
+
+        if (userFilterDto.getPage() == null || userFilterDto.getPage() < 0) {
+            log.debug("Missing or invalid page number. Defaulting to 0");
+            userFilterDto.setPage(0);
+        }
+
+        log.info("Final applied filters - role: {}, status: {}, usernamePattern: '{}', sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
+                userFilterDto.getRole(),
+                userFilterDto.getStatus(),
+                userFilterDto.getUsernameRegxPattern(),
+                userFilterDto.getSortBy(),
+                userFilterDto.getSortOrder(),
+                userFilterDto.getPageSize(),
+                userFilterDto.getPage());
+
+        BaseUserPageViewDto userPage = baseUserDao.findFilteredUsers(userFilterDto);
+        log.info("Retrieved {} users with applied filters", userPage.getBaseUsers().size());
+
+        return userPage;
+    }
+
+    @Transactional(readOnly = true)
+    public BaseUser.Role getBaseUserRole(Long userId) {
+        return baseUserDao.findById(userId).orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser with id: %d not found", userId))).getRole();
+    }
+
+    @Transactional
+    public void activateUser(Long id) {
+        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
+        baseUser.setStatus(BaseUser.Status.ACTIVE);
+        baseUserDao.update(baseUser);
+        log.info("User with ID: {} successfully activated", id);
+    }
+
+    @Transactional
+    public void inactivateUser(Long id) {
+        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
+        baseUser.setStatus(BaseUser.Status.INACTIVE);
+        baseUserDao.update(baseUser);
+        log.info("User with ID: {} successfully inactivated", id);
+    }
 
 }

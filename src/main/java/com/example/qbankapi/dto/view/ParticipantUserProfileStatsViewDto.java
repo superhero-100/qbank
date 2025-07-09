@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +18,19 @@ public class ParticipantUserProfileStatsViewDto {
 
     private String username;
 
+    private String email;
+
+    private String zoneId;
+
+    private ZonedDateTime registeredAt;
+
+    private Integer totalExamsEnrolled;
+
     private Integer totalExamsTaken;
+
+    private Integer bestScore;
+
+    private Integer worstScore;
 
     private Double averageScore;
 
@@ -25,6 +39,8 @@ public class ParticipantUserProfileStatsViewDto {
     private Integer totalCorrectAnswers;
 
     private Double averageAccuracy;
+
+    private ZonedDateTime lastExamTakenAt;
 
     private List<RecentExamViewDto> recentExams;
 
@@ -40,7 +56,7 @@ public class ParticipantUserProfileStatsViewDto {
 
         private Integer score;
 
-        private Date submittedAt;
+        private ZonedDateTime submittedAt;
 
         private Double accuracy;
 

@@ -1,18 +1,94 @@
 package com.example.qbankapi.service;
 
+import com.example.qbankapi.dao.AdminUserDao;
+import com.example.qbankapi.dao.BaseUserDao;
+import com.example.qbankapi.dao.InstructorUserDao;
 import com.example.qbankapi.dao.ParticipantUserDao;
 
-import lombok.RequiredArgsConstructor;
+import com.example.qbankapi.dto.view.ParticipantUserProfileStatsViewDto;
+import com.example.qbankapi.entity.ParticipantUser;
+import com.example.qbankapi.entity.ParticipantUserExamAnalytics;
+import com.example.qbankapi.entity.ParticipantUserExamResult;
+import com.example.qbankapi.entity.ParticipantUserExamSubmission;
+import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ParticipantUserService {
 
-//    private final ParticipantUserDao participantUserDao;
-//
+    private final ParticipantUserDao participantUserDao;
+
+    @Transactional(readOnly = true)
+    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long userId, String currentUserZoneId) {
+        ParticipantUser participantUser = participantUserDao.findById(userId)
+                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", userId)));
+
+        ZoneId zoneId = ZoneId.of(currentUserZoneId);
+
+        List<ParticipantUserExamResult> participantUserExamResults = participantUser.getParticipantUserExamResults();
+        List<ParticipantUserExamSubmission> participantUserExamSubmissions = participantUser.getParticipantUserExamSubmissions();
+
+        return ParticipantUserProfileStatsViewDto.builder()
+                .username(participantUser.getUsername())
+                .email(participantUser.getEmail())
+                .zoneId(participantUser.getZoneId())
+                .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(zoneId))
+                .totalExamsEnrolled(participantUserExamResults.size())
+                .totalExamsTaken(participantUserExamSubmissions.size())
+                .bestScore(participantUserExamResults.stream()
+                        .mapToInt(ParticipantUserExamResult::getTotalScore)
+                        .max()
+                        .orElse(0))
+                .worstScore(participantUserExamResults.stream()
+                        .mapToInt(ParticipantUserExamResult::getTotalScore)
+                        .min()
+                        .orElse(0))
+                .averageScore(participantUserExamResults.stream()
+                        .mapToInt(ParticipantUserExamResult::getTotalScore)
+                        .average()
+                        .orElse(0.0))
+                .totalQuestionsAttempted(participantUserExamResults.stream()
+                        .map(ParticipantUserExamResult::getParticipantUserExamAnalytics)
+                        .mapToInt(ParticipantUserExamAnalytics::getAttemptedQuestions)
+                        .sum())
+                .totalCorrectAnswers(participantUserExamResults.stream()
+                        .map(ParticipantUserExamResult::getParticipantUserExamAnalytics)
+                        .mapToInt(ParticipantUserExamAnalytics::getCorrectAnswers)
+                        .sum())
+                .averageAccuracy(participantUserExamResults.stream()
+                        .map(ParticipantUserExamResult::getParticipantUserExamAnalytics)
+                        .mapToDouble(ParticipantUserExamAnalytics::getAccuracy)
+                        .average().orElse(0.0))
+                .lastExamTakenAt(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
+                        .getSubmittedAt()
+                        .withZoneSameInstant(zoneId))
+                .recentExams(participantUserExamResults.stream()
+                        .sorted(Comparator.comparing(
+                                (ParticipantUserExamResult result) -> result.getParticipantUserExamSubmission().getSubmittedAt()
+                        ).reversed())
+                        .limit(5)
+                        .map(result -> ParticipantUserProfileStatsViewDto.RecentExamViewDto.builder()
+                                .examDescription(result.getExam().getDescription())
+                                .subjectName(result.getExam().getSubject().getName())
+                                .score(result.getTotalScore())
+                                .submittedAt(result.getParticipantUserExamSubmission().getSubmittedAt().withZoneSameInstant(zoneId))
+                                .accuracy(result.getParticipantUserExamAnalytics().getAccuracy())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
 //    @Transactional(readOnly = true)
 //    public ParticipantUser findById(Long id) {
 //        return participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException("Participant not found with ID: " + id));
@@ -33,58 +109,6 @@ public class ParticipantUserService {
 //                        .build())
 //                .collect(Collectors.toList());
 //    }
-//
-//    @Transactional(readOnly = true)
-//    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long participantUserId) {
-//        ParticipantUser participantUser = participantUserDao.findById(participantUserId)
-//                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", participantUserId)));
-//
-//        List<ParticipantUserExamResult> results = participantUser.getParticipantUserExamResults();
-//
-//        int totalExams = results.size();
-//        double avgScore = results.stream()
-//                .mapToInt(ParticipantUserExamResult::getTotalScore)
-//                .average().orElse(0.0);
-//
-//        int totalAttempted = results.stream()
-//                .map(ParticipantUserExamResult::getAnalytics)
-//                .mapToInt(ParticipantUserExamAnalytics::getAttemptedQuestions)
-//                .sum();
-//
-//        int totalCorrect = results.stream()
-//                .map(ParticipantUserExamResult::getAnalytics)
-//                .mapToInt(ParticipantUserExamAnalytics::getCorrectAnswers)
-//                .sum();
-//
-//        double avgAccuracy = results.stream()
-//                .map(ParticipantUserExamResult::getAnalytics)
-//                .mapToDouble(ParticipantUserExamAnalytics::getAccuracy)
-//                .average().orElse(0.0);
-//
-//        List<ParticipantUserProfileStatsViewDto.RecentExamViewDto> recent = results.stream()
-//                .sorted(Comparator.comparing(ParticipantUserExamResult::getSubmittedAt).reversed())
-//                .limit(5)
-//                .map(r -> ParticipantUserProfileStatsViewDto.RecentExamViewDto.builder()
-//                        .examDescription(r.getExam().getDescription())
-//                        .subjectName(r.getExam().getSubject().getName())
-//                        .score(r.getTotalScore())
-//                        .submittedAt(Date.from(r.getSubmittedAt().atZone(ZoneId.systemDefault()).toInstant()))
-//                        .accuracy(r.getAnalytics().getAccuracy())
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        return ParticipantUserProfileStatsViewDto.builder()
-//                .username(participantUser.getUsername())
-//                .totalExamsTaken(totalExams)
-//                .averageScore(avgScore)
-//                .totalQuestionsAttempted(totalAttempted)
-//                .totalCorrectAnswers(totalCorrect)
-//                .averageAccuracy(avgAccuracy)
-//                .recentExams(recent)
-//                .build();
-//    }
-
-
 
 //    ---
 

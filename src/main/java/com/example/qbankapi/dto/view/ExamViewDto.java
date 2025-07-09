@@ -21,9 +21,9 @@ public class ExamViewDto {
 
     private Integer totalMarks;
 
-    private Integer totalQuestions;
+    private Integer questionsCount;
 
-    private Integer totalEnrolledUsers;
+    private Integer enrollmentCount;
 
     private ZonedDateTime createdAt;
 

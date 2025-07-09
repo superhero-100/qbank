@@ -15,11 +15,11 @@ public class ExamAnalytics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_enrollments")
-    private Integer totalEnrollments;
+    @Column(name = "enrollments_count")
+    private Integer enrollmentsCount;
 
-    @Column(name = "total_submissions")
-    private Integer totalSubmissions;
+    @Column(name = "submissions_count")
+    private Integer submissionsCount;
 
     @Column(name = "average_score")
     private Double averageScore;
