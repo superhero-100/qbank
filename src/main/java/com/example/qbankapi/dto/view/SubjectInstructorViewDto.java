@@ -22,7 +22,7 @@ public class SubjectInstructorViewDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public class InstructorUserViewDto {
+    public static class InstructorUserViewDto {
 
         private Long id;
 

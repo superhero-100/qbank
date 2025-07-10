@@ -30,7 +30,7 @@ public class QuestionDao {
     }
 
     public QuestionPageViewDto findFilteredQuestions(QuestionFilterDto filter) {
-        StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1 AND q.isActive = true");
+        StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1");
         Map<String, Object> parameters = new HashMap<>();
 
         if (filter.getSubjectId() > 0) {
@@ -48,7 +48,16 @@ public class QuestionDao {
             parameters.put("marks", filter.getMarks());
         }
 
+        if (!filter.getStatusFilter().equals("ALL")) {
+            sql.append(" AND q.isActive = :isActive");
+            parameters.put("isActive", filter.getStatusFilter().equals("ACTIVE") ? true : false);
+        }
+
         sql.append(" ORDER BY q.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", q.id ASC");
+
+        System.out.println("-----");
+        System.out.println(sql);
+        System.out.println(parameters);
 
         TypedQuery<Question> query = entityManager.createQuery(sql.toString(), Question.class);
         parameters.forEach(query::setParameter);
@@ -70,6 +79,7 @@ public class QuestionDao {
                         .correctAnswer(question.getCorrectAnswer())
                         .complexity(question.getComplexity())
                         .marks(question.getMarks())
+                        .isActive(question.getIsActive())
                         .subjectName(question.getSubject().getName())
                         .build())
                 .toList();

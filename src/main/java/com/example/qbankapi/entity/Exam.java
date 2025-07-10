@@ -12,10 +12,12 @@ import java.util.List;
 @ToString(callSuper = true)
 @Entity
 @Table(name = "exam_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Exam extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "description")

@@ -6,28 +6,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class QuestionViewDto {
+public class QuestionAnalyticsViewDto {
 
-    private Long id;
-
-    private String text;
-
-    private List<String> options;
-
-    private Question.Option correctAnswer;
+    private Long questionId;
+    private String questionText;
+    private String subjectName;
 
     private Question.Complexity complexity;
-
     private Long marks;
-
     private Boolean isActive;
 
-    private String subjectName;
+    private Integer totalAttempts;
+    private Integer correctAttempts;
+    private Integer incorrectAttempts;
+
+    private Double percentCorrect;
+    private Double percentIncorrect;
 
 }

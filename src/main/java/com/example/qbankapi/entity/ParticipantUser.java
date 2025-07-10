@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "participant_user_tbl")
 @DiscriminatorValue("PARTICIPANT")
+@EqualsAndHashCode(callSuper = true)
 public class ParticipantUser extends BaseUser {
 
     @Column(name = "zone_id")

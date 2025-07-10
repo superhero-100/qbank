@@ -1,9 +1,6 @@
 package com.example.qbankapi.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "instructor_user_tbl")
 @DiscriminatorValue("INSTRUCTOR")
+@EqualsAndHashCode(callSuper = true)
 public class InstructorUser extends BaseUser {
 
     @Column(name = "zone_id")

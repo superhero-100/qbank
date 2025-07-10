@@ -9,10 +9,12 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "exam_analytics_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ExamAnalytics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "enrollments_count")

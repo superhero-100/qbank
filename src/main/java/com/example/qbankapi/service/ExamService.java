@@ -3,9 +3,11 @@ package com.example.qbankapi.service;
 import com.example.qbankapi.dao.*;
 import com.example.qbankapi.dto.model.ExamFilterDto;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
+import com.example.qbankapi.dto.view.ExamAnalyticsViewDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.ExamNotFoundException;
 import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
 import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
 import lombok.*;
@@ -140,6 +142,27 @@ public class ExamService {
 
         targetList.addAll(questions);
         log.info("Added {} questions to target list for subjectId: {}, complexity: {}, marks: {}", questions.size(), subjectId, complexity, marks);
+    }
+
+    @Transactional(readOnly = true)
+    public ExamAnalyticsViewDto getExamAnalytics(Long examId) {
+        Exam exam = examDao.findById(examId).orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", examId)));
+        return ExamAnalyticsViewDto.builder()
+//                .examId()
+//                .examDescription()
+//                .subjectName()
+//                .totalMarks()
+//                .totalParticipants()
+//                .totalSubmissions()
+//                .averageScore()
+//                .highestScore()
+//                .lowestScore()
+//                .completionRate()
+//                .passRate()
+//                .totalQuestions()
+//                .createdBy()
+//                .createdAt()
+                .build();
     }
 
 //    @Transactional(readOnly = true)

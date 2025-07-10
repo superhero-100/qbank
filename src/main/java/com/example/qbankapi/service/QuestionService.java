@@ -7,8 +7,10 @@ import com.example.qbankapi.dto.model.QuestionDto;
 import com.example.qbankapi.dto.model.QuestionFilterDto;
 import com.example.qbankapi.dto.request.AddQuestionRequestDto;
 import com.example.qbankapi.dto.request.UpdateQuestionRequestDto;
+import com.example.qbankapi.dto.view.QuestionAnalyticsViewDto;
 import com.example.qbankapi.dto.view.QuestionPageViewDto;
 import com.example.qbankapi.entity.BaseUser;
+import com.example.qbankapi.entity.ParticipantUserExamQuestionAnswer;
 import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.entity.Subject;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
@@ -53,6 +55,10 @@ public class QuestionService {
             log.debug("Missing sortBy. Defaulting to 'id'");
             questionFilterDto.setSortBy("id");
         }
+        if (questionFilterDto.getStatusFilter() == null || questionFilterDto.getStatusFilter().isBlank()) {
+            log.debug("Missing statusFilter. Defaulting to 'ALL'");
+            questionFilterDto.setStatusFilter("ALL");
+        }
         if (questionFilterDto.getSortOrder() == null || questionFilterDto.getSortOrder().isBlank()) {
             log.debug("Missing sortOrder. Defaulting to 'ASC'");
             questionFilterDto.setSortOrder("ASC");
@@ -70,10 +76,11 @@ public class QuestionService {
             questionFilterDto.setPage(0);
         }
 
-        log.info("Final applied filters - subjectId: {}, complexity: {}, marks: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
+        log.info("Final applied filters - subjectId: {}, complexity: {}, marks: {}, statusFilter: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
                 questionFilterDto.getSubjectId(),
                 questionFilterDto.getComplexity(),
                 questionFilterDto.getMarks(),
+                questionFilterDto.getStatusFilter(),
                 questionFilterDto.getSortBy(),
                 questionFilterDto.getSortOrder(),
                 questionFilterDto.getPageSize(),
@@ -156,14 +163,52 @@ public class QuestionService {
         questionDao.update(question);
     }
 
+    @Transactional(readOnly = true)
+    public QuestionAnalyticsViewDto getQuestionAnalytics(Long questionId) {
+        Question question = questionDao.findById(questionId).orElseThrow(() -> new QuestionNotFoundException(String.format("Question not found with id: %d", questionId)));
+
+        List<ParticipantUserExamQuestionAnswer> participantUserExamQuestionAnswers = question.getParticipantUserExamQuestionAnswers();
+
+        int totalAttempts = participantUserExamQuestionAnswers.size();
+        int correctAttempts = (int) participantUserExamQuestionAnswers.stream().filter(ParticipantUserExamQuestionAnswer::getIsCorrect).count();
+        int incorrectAttempts = totalAttempts - correctAttempts;
+
+        double percentCorrect = totalAttempts > 0 ? (correctAttempts * 100.0) / totalAttempts : 0.0;
+        double percentIncorrect = totalAttempts > 0 ? (incorrectAttempts * 100.0) / totalAttempts : 0.0;
+
+        return QuestionAnalyticsViewDto.builder()
+                .questionId(question.getId())
+                .questionText(question.getText())
+                .subjectName(question.getSubject().getName())
+                .complexity(question.getComplexity())
+                .marks(question.getMarks())
+                .isActive(question.getIsActive())
+                .totalAttempts(totalAttempts)
+                .correctAttempts(correctAttempts)
+                .incorrectAttempts(incorrectAttempts)
+                .percentCorrect(percentCorrect)
+                .percentIncorrect(percentIncorrect)
+                .build();
+    }
+
     @Transactional
-    public void deactivateQuestion(Long id) {
-        Question question = questionDao.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + id));
+    public void activateQuestion(Long questionId) {
+        Question question = questionDao.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
+        question.setIsActive(Boolean.TRUE);
+        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        questionDao.update(question);
+        log.info("Successfully activated question with ID: {}", questionId);
+    }
+
+    @Transactional
+    public void deactivateQuestion(Long questionId) {
+        Question question = questionDao.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
         question.setIsActive(Boolean.FALSE);
         question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         questionDao.update(question);
-        log.info("Successfully deactivated question with ID: {}", id);
+        log.info("Successfully deactivated question with ID: {}", questionId);
     }
 
 //    @Transactional(readOnly = true)

@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "admin_user_tbl")
 @DiscriminatorValue("ADMIN")
+@EqualsAndHashCode(callSuper = true)
 public class AdminUser extends BaseUser {
 
     @Column(name = "zone_id")

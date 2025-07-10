@@ -53,6 +53,11 @@ public class BaseUserDao {
             parameters.put("usernamePattern", filter.getUsernameRegxPattern());
         }
 
+        if (!filter.getStatusFilter().equals("ALL")) {
+            sql.append(" AND q.isActive = :isActive");
+            parameters.put("isActive", filter.getStatusFilter());
+        }
+
         sql.append(" ORDER BY b.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", b.id ASC");
 
         TypedQuery<BaseUser> query = entityManager.createQuery(sql.toString(), BaseUser.class);

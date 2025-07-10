@@ -10,10 +10,12 @@ import javax.persistence.*;
 @ToString
 @Entity
 @Table(name = "participant_user_exam_result_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ParticipantUserExamResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "total_score")

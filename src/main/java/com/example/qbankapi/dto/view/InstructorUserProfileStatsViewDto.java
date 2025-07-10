@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class InstructorUserProfileStatsViewDto {
 
+    private Long id;
+
     private String username;
 
     private String email;
@@ -28,11 +30,23 @@ public class InstructorUserProfileStatsViewDto {
 
     private Integer totalAssignedSubjects;
 
-    private List<String> assignedSubjects;
+    private List<AssignedSubjectViewDto> assignedSubjects;
 
     private List<RecentCreatedExamViewDto> recentExams;
 
     private List<RecentCreatedQuestionsViewDto> recentQuestions;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AssignedSubjectViewDto {
+
+        private Long id;
+
+        private String name;
+
+    }
 
     @Data
     @Builder

@@ -4,6 +4,7 @@ import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.SubjectDto;
 import com.example.qbankapi.dto.request.AddSubjectRequestDto;
 import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
+import com.example.qbankapi.dto.view.InstructorUserProfileStatsViewDto;
 import com.example.qbankapi.dto.view.SubjectInstructorViewDto;
 import com.example.qbankapi.dto.view.SubjectViewDto;
 import com.example.qbankapi.entity.Subject;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -74,7 +76,8 @@ public class SubjectService {
         log.debug("Subject with name: {} updated.", updateSubjectRequest.getName());
     }
 
-    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId,String zoneId) {
+    @Transactional(readOnly = true)
+    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId, String zoneId) {
         Subject subject = subjectDao.findById(subjectId)
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
         return SubjectInstructorViewDto.builder()
@@ -94,6 +97,18 @@ public class SubjectService {
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    public List<SubjectViewDto> getAvailableSubjectViewDtoList(Set<Long> assignedSubjectIds) {
+        return subjectDao.findAll()
+                .stream()
+                .filter(subject -> !assignedSubjectIds.contains(subject.getId()))
+                .map(subject -> SubjectViewDto.builder()
+                        .id(subject.getId())
+                        .name(subject.getName())
+                        .description(subject.getDescription())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 //    ---

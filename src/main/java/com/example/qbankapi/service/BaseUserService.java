@@ -122,6 +122,11 @@ public class BaseUserService {
             userFilterDto.setUsernameRegxPattern("");
         }
 
+        if (userFilterDto.getStatusFilter() == null || userFilterDto.getStatusFilter().isBlank()) {
+            log.debug("Missing statusFilter. Defaulting to 'ALL'");
+            userFilterDto.setStatusFilter("ALL");
+        }
+
         if (userFilterDto.getSortBy() == null || userFilterDto.getSortBy().isBlank()) {
             log.debug("Missing sortBy. Defaulting to 'id'");
             userFilterDto.setSortBy("id");
@@ -147,10 +152,11 @@ public class BaseUserService {
             userFilterDto.setPage(0);
         }
 
-        log.info("Final applied filters - role: {}, status: {}, usernamePattern: '{}', sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
+        log.info("Final applied filters - role: {}, status: {}, usernamePattern: '{}', statusFilter: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}",
                 userFilterDto.getRole(),
                 userFilterDto.getStatus(),
                 userFilterDto.getUsernameRegxPattern(),
+                userFilterDto.getStatusFilter(),
                 userFilterDto.getSortBy(),
                 userFilterDto.getSortOrder(),
                 userFilterDto.getPageSize(),

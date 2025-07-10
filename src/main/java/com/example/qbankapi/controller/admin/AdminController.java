@@ -2,9 +2,7 @@ package com.example.qbankapi.controller.admin;
 
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.*;
-import com.example.qbankapi.dto.view.BaseUserPageViewDto;
-import com.example.qbankapi.dto.view.ExamPageViewDto;
-import com.example.qbankapi.dto.view.QuestionPageViewDto;
+import com.example.qbankapi.dto.view.*;
 import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.*;
@@ -17,9 +15,12 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+
+import java.util.stream.Collectors;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
 
@@ -60,7 +61,10 @@ public class AdminController {
     ) {
         Long currentUserId = (Long) httpSession.getAttribute(USER_ID);
         try {
-            model.addAttribute("", subjectService.getSubjectInstructorsDtoById(subjectId, adminUserService.getAdminZoneId(currentUserId)));
+            model.addAttribute("subjectInstructors", subjectService.getSubjectInstructorsDtoById(
+                    subjectId,
+                    adminUserService.getAdminZoneId(currentUserId)
+            ));
 
             return "admin/subject-instructor-view";
         } catch (AdminUserNotFoundException ex) {
@@ -205,6 +209,7 @@ public class AdminController {
             return "admin/question-manage";
         }
 
+        System.out.println(questionFilterDto);
         QuestionPageViewDto questionViewPage = questionService.getFilteredQuestions(questionFilterDto);
 
         model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
@@ -217,6 +222,30 @@ public class AdminController {
 
         log.info("Rendering question-manage page");
         return "admin/question-manage";
+    }
+
+    @GetMapping("/manage/questions/{questionId}/analytics")
+    public String getQuestionAnalyticsPage(
+            @PathVariable("questionId") Long questionId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            QuestionAnalyticsViewDto questionAnalyticsViewDto = questionService.getQuestionAnalytics(questionId);
+
+            model.addAttribute("questionAnalytics", questionAnalyticsViewDto);
+
+            log.info("Rendering question-analytics page");
+            return "admin/question-analytics";
+        } catch (QuestionNotFoundException ex) {
+            log.error("Question not found with id: {}", questionId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/manage/questions";
+        }
     }
 
     @GetMapping("/manage/questions/add")
@@ -358,7 +387,41 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/manage/questions/{questionId}/delete")
+    @GetMapping("/manage/questions/{questionId}/activate")
+    public String activateQuestion(
+            @PathVariable("questionId") Long questionId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            questionService.activateQuestion(questionId);
+
+            log.debug("Question activated with id: {}", questionId);
+
+            redirectAttributes.addFlashAttribute("message", "Question activated successfully");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/manage/questions";
+        } catch (QuestionNotFoundException ex) {
+            log.error("Question not found with id: {}", questionId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/manage/questions";
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Critical error: DataIntegrityViolation", ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not activated.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/manage/questions";
+        }
+    }
+
+    @GetMapping("/manage/questions/{questionId}/deactivate")
     public String removeQuestion(
             @PathVariable("questionId") Long questionId,
             RedirectAttributes redirectAttributes
@@ -368,7 +431,7 @@ public class AdminController {
 
             log.debug("Question deactivated with id: {}", questionId);
 
-            redirectAttributes.addFlashAttribute("message", "Question deleted successfully");
+            redirectAttributes.addFlashAttribute("message", "Question deactivated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
 
             log.info("Redirecting to /admin/manage/questions");
@@ -416,6 +479,30 @@ public class AdminController {
 
         log.info("Rendering exam-manage page");
         return "admin/exam-manage";
+    }
+
+    @GetMapping("/manage/exams/{examId}/analytics")
+    public String getExamsAnalyticsPage(
+            @PathVariable("examId") Long examId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            ExamAnalyticsViewDto examAnalyticsViewDto = examService.getExamAnalytics(examId);
+
+            model.addAttribute("examAnalytics", examAnalyticsViewDto);
+
+            log.info("Rendering exam-analytics page");
+            return "admin/exam-analytics";
+        } catch (ExamNotFoundException ex) {
+            log.error("Exam not found with id: {}", examId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Exam not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/exams");
+            return "redirect:/admin/manage/exams";
+        }
     }
 
     @GetMapping("/manage/exams/create")
@@ -517,11 +604,20 @@ public class AdminController {
             if (role.equals(BaseUser.Role.PARTICIPANT)) {
                 model.addAttribute("participantUserProfileStats", participantUserService.getParticipantUserStats(userId, adminUserService.getAdminZoneId((Long) httpSession.getAttribute(USER_ID))));
             } else if (role.equals(BaseUser.Role.INSTRUCTOR)) {
-                model.addAttribute("instructorUserProfileStats", instructorUserService.getInstructorUserStats(userId, adminUserService.getAdminZoneId((Long) httpSession.getAttribute(USER_ID))));
+                InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(userId, adminUserService.getAdminZoneId((Long) httpSession.getAttribute(USER_ID)));
+                model.addAttribute("availableSubjects", subjectService.getAvailableSubjectViewDtoList(
+                        instructorUserProfileStatsViewDto
+                                .getAssignedSubjects()
+                                .stream()
+                                .map(InstructorUserProfileStatsViewDto.AssignedSubjectViewDto::getId)
+                                .collect(Collectors.toSet())
+                ));
+                model.addAttribute("instructorUserProfileStats", instructorUserProfileStatsViewDto);
             } else {
                 throw new InvalidProfileTypeException("Unable to get profile");
             }
 
+            log.info("Rendering profile-view page");
             return "admin/profile-view";
         } catch (ParticipantUserNotFoundException | InstructorUserNotFoundException | AdminUserNotFoundException ex) {
             log.error("User not found for ID: {}", userId, ex);
@@ -539,6 +635,74 @@ public class AdminController {
 
             log.info("Redirecting to /admin/manage/exams");
             return "redirect:/admin/manage/exams";
+        }
+    }
+
+    @PostMapping("/manage/users/{userId}/assign-subject")
+    public String assignSubjectToInstructor(
+            @PathVariable("userId") Long instructorUserId,
+            @RequestParam("subjectId") Long subjectId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            instructorUserService.assignSubject(instructorUserId, subjectId);
+
+            redirectAttributes.addFlashAttribute("message", "Subject assigned successfully.");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            return "redirect:" + UriComponentsBuilder
+                    .fromPath("/admin/view/users/{userId}/profile")
+                    .buildAndExpand(instructorUserId)
+                    .toUriString();
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("InstructorUser not found with id: {}", instructorUserId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. instructor not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        } catch (SubjectNotFoundException ex) {
+            log.error("Subject not found with id: {}", subjectId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        }
+    }
+
+    @PostMapping("/manage/users/{userId}/revoke-subject")
+    public String revokeSubjectFromInstructor(
+            @PathVariable("userId") Long instructorUserId,
+            @RequestParam("subjectId") Long subjectId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            instructorUserService.revokeSubject(instructorUserId, subjectId);
+
+            redirectAttributes.addFlashAttribute("message", "Subject revoked successfully.");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            return "redirect:" + UriComponentsBuilder
+                    .fromPath("/admin/view/users/{userId}/profile")
+                    .buildAndExpand(instructorUserId)
+                    .toUriString();
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("InstructorUser not found with id: {}", instructorUserId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. instructor not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
+        } catch (SubjectNotFoundException ex) {
+            log.error("Subject not found with id: {}", subjectId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/users");
+            return "redirect:/admin/manage/users";
         }
     }
 

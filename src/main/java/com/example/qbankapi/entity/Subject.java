@@ -12,10 +12,12 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "subject_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "name", unique = true)

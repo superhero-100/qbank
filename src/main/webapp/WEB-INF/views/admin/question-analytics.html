@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+
+        <section class="space-y-6">
+
+            <div class="card bg-base-100 shadow-md border border-base-300">
+                <div class="card-body">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-chart-bar text-accent text-2xl"></i>
+                            <h2 class="text-3xl font-bold text-accent">Question Analytics</h2>
+                        </div>
+                        <a th:href="@{/admin/manage/questions}" class="btn btn-sm btn-outline btn-primary">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Questions
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-base-100 shadow-md rounded-xl p-6 space-y-5 border border-base-300">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Question:</strong> <span th:utext="${questionAnalytics.questionText}"></span></div>
+                    <div><strong>Subject:</strong> <span th:text="${questionAnalytics.subjectName}"></span></div>
+                    <div><strong>Complexity:</strong> <span th:text="${questionAnalytics.complexity}"></span></div>
+                    <div><strong>Marks:</strong> <span th:text="${questionAnalytics.marks}"></span></div>
+                    <div><strong>Status:</strong>
+                        <span th:text="${questionAnalytics.isActive} ? 'Active' : 'Inactive'"
+                              th:classappend="${questionAnalytics.isActive} ? 'text-success' : 'text-error'">
+                        </span>
+                    </div>
+                </div>
+
+                <hr class="border-t border-base-300">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stat">
+                        <div class="stat-title">Total Attempts</div>
+                        <div class="stat-value text-primary" th:text="${questionAnalytics.totalAttempts}">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-title">Correct Attempts</div>
+                        <div class="stat-value text-success" th:text="${questionAnalytics.correctAttempts}">0</div>
+                        <div class="stat-desc">
+                            <span th:text="${#numbers.formatDecimal(questionAnalytics.percentCorrect, 1, 2)} + '%'"></span>
+                            <i class="fas fa-check-circle text-success ml-1"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-title">Incorrect Attempts</div>
+                        <div class="stat-value text-error" th:text="${questionAnalytics.incorrectAttempts}">0</div>
+                        <div class="stat-desc">
+                            <span th:text="${#numbers.formatDecimal(questionAnalytics.percentIncorrect, 1, 2)} + '%'"></span>
+                            <i class="fas fa-times-circle text-error ml-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+</body>
+</html>

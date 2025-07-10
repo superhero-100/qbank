@@ -71,15 +71,15 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
-//        Teacher
+//        Instructor
         log.info("Creating default instructor if not exists");
         initService.createAndSaveInstructorIfNotExists(
                 "rahul.sharma",
                 "rahul.sharma@gmail.com",
                 "rahul@123",
-                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(40)),
+                LocalDateTime.now().minus(Period.ofDays(60)).atZone(ZoneOffset.UTC),
                 BaseUser.Status.ACTIVE,
-                TimeZoneId.ASIA_KOLKATA.getZoneId()
+                TimeZoneId.AMERICA_NEW_YORK.getZoneId()
         );
 
         initService.createAndSaveInstructorIfNotExists(

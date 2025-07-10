@@ -12,10 +12,12 @@ import javax.persistence.*;
 @Table(name = "base_user_tbl")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BaseUser extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     protected Long id;
 
     @Column(name = "username", unique = true)

@@ -11,10 +11,12 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "question_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Question extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "text", columnDefinition = "MEDIUMTEXT")

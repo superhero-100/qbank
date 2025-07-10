@@ -27,6 +27,12 @@ public class QuestionFilterDto {
     private Long marks;
 
     @Pattern(
+            regexp = "ALL|ACTIVE|INACTIVE",
+            message = "SortBy must be one of: all, active, inactive"
+    )
+    private String statusFilter;
+
+    @Pattern(
             regexp = "id|marks|complexity|subject",
             message = "SortBy must be one of: id, marks, complexity, subject"
     )

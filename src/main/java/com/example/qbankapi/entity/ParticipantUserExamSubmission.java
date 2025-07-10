@@ -1,9 +1,6 @@
 package com.example.qbankapi.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -15,10 +12,12 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "participant_user_exam_submission_tbl")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ParticipantUserExamSubmission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne
