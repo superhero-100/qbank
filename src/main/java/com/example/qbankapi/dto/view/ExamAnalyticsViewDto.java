@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import java.time.ZonedDateTime;
 
 @Data
@@ -18,20 +19,24 @@ public class ExamAnalyticsViewDto {
     private String subjectName;
 
     private Integer totalMarks;
-    private Long totalParticipants;
-    private Long totalSubmissions;
+    private Integer totalParticipants;
+    private Integer totalSubmissions;
 
     private Double averageScore;
     private Double highestScore;
     private Double lowestScore;
 
-    private Double completionRate;
-    private Double passRate;
-
-    private Long totalQuestions;
+    private Integer totalQuestions;
 
     private String createdBy;
 
     private ZonedDateTime createdAt;
+    private String creationZone;
+
+    private ZonedDateTime enrollmentStartDate;
+    private ZonedDateTime enrollmentEndDate;
+
+    private ZonedDateTime examStartDate;
+    private ZonedDateTime examEndDate;
 
 }

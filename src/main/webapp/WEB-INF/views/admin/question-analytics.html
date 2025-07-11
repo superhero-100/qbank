@@ -35,43 +35,100 @@
                 </div>
             </div>
 
-            <div class="bg-base-100 shadow-md rounded-xl p-6 space-y-5 border border-base-300">
+            <div class="card bg-base-100 shadow-md rounded-xl p-6 space-y-5 border border-base-300">
+                <div class="bg-base-100 shadow-md border border-base-300">
+                    <div class="card-body space-y-4">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><strong>Question:</strong> <span th:utext="${questionAnalytics.questionText}"></span></div>
-                    <div><strong>Subject:</strong> <span th:text="${questionAnalytics.subjectName}"></span></div>
-                    <div><strong>Complexity:</strong> <span th:text="${questionAnalytics.complexity}"></span></div>
-                    <div><strong>Marks:</strong> <span th:text="${questionAnalytics.marks}"></span></div>
-                    <div><strong>Status:</strong>
-                        <span th:text="${questionAnalytics.isActive} ? 'Active' : 'Inactive'"
-                              th:classappend="${questionAnalytics.isActive} ? 'text-success' : 'text-error'">
-                        </span>
+                        <h2 class="card-title text-accent text-xl">
+                            <i class="fas fa-info-circle mr-2"></i> Question Details
+                        </h2>
+
+                        <div>
+                            <label class="label font-semibold text-base-content">Question</label>
+                            <span th:utext="${questionAnalytics.questionText}" class="text-base-content"></span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Subject</h3>
+                                    <p class="text-base-content" th:text="${questionAnalytics.subjectName}"></p>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Complexity</h3>
+                                    <p class="text-base-content" th:text="${questionAnalytics.complexity}"></p>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Marks</h3>
+                                    <p class="text-base-content" th:text="${questionAnalytics.marks}"></p>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Status</h3>
+                                    <p class="text-base-content" th:text="${questionAnalytics.isActive} ? 'Active' : 'Inactive'"
+                                       th:classappend="${questionAnalytics.isActive} ? 'badge badge-success' : 'badge badge-error'"></p>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Created At</h3>
+                                    <p class="text-base-content" th:text="${#temporals.format(questionAnalytics.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${questionAnalytics.creationZone}"></p>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h3 class="text-sm text-base-content font-semibold">Created By</h3>
+                                    <p class="text-base-content" th:text="${questionAnalytics.createdByUsername}"></p>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
-                <hr class="border-t border-base-300">
+                <div class="card bg-base-100 shadow-md border border-base-300">
+                    <div class="card-body space-y-4">
+                        <h2 class="card-title text-accent text-xl">
+                            <i class="fas fa-chart-bar mr-2"></i> Attempt Statistics
+                        </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="stat">
-                        <div class="stat-title">Total Attempts</div>
-                        <div class="stat-value text-primary" th:text="${questionAnalytics.totalAttempts}">0</div>
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="stat">
+                                <div class="stat-title">Total Attempts</div>
+                                <div class="stat-value text-primary" th:text="${questionAnalytics.totalAttempts}">0
+                                </div>
+                            </div>
 
-                    <div class="stat">
-                        <div class="stat-title">Correct Attempts</div>
-                        <div class="stat-value text-success" th:text="${questionAnalytics.correctAttempts}">0</div>
-                        <div class="stat-desc">
-                            <span th:text="${#numbers.formatDecimal(questionAnalytics.percentCorrect, 1, 2)} + '%'"></span>
-                            <i class="fas fa-check-circle text-success ml-1"></i>
-                        </div>
-                    </div>
+                            <div class="stat">
+                                <div class="stat-title">Correct Attempts</div>
+                                <div class="stat-value text-success" th:text="${questionAnalytics.correctAttempts}">0
+                                </div>
+                                <div class="stat-desc">
+                                    <span th:text="${#numbers.formatDecimal(questionAnalytics.percentCorrect, 1, 2)} + '%'"></span>
+                                    <i class="fas fa-check-circle text-success ml-1"></i>
+                                </div>
+                            </div>
 
-                    <div class="stat">
-                        <div class="stat-title">Incorrect Attempts</div>
-                        <div class="stat-value text-error" th:text="${questionAnalytics.incorrectAttempts}">0</div>
-                        <div class="stat-desc">
-                            <span th:text="${#numbers.formatDecimal(questionAnalytics.percentIncorrect, 1, 2)} + '%'"></span>
-                            <i class="fas fa-times-circle text-error ml-1"></i>
+                            <div class="stat">
+                                <div class="stat-title">Incorrect Attempts</div>
+                                <div class="stat-value text-error" th:text="${questionAnalytics.incorrectAttempts}">0
+                                </div>
+                                <div class="stat-desc">
+                                    <span th:text="${#numbers.formatDecimal(questionAnalytics.percentIncorrect, 1, 2)} + '%'"></span>
+                                    <i class="fas fa-times-circle text-error ml-1"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

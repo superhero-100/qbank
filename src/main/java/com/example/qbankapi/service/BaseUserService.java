@@ -62,7 +62,7 @@ public class BaseUserService {
                 instructorUser.setEmail(registerBaseUserRequest.getEmail());
                 instructorUser.setPassword(passwordEncoder.encode(registerBaseUserRequest.getPassword()));
                 instructorUser.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-                instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+                instructorUser.setCreationZone(registerBaseUserRequest.getZoneId());
                 instructorUser.setStatus(BaseUser.Status.ACTIVE);
                 instructorUser.setZoneId(registerBaseUserRequest.getZoneId());
                 instructorUser.setAssignedSubjects(List.of());
@@ -82,7 +82,7 @@ public class BaseUserService {
                 participantUser.setEmail(registerBaseUserRequest.getEmail());
                 participantUser.setPassword(passwordEncoder.encode(registerBaseUserRequest.getPassword()));
                 participantUser.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-                participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+                participantUser.setCreationZone(registerBaseUserRequest.getZoneId());
                 participantUser.setParticipantUserExamResults(List.of());
                 participantUser.setStatus(BaseUser.Status.ACTIVE);
                 participantUser.setZoneId(registerBaseUserRequest.getZoneId());
@@ -104,6 +104,7 @@ public class BaseUserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public BaseUserPageViewDto getFilteredUsers(BaseUserFilterDto userFilterDto) {
         log.info("Invoked getFilteredUsers with initial filter: {}", userFilterDto);
 

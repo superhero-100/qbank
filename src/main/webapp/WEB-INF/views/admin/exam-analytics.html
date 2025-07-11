@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/admin/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+
+        <section class="space-y-6">
+            <div class="card bg-base-100 shadow-md border border-base-300">
+                <div class="card-body">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-chart-bar text-accent text-2xl"></i>
+                            <h2 class="text-3xl font-bold text-accent">Exam Analytics</h2>
+                        </div>
+                        <a th:href="@{/admin/manage/exams}" class="btn btn-sm btn-outline btn-primary">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Exams
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-md rounded-xl p-6 space-y-6 border border-base-300">
+                <div class="card-body space-y-4">
+
+                    <h2 class="card-title text-accent text-xl">
+                        <i class="fas fa-info-circle mr-2"></i> Exam Details
+                    </h2>
+
+                    <di class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Exam Description</h3>
+                                <p class="text-base-content" th:text="${examAnalytics.examDescription}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Subject</h3>
+                                <p class="text-base-content" th:text="${examAnalytics.subjectName}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Total Marks</h3>
+                                <p class="text-base-content" th:text="${examAnalytics.totalMarks}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Total Questions</h3>
+                                <p class="text-base-content" th:text="${examAnalytics.totalQuestions}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Created At</h3>
+                                <p class="text-base-content" th:text="${#temporals.format(examAnalytics.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Created By</h3>
+                                <p class="text-base-content" th:text="${examAnalytics.createdBy}"></p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Enrollment Start</h3>
+                                <p class="text-base-content"
+                                   th:text="${#temporals.format(examAnalytics.enrollmentStartDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Enrollment End</h3>
+                                <p class="text-base-content"
+                                   th:text="${#temporals.format(examAnalytics.enrollmentEndDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Exam Start</h3>
+                                <p class="text-base-content"
+                                   th:text="${#temporals.format(examAnalytics.examStartDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="text-sm text-base-content font-semibold">Exam End</h3>
+                                <p class="text-base-content"
+                                   th:text="${#temporals.format(examAnalytics.examEndDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="card-body space-y-4">
+                    <h2 class="card-title text-accent text-xl">
+                        <i class="fas fa-chart-pie mr-2"></i> Performance Metrics
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="stat">
+                            <div class="stat-title">Total Participants</div>
+                            <div class="stat-value text-primary" th:text="${examAnalytics.totalParticipants}">0</div>
+                        </div>
+
+                        <div class="stat">
+                            <div class="stat-title">Total Submissions</div>
+                            <div class="stat-value text-info" th:text="${examAnalytics.totalSubmissions}">0</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="stat">
+                            <div class="stat-title">Average Score</div>
+                            <div class="stat-value text-warning"
+                                 th:text="${#numbers.formatDecimal(examAnalytics.averageScore, 1, 2)}">0.0
+                            </div>
+                        </div>
+
+                        <div class="stat">
+                            <div class="stat-title">Highest Score</div>
+                            <div class="stat-value text-success" th:text="${examAnalytics.highestScore}">0</div>
+                        </div>
+
+                        <div class="stat">
+                            <div class="stat-title">Lowest Score</div>
+                            <div class="stat-value text-error" th:text="${examAnalytics.lowestScore}">0</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+
+</body>
+</html>

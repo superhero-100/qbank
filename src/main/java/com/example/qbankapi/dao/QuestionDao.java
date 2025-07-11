@@ -55,10 +55,6 @@ public class QuestionDao {
 
         sql.append(" ORDER BY q.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", q.id ASC");
 
-        System.out.println("-----");
-        System.out.println(sql);
-        System.out.println(parameters);
-
         TypedQuery<Question> query = entityManager.createQuery(sql.toString(), Question.class);
         parameters.forEach(query::setParameter);
 
@@ -114,6 +110,67 @@ public class QuestionDao {
                 .setParameter("marks", marks)
                 .setParameter("limit", totalQuestions)
                 .getResultList();
+    }
+
+    public QuestionPageViewDto findFilteredInstructorCreatedQuestions(QuestionFilterDto filter, Long instructorId) {
+        StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1");
+        Map<String, Object> parameters = new HashMap<>();
+
+        sql.append(" AND q.createdByBaseUser.id = :id");
+        parameters.put("id", instructorId);
+
+        if (filter.getSubjectId() > 0) {
+            sql.append(" AND q.subject.id = :subjectId");
+            parameters.put("subjectId", filter.getSubjectId());
+        }
+
+        if (!filter.getComplexity().equals("ALL")) {
+            sql.append(" AND q.complexity = :complexity");
+            parameters.put("complexity", Question.Complexity.valueOf(filter.getComplexity().toUpperCase()));
+        }
+
+        if (filter.getMarks() > 0) {
+            sql.append(" AND q.marks = :marks");
+            parameters.put("marks", filter.getMarks());
+        }
+
+        if (!filter.getStatusFilter().equals("ALL")) {
+            sql.append(" AND q.isActive = :isActive");
+            parameters.put("isActive", filter.getStatusFilter().equals("ACTIVE") ? true : false);
+        }
+
+        sql.append(" ORDER BY q.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", q.id ASC");
+
+        TypedQuery<Question> query = entityManager.createQuery(sql.toString(), Question.class);
+        parameters.forEach(query::setParameter);
+
+        query.setFirstResult(filter.getPage() * filter.getPageSize());
+        query.setMaxResults(filter.getPageSize() + 1);
+
+        List<Question> results = query.getResultList();
+
+        boolean hasNext = results.size() > filter.getPageSize();
+
+        if (hasNext) results.remove(results.size() - 1);
+
+        List<QuestionViewDto> questionDtoList = results.stream()
+                .map(question -> QuestionViewDto.builder()
+                        .id(question.getId())
+                        .text(question.getText())
+                        .options(question.getOptions())
+                        .correctAnswer(question.getCorrectAnswer())
+                        .complexity(question.getComplexity())
+                        .marks(question.getMarks())
+                        .isActive(question.getIsActive())
+                        .subjectName(question.getSubject().getName())
+                        .build())
+                .toList();
+        QuestionPageViewDto questionViewPage = new QuestionPageViewDto();
+        questionViewPage.setQuestions(questionDtoList);
+        questionViewPage.setPage(filter.getPage());
+        questionViewPage.setPageSize(filter.getPageSize());
+        questionViewPage.setHasNextPage(hasNext);
+        return questionViewPage;
     }
 
 //    public List<Question> findAll() {

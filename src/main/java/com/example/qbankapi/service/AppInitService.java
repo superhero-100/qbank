@@ -10,8 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Period;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -27,13 +25,15 @@ public class AppInitService {
     private final QuestionDao questionDao;
 
     @Transactional
-    public void createSubjectIfNotExists(String name, String description) {
+    public void createSubjectIfNotExists(String name, String description, ZonedDateTime createdAt, String zoneId) {
         Subject subject = new Subject();
         subject.setName(name);
         subject.setDescription(description);
         subject.setQuestions(List.of());
         subject.setExams(List.of());
         subject.setAssignedInstructors(List.of());
+        subject.setCreatedAt(createdAt);
+        subject.setCreationZone(zoneId);
 
         subjectDao.findByName(subject.getName()).ifPresentOrElse(sub -> log.info("Subject with name: {} exists", sub.getName()), () -> {
             subjectDao.save(subject);
@@ -48,7 +48,7 @@ public class AppInitService {
         adminUser.setEmail(email);
         adminUser.setPassword(passwordEncoder.encode(password));
         adminUser.setCreatedAt(createdAt);
-        adminUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        adminUser.setCreationZone(zoneId);
         adminUser.setStatus(status);
         adminUser.setZoneId(zoneId);
         adminUser.setCreatedQuestions(List.of());
@@ -67,7 +67,7 @@ public class AppInitService {
         instructorUser.setEmail(email);
         instructorUser.setPassword(passwordEncoder.encode(password));
         instructorUser.setCreatedAt(createdAt);
-        instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        instructorUser.setCreationZone(zoneId);
         instructorUser.setStatus(status);
         instructorUser.setZoneId(zoneId);
         instructorUser.setAssignedSubjects(List.of());
@@ -87,7 +87,7 @@ public class AppInitService {
         participantUser.setEmail(email);
         participantUser.setPassword(passwordEncoder.encode(password));
         participantUser.setCreatedAt(createdAt);
-        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        participantUser.setCreationZone(zoneId);
         participantUser.setStatus(status);
         participantUser.setZoneId(zoneId);
         participantUser.setExamEnrollments(List.of());
@@ -101,7 +101,7 @@ public class AppInitService {
     }
 
     @Transactional
-    public void createQuestionIfNotExists(String text, List<String> options, Question.Option correctAnswer, Question.Complexity complexity, Long marks, Long subjectId) {
+    public void createQuestionIfNotExists(String text, List<String> options, Question.Option correctAnswer, Question.Complexity complexity, Long marks, Long subjectId, String zoneId) {
         Subject subject = new Subject();
         subject.setId(subjectId);
 
@@ -120,16 +120,12 @@ public class AppInitService {
         question.setParticipantUserExamQuestionAnswers(List.of());
         question.setCreatedByBaseUser(adminUser);
         question.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        question.setCreationZone(zoneId);
 
         questionDao.findByText(question.getText()).ifPresentOrElse(que -> log.info("Question with id: {} exists", que), () -> {
             questionDao.save(question);
             log.info("Question with id: {} created", question.getId());
         });
-    }
-
-    @Transactional(readOnly = true)
-    public void run(){
     }
 
 }

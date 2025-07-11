@@ -27,34 +27,45 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
 
         initService.createSubjectIfNotExists(
                 "Data Structures",
-                "Organizing and storing data for efficient access and modification."
+                "Organizing and storing data for efficient access and modification.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createSubjectIfNotExists(
                 "Algorithms",
-                "Step-by-step procedures for solving computational problems."
+                "Step-by-step procedures for solving computational problems.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createSubjectIfNotExists(
                 "Database Management Systems",
-                "Designing and managing structured data using relational models."
+                "Designing and managing structured data using relational models.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createSubjectIfNotExists(
                 "Operating Systems",
-                "Managing hardware and software resources in computing environments."
+                "Managing hardware and software resources in computing environments.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createSubjectIfNotExists(
                 "Computer Networks",
-                "Transmission of data and communication between connected systems."
+                "Transmission of data and communication between connected systems.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createSubjectIfNotExists(
                 "Web Development",
-                "Building and maintaining websites and web applications."
+                "Building and maintaining websites and web applications.",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(90)),
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
-
 
 
 //        BaseUser
@@ -256,7 +267,6 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
         );
 
 
-
         log.info("Creating default questions if not exists");
 
 //        Subject 1
@@ -266,7 +276,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.A,
                 Question.Complexity.EASY,
                 1L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -275,7 +286,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.B,
                 Question.Complexity.EASY,
                 1L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -284,7 +296,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.EASY,
                 2L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -293,7 +306,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.EASY,
                 2L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -302,7 +316,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.MEDIUM,
                 3L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -311,7 +326,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.B,
                 Question.Complexity.MEDIUM,
                 3L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -320,7 +336,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.D,
                 Question.Complexity.MEDIUM,
                 4L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -329,7 +346,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.B,
                 Question.Complexity.MEDIUM,
                 4L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -338,7 +356,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.D,
                 Question.Complexity.HARD,
                 5L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -347,7 +366,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.B,
                 Question.Complexity.HARD,
                 5L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -356,7 +376,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.HARD,
                 6L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -365,7 +386,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.HARD,
                 6L,
-                1L
+                1L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
 //        Subject 2
@@ -375,7 +397,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.EASY,
                 1L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -384,7 +407,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.A,
                 Question.Complexity.EASY,
                 1L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -393,7 +417,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.EASY,
                 2L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -402,7 +427,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.A,
                 Question.Complexity.EASY,
                 2L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -411,7 +437,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.MEDIUM,
                 3L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -420,7 +447,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.MEDIUM,
                 3L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -429,7 +457,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.MEDIUM,
                 4L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -438,7 +467,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.B,
                 Question.Complexity.MEDIUM,
                 4L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -447,7 +477,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.A,
                 Question.Complexity.HARD,
                 5L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -456,7 +487,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.D,
                 Question.Complexity.HARD,
                 5L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -465,7 +497,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.D,
                 Question.Complexity.HARD,
                 6L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
         initService.createQuestionIfNotExists(
@@ -474,7 +507,8 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 Question.Option.C,
                 Question.Complexity.HARD,
                 6L,
-                2L
+                2L,
+                TimeZoneId.ASIA_KOLKATA.getZoneId()
         );
 
     }

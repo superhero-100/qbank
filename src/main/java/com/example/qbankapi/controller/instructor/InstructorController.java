@@ -1,10 +1,17 @@
 package com.example.qbankapi.controller.instructor;
 
+import com.example.qbankapi.dto.model.ExamFilterDto;
+import com.example.qbankapi.dto.view.ExamPageViewDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -46,7 +53,7 @@ public class InstructorController {
 //        log.info("Rendering exam-manage page");
 //        return "instructor/exam-manage";
 //    }
-
+//
 //    @GetMapping("/manage/exams/create")
 //    public String getCreateExamPage(Model model) {
 //        model.addAttribute("subjects", subjectService.getSubjectViewDtoList());

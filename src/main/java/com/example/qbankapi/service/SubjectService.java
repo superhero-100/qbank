@@ -1,5 +1,7 @@
 package com.example.qbankapi.service;
 
+import com.example.qbankapi.dao.AdminUserDao;
+import com.example.qbankapi.dao.InstructorUserDao;
 import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.SubjectDto;
 import com.example.qbankapi.dto.request.AddSubjectRequestDto;
@@ -7,7 +9,11 @@ import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
 import com.example.qbankapi.dto.view.InstructorUserProfileStatsViewDto;
 import com.example.qbankapi.dto.view.SubjectInstructorViewDto;
 import com.example.qbankapi.dto.view.SubjectViewDto;
+import com.example.qbankapi.entity.AdminUser;
+import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.Subject;
+import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
 import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +35,8 @@ import java.util.stream.Collectors;
 public class SubjectService {
 
     private final SubjectDao subjectDao;
+    private final AdminUserDao adminUserDao;
+    private final InstructorUserDao instructorUserDao;
 
     @Transactional(readOnly = true)
     public List<SubjectViewDto> getSubjectViewDtoList() {
@@ -41,7 +52,9 @@ public class SubjectService {
     }
 
     @Transactional
-    public void addSubject(AddSubjectRequestDto addSubjectRequest) {
+    public void addSubject(AddSubjectRequestDto addSubjectRequest, Long userId) {
+        AdminUser adminUser = adminUserDao.findById(userId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin user not found with id: %d", userId)));
+
         if (subjectDao.findByName(addSubjectRequest.getName()).isPresent()) {
             log.warn("Subject with name: {} already exists", addSubjectRequest.getName());
             throw new SubjectAlreadyExistsException(String.format("Subject already exists with name: %s", addSubjectRequest.getName()));
@@ -53,6 +66,8 @@ public class SubjectService {
         subject.setQuestions(List.of());
         subject.setExams(List.of());
         subject.setAssignedInstructors(List.of());
+        subject.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        subject.setCreationZone(adminUser.getZoneId());
 
         subjectDao.save(subject);
         log.debug("Subject with name: {} created.", addSubjectRequest.getName());
@@ -77,7 +92,7 @@ public class SubjectService {
     }
 
     @Transactional(readOnly = true)
-    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId, String zoneId) {
+    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId) {
         Subject subject = subjectDao.findById(subjectId)
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
         return SubjectInstructorViewDto.builder()
@@ -93,7 +108,8 @@ public class SubjectService {
                                 .username(instructorUser.getUsername())
                                 .email(instructorUser.getEmail())
                                 .zoneId(instructorUser.getZoneId())
-                                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(zoneId)))
+                                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(instructorUser.getCreationZone())))
+                                .registerationZone(instructorUser.getCreationZone())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
@@ -103,6 +119,19 @@ public class SubjectService {
         return subjectDao.findAll()
                 .stream()
                 .filter(subject -> !assignedSubjectIds.contains(subject.getId()))
+                .map(subject -> SubjectViewDto.builder()
+                        .id(subject.getId())
+                        .name(subject.getName())
+                        .description(subject.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<SubjectViewDto> getAssignedSubjectViewDtoList(Long instructorUserId) {
+        InstructorUser instructorUser = instructorUserDao.findById(instructorUserId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorUserId)));
+        return instructorUser.getAssignedSubjects()
+                .stream()
                 .map(subject -> SubjectViewDto.builder()
                         .id(subject.getId())
                         .name(subject.getName())

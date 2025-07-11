@@ -24,6 +24,8 @@ public class InstructorUserProfileStatsViewDto {
 
     private ZonedDateTime registeredAt;
 
+    private String registrationZone;
+
     private Integer totalCreatedExams;
 
     private Integer totalCreatedQuestions;
@@ -62,6 +64,8 @@ public class InstructorUserProfileStatsViewDto {
 
         private ZonedDateTime createdAt;
 
+        private String creationZone;
+
     }
 
     @Data
@@ -75,6 +79,8 @@ public class InstructorUserProfileStatsViewDto {
         private String subjectName;
 
         private ZonedDateTime createdAt;
+
+        private String creationZone;
 
     }
 

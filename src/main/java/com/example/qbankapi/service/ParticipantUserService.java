@@ -6,10 +6,7 @@ import com.example.qbankapi.dao.InstructorUserDao;
 import com.example.qbankapi.dao.ParticipantUserDao;
 
 import com.example.qbankapi.dto.view.ParticipantUserProfileStatsViewDto;
-import com.example.qbankapi.entity.ParticipantUser;
-import com.example.qbankapi.entity.ParticipantUserExamAnalytics;
-import com.example.qbankapi.entity.ParticipantUserExamResult;
-import com.example.qbankapi.entity.ParticipantUserExamSubmission;
+import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,20 +28,19 @@ public class ParticipantUserService {
     private final ParticipantUserDao participantUserDao;
 
     @Transactional(readOnly = true)
-    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long userId, String currentUserZoneId) {
+    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long userId) {
         ParticipantUser participantUser = participantUserDao.findById(userId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", userId)));
-
-        ZoneId zoneId = ZoneId.of(currentUserZoneId);
 
         List<ParticipantUserExamResult> participantUserExamResults = participantUser.getParticipantUserExamResults();
         List<ParticipantUserExamSubmission> participantUserExamSubmissions = participantUser.getParticipantUserExamSubmissions();
 
-        return ParticipantUserProfileStatsViewDto.builder()
+        ParticipantUserProfileStatsViewDto participantUserProfileStatsViewDto = ParticipantUserProfileStatsViewDto.builder()
                 .username(participantUser.getUsername())
                 .email(participantUser.getEmail())
                 .zoneId(participantUser.getZoneId())
-                .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(zoneId))
+                .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(ZoneId.of(participantUser.getCreationZone())))
+                .registrationZone(participantUser.getCreationZone())
                 .totalExamsEnrolled(participantUserExamResults.size())
                 .totalExamsTaken(participantUserExamSubmissions.size())
                 .bestScore(participantUserExamResults.stream()
@@ -70,22 +68,31 @@ public class ParticipantUserService {
                         .mapToDouble(ParticipantUserExamAnalytics::getAccuracy)
                         .average().orElse(0.0))
                 .lastExamTakenAt(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
-                        .getSubmittedAt()
-                        .withZoneSameInstant(zoneId))
+                        .getCreatedAt()
+                        .withZoneSameInstant(ZoneId.of(participantUserExamSubmissions.getLast().getCreationZone())))
+                .lastExamTakenZone(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
+                        .getCreationZone())
                 .recentExams(participantUserExamResults.stream()
                         .sorted(Comparator.comparing(
-                                (ParticipantUserExamResult result) -> result.getParticipantUserExamSubmission().getSubmittedAt()
+                                (ParticipantUserExamResult result) -> result.getParticipantUserExamSubmission().getCreatedAt()
                         ).reversed())
                         .limit(5)
-                        .map(result -> ParticipantUserProfileStatsViewDto.RecentExamViewDto.builder()
-                                .examDescription(result.getExam().getDescription())
-                                .subjectName(result.getExam().getSubject().getName())
-                                .score(result.getTotalScore())
-                                .submittedAt(result.getParticipantUserExamSubmission().getSubmittedAt().withZoneSameInstant(zoneId))
-                                .accuracy(result.getParticipantUserExamAnalytics().getAccuracy())
-                                .build())
+                        .map(result -> {
+                            Exam exam = result.getExam();
+                            ParticipantUserExamSubmission participantUserExamSubmission = result.getParticipantUserExamSubmission();
+                            return ParticipantUserProfileStatsViewDto.RecentExamViewDto.builder()
+                                    .examDescription(exam.getDescription())
+                                    .subjectName(exam.getSubject().getName())
+                                    .score(result.getTotalScore())
+                                    .submittedAt(participantUserExamSubmission.getCreatedAt()
+                                            .withZoneSameInstant(ZoneId.of(participantUserExamSubmission.getCreationZone())))
+                                    .submissionZone(participantUserExamSubmission.getCreationZone())
+                                    .accuracy(result.getParticipantUserExamAnalytics().getAccuracy())
+                                    .build();
+                        })
                         .collect(Collectors.toList()))
                 .build();
+        return participantUserProfileStatsViewDto;
     }
 
 

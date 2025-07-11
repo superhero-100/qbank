@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "subject_tbl")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Subject {
+public class Subject extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

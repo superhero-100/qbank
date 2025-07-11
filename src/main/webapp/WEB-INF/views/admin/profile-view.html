@@ -37,9 +37,9 @@
                     <p class="text-sm text-gray-500" th:text="'Email: ' + ${participantUserProfileStats.email}"></p>
                     <p class="text-sm text-gray-500" th:text="'Zone ID: ' + ${participantUserProfileStats.zoneId}"></p>
                     <p class="text-sm text-gray-500"
-                       th:text="'Registered At: ' + ${#temporals.format(participantUserProfileStats.registeredAt, 'yyyy-MM-dd HH:mm')}"></p>
+                       th:text="'Registered At: ' + ${#temporals.format(participantUserProfileStats.registeredAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${participantUserProfileStats.registrationZone}"></p>
                     <p class="text-sm text-gray-500" th:if="${participantUserProfileStats.lastExamTakenAt != null}"
-                       th:text="'Last Exam Taken At: ' + ${#temporals.format(participantUserProfileStats.lastExamTakenAt, 'yyyy-MM-dd HH:mm')}"></p>
+                       th:text="'Last Exam Taken At: ' + ${#temporals.format(participantUserProfileStats.lastExamTakenAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${participantUserProfileStats.lastExamTakenZone}"></p>
                 </div>
 
                 <!-- Stats Grid -->
@@ -100,7 +100,7 @@
                                 <td th:text="${exam.subjectName}">Subject</td>
                                 <td th:text="${exam.score}">95</td>
                                 <td th:text="${exam.accuracy + '%'}">90%</td>
-                                <td th:text="${#dates.format(exam.submittedAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                                <td th:text="${#temporals.format(exam.submittedAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.submissionZone}">Date</td>
                             </tr>
                             </tbody>
                         </table>
@@ -120,20 +120,22 @@
                     <p class="text-sm text-gray-500" th:text="'Email: ' + ${instructorUserProfileStats.email}"></p>
                     <p class="text-sm text-gray-500" th:text="'Zone ID: ' + ${instructorUserProfileStats.zoneId}"></p>
                     <p class="text-sm text-gray-500"
-                       th:text="'Registered At: ' + ${#temporals.format(instructorUserProfileStats.registeredAt, 'yyyy-MM-dd HH:mm')}"></p>
+                       th:text="'Registered At: ' + ${#temporals.format(instructorUserProfileStats.registeredAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${instructorUserProfileStats.registrationZone}"></p>
                 </div>
 
                 <!-- Statistics Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Exams</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedExams}">0</div>
+                        <a th:href="@{/admin/manage/instructors/{id}/exams(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
-                    <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Questions</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedQuestions}">0</div>
+                        <a th:href="@{/admin/manage/instructors/{id}/questions(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
-                    <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Assigned Subjects</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalAssignedSubjects}">0</div>
                     </div>
@@ -209,7 +211,7 @@
                                 <td th:text="${exam.description}">Quiz</td>
                                 <td th:text="${exam.subjectName}">Subject</td>
                                 <td th:text="${exam.totalMarks}">100</td>
-                                <td th:text="${#temporals.format(exam.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.creationZone}">Date</td>
                             </tr>
                             </tbody>
                         </table>
@@ -229,10 +231,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="q : ${instructorUserProfileStats.recentQuestions}">
-                                <td th:text="${q.questionText}">Question?</td>
-                                <td th:text="${q.subjectName}">Subject</td>
-                                <td th:text="${#temporals.format(q.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                            <tr th:each="question : ${instructorUserProfileStats.recentQuestions}">
+                                <td th:text="${question.questionText}">Question?</td>
+                                <td th:text="${question.subjectName}">Subject</td>
+                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${question.creationZone}">Date</td>
                             </tr>
                             </tbody>
                         </table>

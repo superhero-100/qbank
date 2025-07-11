@@ -1,19 +1,15 @@
 package com.example.qbankapi.service;
 
-import com.example.qbankapi.dao.BaseUserDao;
-import com.example.qbankapi.dao.QuestionDao;
-import com.example.qbankapi.dao.SubjectDao;
+import com.example.qbankapi.dao.*;
 import com.example.qbankapi.dto.model.QuestionDto;
 import com.example.qbankapi.dto.model.QuestionFilterDto;
 import com.example.qbankapi.dto.request.AddQuestionRequestDto;
 import com.example.qbankapi.dto.request.UpdateQuestionRequestDto;
 import com.example.qbankapi.dto.view.QuestionAnalyticsViewDto;
 import com.example.qbankapi.dto.view.QuestionPageViewDto;
-import com.example.qbankapi.entity.BaseUser;
-import com.example.qbankapi.entity.ParticipantUserExamQuestionAnswer;
-import com.example.qbankapi.entity.Question;
-import com.example.qbankapi.entity.Subject;
+import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
+import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.QuestionNotFoundException;
 import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -34,11 +31,22 @@ public class QuestionService {
     private final QuestionDao questionDao;
     private final SubjectDao subjectDao;
     private final BaseUserDao baseUserDao;
+    private final AdminUserDao adminUserDao;
+    private final InstructorUserDao instructorUserDao;
 
     @Transactional(readOnly = true)
     public QuestionPageViewDto getFilteredQuestions(QuestionFilterDto questionFilterDto) {
         log.info("Invoked getFilteredQuestions with initial filter: {}", questionFilterDto);
 
+        normalizeFilterDto(questionFilterDto);
+
+        QuestionPageViewDto questionViewPageDto = questionDao.findFilteredQuestions(questionFilterDto);
+        log.info("Retrieved {} questions with applied filters", questionViewPageDto.getQuestions().size());
+
+        return questionViewPageDto;
+    }
+
+    private void normalizeFilterDto(QuestionFilterDto questionFilterDto) {
         if (questionFilterDto.getSubjectId() == null || questionFilterDto.getSubjectId() <= 0) {
             log.debug("Invalid or missing subjectId. Defaulting to 0");
             questionFilterDto.setSubjectId(0L);
@@ -85,11 +93,6 @@ public class QuestionService {
                 questionFilterDto.getSortOrder(),
                 questionFilterDto.getPageSize(),
                 questionFilterDto.getPage());
-
-        QuestionPageViewDto questionViewPageDto = questionDao.findFilteredQuestions(questionFilterDto);
-        log.info("Retrieved {} questions with applied filters", questionViewPageDto.getQuestions().size());
-
-        return questionViewPageDto;
     }
 
     @Transactional
@@ -97,7 +100,9 @@ public class QuestionService {
         log.info("Adding question for subjectId: {}", addQuestionRequest.getSubjectId());
 
         BaseUser baseUser = baseUserDao.findById(baseUserId)
-                .orElseThrow(() -> new BaseUserNotFoundException(String.format("Subject not found with id: %d", addQuestionRequest.getSubjectId())));
+                .orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser not found with id: %d", baseUserId)));
+
+        BaseUser.Role baseUserRole = baseUser.getRole();
 
         Subject subject = subjectDao.findById(addQuestionRequest.getSubjectId())
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", addQuestionRequest.getSubjectId())));
@@ -119,7 +124,11 @@ public class QuestionService {
         question.setParticipantUserExamQuestionAnswers(List.of());
         question.setCreatedByBaseUser(baseUser);
         question.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        if (baseUserRole.equals(BaseUser.Role.ADMIN)) {
+            question.setCreationZone(adminUserDao.findById(baseUserId).get().getZoneId());
+        } else if (baseUserRole.equals(BaseUser.Role.INSTRUCTOR)) {
+            question.setCreationZone(instructorUserDao.findById(baseUserId).get().getZoneId());
+        }
 
         questionDao.save(question);
         log.debug("Question added with id: {}", question.getId());
@@ -159,7 +168,6 @@ public class QuestionService {
         question.setComplexity(updateQuestionRequest.getComplexity());
         question.setMarks(updateQuestionRequest.getMarks());
         question.setSubject(subject);
-        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         questionDao.update(question);
     }
 
@@ -188,6 +196,9 @@ public class QuestionService {
                 .incorrectAttempts(incorrectAttempts)
                 .percentCorrect(percentCorrect)
                 .percentIncorrect(percentIncorrect)
+                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(question.getCreationZone())))
+                .creationZone(question.getCreationZone())
+                .createdByUsername(question.getCreatedByBaseUser().getUsername())
                 .build();
     }
 
@@ -196,7 +207,6 @@ public class QuestionService {
         Question question = questionDao.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
         question.setIsActive(Boolean.TRUE);
-        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         questionDao.update(question);
         log.info("Successfully activated question with ID: {}", questionId);
     }
@@ -206,9 +216,22 @@ public class QuestionService {
         Question question = questionDao.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException("Question not found with id: " + questionId));
         question.setIsActive(Boolean.FALSE);
-        question.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
         questionDao.update(question);
         log.info("Successfully deactivated question with ID: {}", questionId);
+    }
+
+    @Transactional(readOnly = true)
+    public QuestionPageViewDto getFilteredInstructorCreatedQuestions(QuestionFilterDto questionFilterDto, Long instructorId) {
+        log.info("Invoked getFilteredQuestions with initial filter: {}", questionFilterDto);
+
+        instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorId)));
+
+        normalizeFilterDto(questionFilterDto);
+
+        QuestionPageViewDto questionViewPageDto = questionDao.findFilteredInstructorCreatedQuestions(questionFilterDto, instructorId);
+        log.info("Retrieved {} questions with applied filters", questionViewPageDto.getQuestions().size());
+
+        return questionViewPageDto;
     }
 
 //    @Transactional(readOnly = true)

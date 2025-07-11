@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "participant_user_exam_submission_tbl")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class ParticipantUserExamSubmission {
+public class ParticipantUserExamSubmission extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +29,6 @@ public class ParticipantUserExamSubmission {
     @JoinColumn(name = "exam_id")
     @ToString.Exclude
     private Exam exam;
-
-    @Column(name = "submitted_at")
-    private ZonedDateTime submittedAt;
 
     @OneToOne(mappedBy = "participantUserExamSubmission")
     @ToString.Exclude

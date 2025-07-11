@@ -6,6 +6,7 @@ import com.example.qbankapi.dto.request.CreateExamRequestDto;
 import com.example.qbankapi.dto.view.ExamAnalyticsViewDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.entity.*;
+import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.ExamNotFoundException;
 import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
@@ -31,6 +32,8 @@ public class ExamService {
     private final SubjectDao subjectDao;
     private final QuestionDao questionDao;
     private final ExamAnalyticsDao examAnalyticsDao;
+    private final BaseUserDao baseUserDao;
+    private final InstructorUserDao instructorUserDao;
 //    private final ParticipantUserDao participantUserDao;
 //    private final UserAnalyticsDao userAnalyticsDao;
 //    private final UserExamResultDao userExamResultDao;
@@ -80,11 +83,13 @@ public class ExamService {
     }
 
     @Transactional
-    public void createExam(CreateExamRequestDto createExamRequestDto, Long adminId) {
-        log.info("Starting exam creation for adminId: {}", adminId);
+    public void createExam(CreateExamRequestDto createExamRequestDto, Long userId) {
+        log.info("Starting exam creation for BaseUserId: {}", userId);
 
-        AdminUser admin = adminUserDao.findById(adminId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id", adminId)));
-        log.debug("Admin found: {}", admin.getId());
+        BaseUser baseUser = baseUserDao.findById(userId)
+                .orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser not found with id: %d", userId)));
+
+        BaseUser.Role baseUserRole = baseUser.getRole();
 
         Subject subject = subjectDao.findById(createExamRequestDto.getSubjectId()).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id", createExamRequestDto.getSubjectId())));
         log.debug("Subject found: {}", subject.getId());
@@ -101,8 +106,6 @@ public class ExamService {
         Integer totalMarks = (createExamRequestDto.getTotal1MarkQuestions() + (createExamRequestDto.getTotal2MarkQuestions() * 2) + (createExamRequestDto.getTotal3MarkQuestions() * 3) + (createExamRequestDto.getTotal4MarkQuestions() * 4) + (createExamRequestDto.getTotal5MarkQuestions() * 5) + (createExamRequestDto.getTotal6MarkQuestions() * 6));
         log.info("Total calculated marks: {}", totalMarks);
 
-        ZoneId userZoneId = ZoneId.of(admin.getZoneId());
-
         Exam exam = new Exam();
         exam.setDescription(createExamRequestDto.getDescription());
         exam.setTotalMarks(totalMarks);
@@ -113,12 +116,28 @@ public class ExamService {
         exam.setParticipantUserExamResults(List.of());
         exam.setExamAnalytics(examAnalytics);
         exam.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        exam.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-        exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-        exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-        exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(userZoneId).withZoneSameInstant(ZoneOffset.UTC));
-        exam.setCreatedByBaseUser(admin);
+
+        if (baseUserRole.equals(BaseUser.Role.ADMIN)) {
+            AdminUser adminUser = adminUserDao.findById(userId).get();
+
+            exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(ZoneId.of(adminUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(ZoneId.of(adminUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(ZoneId.of(adminUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(ZoneId.of(adminUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+
+            exam.setCreationZone(adminUser.getZoneId());
+            exam.setCreatedByBaseUser(adminUser);
+        } else if (baseUserRole.equals(BaseUser.Role.INSTRUCTOR)) {
+            InstructorUser instructorUser = instructorUserDao.findById(userId).get();
+
+            exam.setEnrollmentStartDate(createExamRequestDto.getEnrollmentStartDate().atZone(ZoneId.of(instructorUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setEnrollmentEndDate(createExamRequestDto.getEnrollmentEndDate().atZone(ZoneId.of(instructorUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setExamStartDate(createExamRequestDto.getExamStartDate().atZone(ZoneId.of(instructorUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+            exam.setExamEndDate(createExamRequestDto.getExamEndDate().atZone(ZoneId.of(instructorUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC));
+
+            exam.setCreationZone(instructorUser.getZoneId());
+            exam.setCreatedByBaseUser(instructorUser);
+        }
 
         addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal1MarkQuestions(), Question.Complexity.EASY, 1);
         addQuestionsIfAvailable(exam.getQuestions(), subject.getId(), createExamRequestDto.getTotal2MarkQuestions(), Question.Complexity.EASY, 2);
@@ -148,20 +167,23 @@ public class ExamService {
     public ExamAnalyticsViewDto getExamAnalytics(Long examId) {
         Exam exam = examDao.findById(examId).orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", examId)));
         return ExamAnalyticsViewDto.builder()
-//                .examId()
-//                .examDescription()
-//                .subjectName()
-//                .totalMarks()
-//                .totalParticipants()
-//                .totalSubmissions()
-//                .averageScore()
-//                .highestScore()
-//                .lowestScore()
-//                .completionRate()
-//                .passRate()
-//                .totalQuestions()
-//                .createdBy()
-//                .createdAt()
+                .examId(exam.getId())
+                .examDescription(exam.getDescription())
+                .subjectName(exam.getSubject().getName())
+                .totalMarks(exam.getTotalMarks())
+                .totalParticipants(exam.getParticipantEnrollments().size())
+                .totalSubmissions(exam.getParticipantUserExamSubmissions().size())
+                .averageScore(exam.getExamAnalytics().getAverageScore())
+                .highestScore(exam.getExamAnalytics().getHighestScore())
+                .lowestScore(exam.getExamAnalytics().getLowestScore())
+                .totalQuestions(exam.getQuestions().size())
+                .createdBy(exam.getCreatedByBaseUser().getUsername())
+                .createdAt(exam.getCreatedAt())
+                .creationZone(exam.getCreationZone())
+                .enrollmentStartDate(exam.getEnrollmentStartDate())
+                .enrollmentEndDate(exam.getEnrollmentEndDate())
+                .examStartDate(exam.getExamStartDate())
+                .examEndDate(exam.getExamEndDate())
                 .build();
     }
 

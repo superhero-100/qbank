@@ -213,9 +213,13 @@ public class HomeController {
                 return "login";
             }
         } catch (BaseUserAccountNotActiveException ex) {
+            log.warn("Exception occured: BaseUserAccountNotActiveException");
+
             model.addAttribute("message", ex.getMessage());
             return "error";
         } catch (AdminUserNotFoundException | InstructorUserNotFoundException | ParticipantUserNotFoundException ex) {
+            log.warn("Exception occured: AdminUserNotFoundException | InstructorUserNotFoundException | ParticipantUserNotFoundException");
+
             model.addAttribute("message", ex.getMessage());
             return "error";
         }

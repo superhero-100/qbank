@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -67,7 +65,6 @@ public class AuthenticationService {
                                         String.format("Admin user not found with id %d", baseUser.getId())
                                 ));
                         adminUser.setZoneId(loginBaseUserRequest.getZoneId());
-                        adminUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
                         adminUserDao.update(adminUser);
                         log.info("Admin with id: {} timezone id: {} updated", adminUser.getId(), loginBaseUserRequest.getZoneId());
                     }
@@ -77,7 +74,6 @@ public class AuthenticationService {
                                         String.format("Instructor user not found with id %d", baseUser.getId())
                                 ));
                         instructorUser.setZoneId(loginBaseUserRequest.getZoneId());
-                        instructorUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
                         instructorUserDao.update(instructorUser);
                         log.info("Instructor with id: {} timezone id: {} updated", instructorUser.getId(), loginBaseUserRequest.getZoneId());
                     }
@@ -87,7 +83,6 @@ public class AuthenticationService {
                                         String.format("Participant not found with id %d", baseUser.getId())
                                 ));
                         participantUser.setZoneId(loginBaseUserRequest.getZoneId());
-                        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
                         participantUserDao.update(participantUser);
                         log.info("BaseUser with id: {} timezone id: {} updated", participantUser.getId(), loginBaseUserRequest.getZoneId());
                     }

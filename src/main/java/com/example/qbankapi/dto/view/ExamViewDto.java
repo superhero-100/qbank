@@ -25,6 +25,4 @@ public class ExamViewDto {
 
     private Integer enrollmentCount;
 
-    private ZonedDateTime createdAt;
-
 }

@@ -49,7 +49,6 @@ public class ExamDao {
                         .totalMarks(exam.getTotalMarks())
                         .questionsCount(exam.getQuestions().size())
                         .enrollmentCount(exam.getParticipantEnrollments().size())
-                        .createdAt(exam.getCreatedAt())
                         .build())
                 .toList();
         ExamPageViewDto examPageViewDto = new ExamPageViewDto();

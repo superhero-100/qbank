@@ -13,10 +13,10 @@ import java.time.ZonedDateTime;
 @MappedSuperclass
 public abstract class Auditable {
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private ZonedDateTime createdAt;
 
-    @Column(name = "modified_at")
-    private ZonedDateTime modifiedAt;
+    @Column(name = "creation_zone", updatable = false, nullable = false)
+    private String creationZone;
 
 }

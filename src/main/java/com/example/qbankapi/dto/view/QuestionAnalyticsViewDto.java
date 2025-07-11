@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,5 +28,10 @@ public class QuestionAnalyticsViewDto {
 
     private Double percentCorrect;
     private Double percentIncorrect;
+
+    private ZonedDateTime createdAt;
+    private String creationZone;
+
+    private String createdByUsername;
 
 }

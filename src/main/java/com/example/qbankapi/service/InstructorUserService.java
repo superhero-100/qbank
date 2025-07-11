@@ -28,11 +28,9 @@ public class InstructorUserService {
     private final SubjectDao subjectDao;
 
     @Transactional(readOnly = true)
-    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long userId, String currentUserZoneId) {
+    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long userId) {
         InstructorUser instructorUser = instructorUserDao.findById(userId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", userId)));
-
-        ZoneId zoneId = ZoneId.of(currentUserZoneId);
 
         List<Exam> exams = instructorUser.getCreatedExams();
         List<Question> questions = instructorUser.getCreatedQuestions();
@@ -43,7 +41,8 @@ public class InstructorUserService {
                 .username(instructorUser.getUsername())
                 .email(instructorUser.getEmail())
                 .zoneId(instructorUser.getZoneId())
-                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(zoneId))
+                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(instructorUser.getCreationZone())))
+                .registrationZone(instructorUser.getCreationZone())
                 .totalCreatedExams(exams.size())
                 .totalCreatedQuestions(questions.size())
                 .totalAssignedSubjects(subjects.size())
@@ -60,7 +59,8 @@ public class InstructorUserService {
                                 .description(exam.getDescription())
                                 .subjectName(exam.getSubject().getName())
                                 .totalMarks(exam.getTotalMarks())
-                                .createdAt(exam.getCreatedAt().withZoneSameInstant(zoneId))
+                                .createdAt(exam.getCreatedAt().withZoneSameInstant(ZoneId.of(exam.getCreationZone())))
+                                .creationZone(exam.getCreationZone())
                                 .build())
                         .collect(Collectors.toList())
                 )
@@ -70,7 +70,8 @@ public class InstructorUserService {
                         .map(question -> InstructorUserProfileStatsViewDto.RecentCreatedQuestionsViewDto.builder()
                                 .questionText(question.getText())
                                 .subjectName(question.getSubject().getName())
-                                .createdAt(question.getCreatedAt().withZoneSameInstant(zoneId))
+                                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(question.getCreationZone())))
+                                .creationZone(question.getCreationZone())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
