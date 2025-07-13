@@ -24,11 +24,11 @@
 
             <div class="flex justify-between gap-4 w-full">
                 <div class="p-6 space-y-6">
-                    <h1 class="text-2xl font-bold text-primary">Manage Exams</h1>
+                    <h1 class="text-2xl font-bold text-primary" th:text="${instructorId != null} ? 'Manage Created Exams' : 'Manage Exams'"></h1>
                     <p class="text-sm text-gray-500">Create, update, and organize exams.</p>
                 </div>
 
-                <div class="p-6">
+                <div th:if="${instructorId == null}" class="p-6">
                     <a th:href="@{/admin/manage/exams/create}" class="btn btn-success">Create New Exam</a>
                 </div>
             </div>
@@ -39,7 +39,9 @@
 
                 <!-- Subject -->
                 <div>
-                    <label class="label font-semibold text-base-content">Subject</label>
+                    <label class="label font-semibold text-base-content"
+                           th:text="${instructorId != null} ? 'Assigned Subject' : 'Subject'">
+                    </label>
                     <select th:field="*{subjectId}" class="select select-bordered w-full">
                         <option value="0">All</option>
                         <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
@@ -131,14 +133,22 @@
             <!-- Pagination -->
             <div th:if="${!(exams == null or exams?.isEmpty())}" class="flex justify-between items-center mt-6">
 
-                <a th:if="${pageNumber > 0}"
+                <a th:if="${pageNumber > 0 and instructorId == null}"
                    th:href="@{/admin/manage/exams(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Previous</a>
+
+                <a th:if="${pageNumber > 0 and instructorId != null}"
+                   th:href="@{/admin/manage/instructors/{id}/exams(id=${instructorId},page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Previous</a>
 
                 <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
 
-                <a th:if="${hasNextPage}"
+                <a th:if="${hasNextPage and instructorId == null}"
                    th:href="@{/admin/manage/exams(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Next</a>
+
+                <a th:if="${hasNextPage and instructorId != null}"
+                   th:href="@{/admin/manage/instructors/{id}/exams(id=${instructorId},page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Next</a>
 
             </div>

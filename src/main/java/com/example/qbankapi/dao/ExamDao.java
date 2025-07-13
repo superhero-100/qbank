@@ -85,6 +85,51 @@ public class ExamDao {
         return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
     }
 
+    public ExamPageViewDto findFilteredInstructorCreatedExams(ExamFilterDto filter, Long instructorId) {
+        StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
+        Map<String, Object> parameters = new HashMap<>();
+
+        sql.append(" AND e.createdByBaseUser.id = :id");
+        parameters.put("id", instructorId);
+
+        if (filter.getSubjectId() > 0) {
+            sql.append(" AND e.subject.id = :subjectId");
+            parameters.put("subjectId", filter.getSubjectId());
+        }
+
+        sql.append(" ORDER BY e.").append(filter.getSortBy()).append(" ").append(filter.getSortOrder()).append(", e.id ASC");
+
+        TypedQuery<Exam> query = entityManager.createQuery(sql.toString(), Exam.class);
+        parameters.forEach(query::setParameter);
+
+        query.setFirstResult(filter.getPage() * filter.getPageSize());
+        query.setMaxResults(filter.getPageSize() + 1);
+
+        List<Exam> results = query.getResultList();
+
+        boolean hasNext = results.size() > filter.getPageSize();
+
+        if (hasNext) results.removeLast();
+
+        List<ExamViewDto> examDetailsDtoList = results.stream()
+                .map(exam -> ExamViewDto.builder()
+                        .id(exam.getId())
+                        .description(exam.getDescription())
+                        .subjectName(exam.getSubject().getName())
+                        .totalMarks(exam.getTotalMarks())
+                        .questionsCount(exam.getQuestions().size())
+                        .enrollmentCount(exam.getParticipantEnrollments().size())
+                        .build())
+                .toList();
+        ExamPageViewDto examPageViewDto = new ExamPageViewDto();
+        examPageViewDto.setExams(examDetailsDtoList);
+        examPageViewDto.setPage(filter.getPage());
+        examPageViewDto.setPageSize(filter.getPageSize());
+        examPageViewDto.setHasNextPage(hasNext);
+
+        return examPageViewDto;
+    }
+
 //    public void update(Exam exam) {
 //        entityManager.merge(exam);
 //    }

@@ -222,7 +222,7 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public QuestionPageViewDto getFilteredInstructorCreatedQuestions(QuestionFilterDto questionFilterDto, Long instructorId) {
-        log.info("Invoked getFilteredQuestions with initial filter: {}", questionFilterDto);
+        log.info("Invoked getFilteredInstructorCreatedQuestions with initial filter: {}", questionFilterDto);
 
         instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorId)));
 

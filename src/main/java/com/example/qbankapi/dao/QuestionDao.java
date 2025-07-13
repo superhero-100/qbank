@@ -151,7 +151,7 @@ public class QuestionDao {
 
         boolean hasNext = results.size() > filter.getPageSize();
 
-        if (hasNext) results.remove(results.size() - 1);
+        if (hasNext) results.removeLast();
 
         List<QuestionViewDto> questionDtoList = results.stream()
                 .map(question -> QuestionViewDto.builder()

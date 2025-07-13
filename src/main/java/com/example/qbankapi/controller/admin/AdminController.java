@@ -510,6 +510,47 @@ public class AdminController {
         return "admin/exam-manage";
     }
 
+    @GetMapping("/manage/instructors/{id}/exams")
+    public String getManageInstructorExamsPage(
+            @PathVariable("id") Long instructorId,
+            @Valid @ModelAttribute("filter") ExamFilterDto examFilterDto,
+            BindingResult bindingResult,
+            HttpSession httpSession,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+
+            model.addAttribute("instructorId", instructorId);
+            return "admin/question-manage";
+        }
+
+        try {
+            ExamPageViewDto examViewPageDto = examService.getFilteredInstructorCreatedExams(examFilterDto, instructorId);
+
+            model.addAttribute("subjects", subjectService.getAssignedSubjectViewDtoList(instructorId));
+            model.addAttribute("filter", examFilterDto);
+
+            model.addAttribute("exams", examViewPageDto.getExams());
+            model.addAttribute("pageNumber", examViewPageDto.getPage());
+            model.addAttribute("pageSize", examViewPageDto.getPageSize());
+            model.addAttribute("hasNextPage", examViewPageDto.getHasNextPage());
+            model.addAttribute("instructorId", instructorId);
+
+            log.info("Rendering exam-manage page");
+            return "admin/exam-manage";
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("Instructor not found with id: {}", instructorId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Instructor not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/questions");
+            return "redirect:/admin/dashboard";
+        }
+    }
+
     @GetMapping("/manage/exams/{examId}/analytics")
     public String getExamsAnalyticsPage(
             @PathVariable("examId") Long examId,

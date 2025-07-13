@@ -7,10 +7,7 @@ import com.example.qbankapi.dto.view.ExamAnalyticsViewDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.ExamNotFoundException;
-import com.example.qbankapi.exception.base.impl.InsufficientQuestionsException;
-import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
+import com.example.qbankapi.exception.base.impl.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,6 +40,15 @@ public class ExamService {
     public ExamPageViewDto getFilteredExams(ExamFilterDto examFilterDto) {
         log.info("Invoked getFilteredExams with initial filter: {}", examFilterDto);
 
+        normalizeFilterDto(examFilterDto);
+
+        ExamPageViewDto examPageViewDto = examDao.findFilteredExams(examFilterDto);
+        log.info("Retrieved {} exams with applied filters", examPageViewDto.getExams().size());
+
+        return examPageViewDto;
+    }
+
+    private void normalizeFilterDto(ExamFilterDto examFilterDto) {
         if (examFilterDto.getSubjectId() == null || examFilterDto.getSubjectId() <= 0) {
             log.debug("Invalid or missing subjectId. Defaulting to 0");
             examFilterDto.setSubjectId(0L);
@@ -74,12 +80,6 @@ public class ExamService {
         }
 
         log.info("Final applied filters - subjectId: {}, sortBy: {}, sortOrder: {}, pageSize: {}, page: {}", examFilterDto.getSubjectId(), examFilterDto.getSortBy(), examFilterDto.getSortOrder(), examFilterDto.getPageSize(), examFilterDto.getPage());
-
-        ExamPageViewDto examPageViewDto = examDao.findFilteredExams(examFilterDto);
-
-        log.info("Retrieved {} exams with applied filters", examPageViewDto.getExams().size());
-
-        return examPageViewDto;
     }
 
     @Transactional
@@ -185,6 +185,20 @@ public class ExamService {
                 .examStartDate(exam.getExamStartDate())
                 .examEndDate(exam.getExamEndDate())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public ExamPageViewDto getFilteredInstructorCreatedExams(ExamFilterDto examFilterDto, Long instructorId) {
+        log.info("Invoked getFilteredInstructorCreatedExams with initial filter: {}", examFilterDto);
+
+        instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorId)));
+
+        normalizeFilterDto(examFilterDto);
+
+        ExamPageViewDto examPageViewDto = examDao.findFilteredInstructorCreatedExams(examFilterDto, instructorId);
+        log.info("Retrieved {} exams with applied filters", examPageViewDto.getExams().size());
+
+        return examPageViewDto;
     }
 
 //    @Transactional(readOnly = true)

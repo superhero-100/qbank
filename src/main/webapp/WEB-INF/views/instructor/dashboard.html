@@ -21,7 +21,7 @@
     <!-- Main Content -->
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
 
-        <h1 class="text-center text-4xl font-extrabold text-primary py-9">Welcome, Admin 👋</h1>
+        <h1 class="text-center text-4xl font-extrabold text-primary py-9">Welcome, Instructor 👋</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -29,7 +29,7 @@
                class="card bg-primary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/books.png" alt="Subjects"/></figure>
-                    <h2 class="card-title">View Assigned Subjects</h2>
+                    <h2 class="card-title">Assigned Subjects</h2>
                     <p>Manage subjects and organize related topics.</p>
                 </div>
             </a>
@@ -38,7 +38,7 @@
                class="card bg-secondary text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/faq.png" alt="Questions"/></figure>
-                    <h2 class="card-title">Manage Questions</h2>
+                    <h2 class="card-title">Created Questions</h2>
                     <p>Add, edit, or group questions by subject and complexity.</p>
                 </div>
             </a>
@@ -47,17 +47,8 @@
                class="card bg-warning text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
                 <div class="card-body">
                     <figure><img src="https://img.icons8.com/color/96/test-passed.png" alt="Exams"/></figure>
-                    <h2 class="card-title">Manage Exams</h2>
+                    <h2 class="card-title">Created Exams</h2>
                     <p>Create and schedule exams with customizable settings.</p>
-                </div>
-            </a>
-
-            <a th:href="@{/instructor/view/analytics}"
-               class="card bg-info text-primary-content shadow-xl hover:scale-105 transition-transform duration-300">
-                <div class="card-body">
-                    <figure><img src="https://img.icons8.com/color/96/combo-chart.png" alt="Results"/></figure>
-                    <h2 class="card-title">Analytics</h2>
-                    <p>Track exam performance and student insights.</p>
                 </div>
             </a>
 

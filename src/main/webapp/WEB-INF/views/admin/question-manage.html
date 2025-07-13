@@ -28,7 +28,7 @@
                     <p class="text-sm text-gray-500">Create, update, and organize questions.</p>
                 </div>
 
-                <div class="p-6">
+                <div th:if="${instructorId == null}" class="p-6">
                     <a th:href="@{/admin/manage/questions/add}" class="btn btn-success">Add New Question</a>
                 </div>
             </div>
