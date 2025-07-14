@@ -4,7 +4,6 @@ import com.example.qbankapi.dao.InstructorUserDao;
 import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.view.InstructorUserProfileStatsViewDto;
 import com.example.qbankapi.entity.*;
-import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,9 +26,10 @@ public class InstructorUserService {
     private final SubjectDao subjectDao;
 
     @Transactional(readOnly = true)
-    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long userId) {
-        InstructorUser instructorUser = instructorUserDao.findById(userId)
-                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", userId)));
+    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long instructorUserId) {
+        InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
+                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", instructorUserId)));
+        log.debug("Fetched Instructor user with id [{}]", instructorUserId);
 
         List<Exam> exams = instructorUser.getCreatedExams();
         List<Question> questions = instructorUser.getCreatedQuestions();
@@ -80,38 +79,36 @@ public class InstructorUserService {
     @Transactional
     public void assignSubject(Long instructorUserId, Long subjectId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
-                .orElseThrow(() -> new InstructorUserNotFoundException(
-                        String.format("Instructor user not found with id: %d", instructorUserId)));
+                .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorUserId)));
 
         Subject subject = subjectDao.findById(subjectId)
-                .orElseThrow(() -> new SubjectNotFoundException(
-                        String.format("Subject not found with id: %d", subjectId)));
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
 
         if (!instructorUser.getAssignedSubjects().contains(subject)) {
             instructorUser.getAssignedSubjects().add(subject);
+
             instructorUserDao.update(instructorUser);
-            log.info("Subject [id={}] assigned to instructor [id={}]", subjectId, instructorUserId);
+            log.info("Subject with id [{}] assigned to instructor with id [{}]", subjectId, instructorUserId);
         } else {
-            log.info("Subject [id={}] already assigned to instructor [id={}]", subjectId, instructorUserId);
+            log.info("Subject with id [{}] already assigned to instructor with id [{}]", subjectId, instructorUserId);
         }
     }
 
     @Transactional
     public void revokeSubject(Long instructorUserId, Long subjectId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
-                .orElseThrow(() -> new InstructorUserNotFoundException(
-                        String.format("Instructor user not found with id: %d", instructorUserId)));
+                .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorUserId)));
 
         Subject subject = subjectDao.findById(subjectId)
-                .orElseThrow(() -> new SubjectNotFoundException(
-                        String.format("Subject not found with id: %d", subjectId)));
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
 
         if (instructorUser.getAssignedSubjects().contains(subject)) {
             instructorUser.getAssignedSubjects().remove(subject);
+
             instructorUserDao.update(instructorUser);
-            log.info("Subject [id={}] revoked from instructor [id={}]", subjectId, instructorUserId);
+            log.info("Subject with id [{}] revoked from instructor with id [{}]", subjectId, instructorUserId);
         } else {
-            log.warn("Attempted to revoke subject [id={}] not assigned to instructor [id={}]", subjectId, instructorUserId);
+            log.warn("Attempted to revoke subject with id [{}] not assigned to instructor with id [{}]", subjectId, instructorUserId);
         }
     }
 

@@ -118,10 +118,10 @@
                         </div>
 
                         <!-- Actions -->
-                        <div th:if="${u.role.name() != 'ADMIN'}" class="card-actions justify-end">
+                        <div th:if="${u.role.name() == 'INSTRUCTOR' or u.role.name() == 'PARTICIPANT'}" class="card-actions justify-end">
 
                             <!-- View Profile -->
-                            <a th:href="@{/admin/view/users/{id}/profile(id=${u.id})}"
+                            <a th:href="@{/admin/view/users/{role}/{id}/profile(role=${u.role.name().toLowerCase()}, id=${u.id})}"
                                class="btn btn-sm btn-primary text-white">
                                 View Profile
                             </a>

@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SubjectInstructorViewDto {
+public class SubjectAssignedInstructorsViewDto {
 
     private SubjectViewDto subject;
 

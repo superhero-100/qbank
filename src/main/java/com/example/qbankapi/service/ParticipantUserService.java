@@ -28,9 +28,9 @@ public class ParticipantUserService {
     private final ParticipantUserDao participantUserDao;
 
     @Transactional(readOnly = true)
-    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long userId) {
-        ParticipantUser participantUser = participantUserDao.findById(userId)
-                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id: %d", userId)));
+    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long participantUserId) {
+        ParticipantUser participantUser = participantUserDao.findById(participantUserId)
+                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", participantUserId)));
 
         List<ParticipantUserExamResult> participantUserExamResults = participantUser.getParticipantUserExamResults();
         List<ParticipantUserExamSubmission> participantUserExamSubmissions = participantUser.getParticipantUserExamSubmissions();

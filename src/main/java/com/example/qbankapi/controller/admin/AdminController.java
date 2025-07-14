@@ -36,7 +36,6 @@ public class AdminController {
     private final BaseUserService baseUserService;
     private final ParticipantUserService participantUserService;
     private final InstructorUserService instructorUserService;
-    private final AdminUserService adminUserService;
 
     @GetMapping("/home")
     public String getDashboardPage() {
@@ -53,18 +52,18 @@ public class AdminController {
     }
 
     @GetMapping("/view/instructors")
-    public String getSubjectInstructorsPage(
+    public String getSubjectAssignedInstructorsPage(
             @RequestParam("subjectId") Long subjectId,
-            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            model.addAttribute("subjectInstructors", subjectService.getSubjectInstructorsDtoById(subjectId));
+            model.addAttribute("subjectInstructors", subjectService.getSubjectAssignedInstructorsDtoById(subjectId));
 
+            log.info("Rendering subject-instructor-view page");
             return "admin/subject-instructor-view";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", subjectId, ex);
+            log.error("Subject not found with id [{}]", subjectId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -90,13 +89,13 @@ public class AdminController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
             return "admin/subject-add";
         }
 
         try {
-            subjectService.addSubject(addSubjectRequest, (Long) httpSession.getAttribute(USER_ID));
-            log.debug("Subject added with name: {}", addSubjectRequest.getName());
+            subjectService.adminAddSubject(addSubjectRequest, (Long) httpSession.getAttribute(USER_ID));
+            log.debug("Subject added with name [{}]", addSubjectRequest.getName());
 
             redirectAttributes.addFlashAttribute("message", "Subject added successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -104,7 +103,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/subjects");
             return "redirect:/admin/manage/subjects";
         } catch (SubjectAlreadyExistsException ex) {
-            log.warn("Subject with name: {} already exists.", addSubjectRequest.getName(), ex);
+            log.warn("Subject already exists with name [{}]", addSubjectRequest.getName(), ex);
 
             bindingResult.rejectValue("name", "SubjectName.Invalid", "Subject name already exists.");
             return "admin/subject-add";
@@ -138,7 +137,7 @@ public class AdminController {
             log.info("Rendering subject-edit page");
             return "admin/subject-edit";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", subjectId, ex);
+            log.error("Subject not found with id [{}]", subjectId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -155,13 +154,13 @@ public class AdminController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
             return "admin/subject-edit";
         }
 
         try {
-            subjectService.updateSubject(updateSubjectRequest);
-            log.debug("Subject created with name: {}", updateSubjectRequest.getName());
+            subjectService.adminUpdateSubject(updateSubjectRequest);
+            log.debug("Subject created with name [{}]", updateSubjectRequest.getName());
 
             redirectAttributes.addFlashAttribute("message", "Subject updated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -169,7 +168,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/subjects");
             return "redirect:/admin/manage/subjects";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", updateSubjectRequest.getId(), ex);
+            log.error("Subject not found with id [{}]", updateSubjectRequest.getId(), ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -189,19 +188,19 @@ public class AdminController {
 
     @GetMapping("/manage/questions")
     public String getManageQuestionsPage(
-            @Valid @ModelAttribute("filter") QuestionFilterDto questionFilterDto,
+            @Valid @ModelAttribute("filter") AllQuestionFilterDto allQuestionFilterDto,
             BindingResult bindingResult,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
             return "admin/question-manage";
         }
 
-        QuestionPageViewDto questionViewPage = questionService.getFilteredQuestions(questionFilterDto);
+        QuestionPageViewDto questionViewPage = questionService.getFilteredQuestionsForAdmin(allQuestionFilterDto);
 
         model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
-        model.addAttribute("filter", questionFilterDto);
+        model.addAttribute("filter", allQuestionFilterDto);
 
         model.addAttribute("questions", questionViewPage.getQuestions());
         model.addAttribute("pageNumber", questionViewPage.getPage());
@@ -210,47 +209,6 @@ public class AdminController {
 
         log.info("Rendering question-manage page");
         return "admin/question-manage";
-    }
-
-    @GetMapping("/manage/instructors/{id}/questions")
-    public String getManageInstructorQuestionsPage(
-            @PathVariable("id") Long instructorId,
-            @Valid @ModelAttribute("filter") QuestionFilterDto questionFilterDto,
-            BindingResult bindingResult,
-            HttpSession httpSession,
-            Model model,
-            RedirectAttributes redirectAttributes
-    ) {
-        if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
-
-            model.addAttribute("instructorId", instructorId);
-            return "admin/question-manage";
-        }
-
-        try {
-            QuestionPageViewDto questionViewPage = questionService.getFilteredInstructorCreatedQuestions(questionFilterDto, instructorId);
-
-            model.addAttribute("subjects", subjectService.getAssignedSubjectViewDtoList(instructorId));
-            model.addAttribute("filter", questionFilterDto);
-
-            model.addAttribute("questions", questionViewPage.getQuestions());
-            model.addAttribute("pageNumber", questionViewPage.getPage());
-            model.addAttribute("pageSize", questionViewPage.getPageSize());
-            model.addAttribute("hasNextPage", questionViewPage.getHasNextPage());
-            model.addAttribute("instructorId", instructorId);
-
-            log.info("Rendering question-manage page");
-            return "admin/question-manage";
-        } catch (InstructorUserNotFoundException ex) {
-            log.error("Instructor not found with id: {}", instructorId, ex);
-
-            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Instructor not found.");
-            redirectAttributes.addFlashAttribute("messageType", "error");
-
-            log.info("Redirecting to /admin/manage/questions");
-            return "redirect:/admin/dashboard";
-        }
     }
 
     @GetMapping("/manage/questions/{questionId}/analytics")
@@ -267,7 +225,7 @@ public class AdminController {
             log.info("Rendering question-analytics page");
             return "admin/question-analytics";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", questionId, ex);
+            log.error("Question not found with id [{}]", questionId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -295,14 +253,14 @@ public class AdminController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
 
             model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
             return "admin/question-add";
         }
 
         try {
-            questionService.addQuestion(addQuestionRequest, (Long) httpSession.getAttribute(USER_ID));
+            questionService.adminAddQuestion(addQuestionRequest, (Long) httpSession.getAttribute(USER_ID));
 
             redirectAttributes.addFlashAttribute("message", "Question added successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -310,7 +268,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/questions");
             return "redirect:/admin/manage/questions";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", addQuestionRequest.getSubjectId(), ex);
+            log.error("Subject not found with id [{}]", addQuestionRequest.getSubjectId(), ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -356,7 +314,7 @@ public class AdminController {
             log.info("Rendering question-edit page");
             return "admin/question-edit";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", questionId, ex);
+            log.error("Question not found with id [{}]", questionId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -374,15 +332,15 @@ public class AdminController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
 
             model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
             return "admin/question-edit";
         }
 
         try {
-            questionService.updateQuestion(updateQuestionRequest);
-            log.debug("Question updated with id: {}", updateQuestionRequest.getId());
+            questionService.adminUpdateQuestion(updateQuestionRequest);
+            log.debug("Question updated with id [{}]", updateQuestionRequest.getId());
 
             redirectAttributes.addFlashAttribute("message", "Question updated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -390,7 +348,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/questions");
             return "redirect:/admin/manage/questions";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", updateQuestionRequest.getId(), ex);
+            log.error("Question not found with id [{}]", updateQuestionRequest.getId(), ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -398,7 +356,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/questions");
             return "redirect:/admin/manage/questions";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", updateQuestionRequest.getSubjectId(), ex);
+            log.error("Subject not found with id [{}]", updateQuestionRequest.getSubjectId(), ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -424,7 +382,7 @@ public class AdminController {
         try {
             questionService.activateQuestion(questionId);
 
-            log.debug("Question activated with id: {}", questionId);
+            log.debug("Question activated with id [{}]", questionId);
 
             redirectAttributes.addFlashAttribute("message", "Question activated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -432,7 +390,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/questions");
             return "redirect:/admin/manage/questions";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", questionId, ex);
+            log.error("Question not found with id [{}]", questionId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -458,7 +416,7 @@ public class AdminController {
         try {
             questionService.deactivateQuestion(questionId);
 
-            log.debug("Question deactivated with id: {}", questionId);
+            log.debug("Question deactivated with id [{}]", questionId);
 
             redirectAttributes.addFlashAttribute("message", "Question deactivated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -466,7 +424,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/questions");
             return "redirect:/admin/manage/questions";
         } catch (QuestionNotFoundException ex) {
-            log.error("Question not found with id: {}", questionId, ex);
+            log.error("Question not found with id [{}]", questionId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Question not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -486,20 +444,20 @@ public class AdminController {
 
     @GetMapping("/manage/exams")
     public String getManageExamsPage(
-            @Valid @ModelAttribute("filter") ExamFilterDto examFilterDto,
+            @Valid @ModelAttribute("filter") AllExamFilterDto allExamFilterDto,
             BindingResult bindingResult,
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
 
             return "admin/exam-manage";
         }
 
-        ExamPageViewDto examViewPageDto = examService.getFilteredExams(examFilterDto);
+        ExamPageViewDto examViewPageDto = examService.getFilteredExamsForAdmin(allExamFilterDto);
 
         model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
-        model.addAttribute("filter", examFilterDto);
+        model.addAttribute("filter", allExamFilterDto);
 
         model.addAttribute("exams", examViewPageDto.getExams());
         model.addAttribute("pageNumber", examViewPageDto.getPage());
@@ -508,47 +466,6 @@ public class AdminController {
 
         log.info("Rendering exam-manage page");
         return "admin/exam-manage";
-    }
-
-    @GetMapping("/manage/instructors/{id}/exams")
-    public String getManageInstructorExamsPage(
-            @PathVariable("id") Long instructorId,
-            @Valid @ModelAttribute("filter") ExamFilterDto examFilterDto,
-            BindingResult bindingResult,
-            HttpSession httpSession,
-            Model model,
-            RedirectAttributes redirectAttributes
-    ) {
-        if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
-
-            model.addAttribute("instructorId", instructorId);
-            return "admin/question-manage";
-        }
-
-        try {
-            ExamPageViewDto examViewPageDto = examService.getFilteredInstructorCreatedExams(examFilterDto, instructorId);
-
-            model.addAttribute("subjects", subjectService.getAssignedSubjectViewDtoList(instructorId));
-            model.addAttribute("filter", examFilterDto);
-
-            model.addAttribute("exams", examViewPageDto.getExams());
-            model.addAttribute("pageNumber", examViewPageDto.getPage());
-            model.addAttribute("pageSize", examViewPageDto.getPageSize());
-            model.addAttribute("hasNextPage", examViewPageDto.getHasNextPage());
-            model.addAttribute("instructorId", instructorId);
-
-            log.info("Rendering exam-manage page");
-            return "admin/exam-manage";
-        } catch (InstructorUserNotFoundException ex) {
-            log.error("Instructor not found with id: {}", instructorId, ex);
-
-            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Instructor not found.");
-            redirectAttributes.addFlashAttribute("messageType", "error");
-
-            log.info("Redirecting to /admin/manage/questions");
-            return "redirect:/admin/dashboard";
-        }
     }
 
     @GetMapping("/manage/exams/{examId}/analytics")
@@ -565,7 +482,7 @@ public class AdminController {
             log.info("Rendering exam-analytics page");
             return "admin/exam-analytics";
         } catch (ExamNotFoundException ex) {
-            log.error("Exam not found with id: {}", examId, ex);
+            log.error("Exam not found with id [{}]", examId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Exam not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -593,35 +510,35 @@ public class AdminController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.warn("Validation failed. Errors: {}", bindingResult.getAllErrors());
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
 
             return "admin/exam-add";
         }
 
         if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
-            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate.");
+            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate");
 
             model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
             return "admin/exam-add";
         }
 
         if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
-            log.warn("Validation failed: examStartDate is not before examEndDate.");
+            log.warn("Validation failed: examStartDate is not before examEndDate");
 
             model.addAttribute("error", "Exam start date must be before exam end date.");
             return "admin/exam-add";
         }
 
         if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
-            log.warn("Validation failed: enrollmentEndDate is not before examStartDate.");
+            log.warn("Validation failed: enrollmentEndDate is not before examStartDate");
 
             model.addAttribute("error", "Enrollment must end before the exam starts.");
             return "admin/exam-add";
         }
 
         try {
-            examService.createExam(createExamRequestDto, (Long) httpSession.getAttribute(USER_ID));
-            log.info("Exam created with description: {}", createExamRequestDto.getDescription());
+            examService.adminCreateExam(createExamRequestDto, (Long) httpSession.getAttribute(USER_ID));
+            log.info("Exam created with description [{}]", createExamRequestDto.getDescription());
 
             redirectAttributes.addFlashAttribute("message", "Exam created successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -649,7 +566,7 @@ public class AdminController {
             return "admin/user-manage";
         }
 
-        BaseUserPageViewDto baseUserViewPageDto = baseUserService.getFilteredUsers(userFilterDto);
+        BaseUserPageViewDto baseUserViewPageDto = baseUserService.getFilteredUsersForAdmin(userFilterDto);
         model.addAttribute("filter", userFilterDto);
 
         model.addAttribute("baseUsers", baseUserViewPageDto.getBaseUsers());
@@ -661,50 +578,138 @@ public class AdminController {
         return "admin/user-manage";
     }
 
-    @GetMapping("/view/users/{userId}/profile")
-    public String getProfileViewPage(
-            @PathVariable("userId") Long userId,
-            HttpSession httpSession,
+    @GetMapping("/view/users/instructor/{instructorUserId}/profile")
+    public String getInstructorUserProfileViewPage(
+            @PathVariable("instructorUserId") Long instructorUserId,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            BaseUser.Role role = baseUserService.getBaseUserRole(userId);
+            InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(instructorUserId);
 
-            if (role.equals(BaseUser.Role.PARTICIPANT)) {
-                model.addAttribute("participantUserProfileStats", participantUserService.getParticipantUserStats(userId));
-            } else if (role.equals(BaseUser.Role.INSTRUCTOR)) {
-                InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(userId);
-                model.addAttribute("availableSubjects", subjectService.getAvailableSubjectViewDtoList(
-                        instructorUserProfileStatsViewDto
-                                .getAssignedSubjects()
-                                .stream()
-                                .map(InstructorUserProfileStatsViewDto.AssignedSubjectViewDto::getId)
-                                .collect(Collectors.toSet())
-                ));
-                model.addAttribute("instructorUserProfileStats", instructorUserProfileStatsViewDto);
-            } else {
-                throw new InvalidProfileTypeException("Unable to get profile");
-            }
+            model.addAttribute("availableSubjects", subjectService.getAvailableSubjectViewDtoList(
+                    instructorUserProfileStatsViewDto
+                            .getAssignedSubjects()
+                            .stream()
+                            .map(InstructorUserProfileStatsViewDto.AssignedSubjectViewDto::getId)
+                            .collect(Collectors.toSet())
+            ));
+            model.addAttribute("instructorUserProfileStats", instructorUserProfileStatsViewDto);
 
             log.info("Rendering profile-view page");
             return "admin/profile-view";
-        } catch (ParticipantUserNotFoundException | InstructorUserNotFoundException | AdminUserNotFoundException ex) {
-            log.error("User not found for ID: {}", userId, ex);
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("Instructor user not found with id [{}]", instructorUserId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "Instructor user not found");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/manage/exams");
+            return "redirect:/admin/manage/users";
+        }
+    }
+
+    @GetMapping("/view/users/participant/{participantUserId}/profile")
+    public String getProfileViewPage(
+            @PathVariable("participantUserId") Long participantUserId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            model.addAttribute("participantUserProfileStats", participantUserService.getParticipantUserStats(participantUserId));
+
+            log.info("Rendering profile-view page");
+            return "admin/profile-view";
+        } catch (ParticipantUserNotFoundException ex) {
+            log.error("Participant user not found for id [{}]", participantUserId, ex);
 
             redirectAttributes.addFlashAttribute("message", "User not found");
             redirectAttributes.addFlashAttribute("messageType", "error");
 
             log.info("Redirecting to /admin/manage/exams");
             return "redirect:/admin/manage/users";
-        } catch (InvalidProfileTypeException ex) {
-            log.error("Critical error: InvalidProfileType", ex);
+        }
+    }
 
-            redirectAttributes.addFlashAttribute("message", "Invalid user profile id");
+    @GetMapping("/manage/users/instructor/{instructorUserId}/questions")
+    public String getManageInstructorCreatedQuestionsPage(
+            @PathVariable("instructorUserId") Long instructorUserId,
+            @Valid @ModelAttribute("filter") InstructorCreatedQuestionsFilterDto instructorCreatedQuestionsFilterDto,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
+
+            model.addAttribute("instructorId", instructorUserId);
+            return "admin/question-instructor-manage";
+        }
+
+        try {
+            QuestionPageViewDto questionViewPage = questionService.getFilteredInstructorCreatedQuestionsForAdmin(instructorCreatedQuestionsFilterDto, instructorUserId);
+
+            model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
+            model.addAttribute("filter", instructorCreatedQuestionsFilterDto);
+
+            model.addAttribute("questions", questionViewPage.getQuestions());
+            model.addAttribute("pageNumber", questionViewPage.getPage());
+            model.addAttribute("pageSize", questionViewPage.getPageSize());
+            model.addAttribute("hasNextPage", questionViewPage.getHasNextPage());
+
+            model.addAttribute("instructorId", instructorUserId);
+
+            log.info("Rendering question-manage page");
+            return "admin/question-instructor-manage";
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("Instructor not found with id [{}]", instructorUserId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Instructor not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
 
-            log.info("Redirecting to /admin/manage/exams");
-            return "redirect:/admin/manage/exams";
+            log.info("Redirecting to /admin/home");
+            return "redirect:/admin/home";
+        }
+    }
+
+    @GetMapping("/manage/users/instructor/{instructorUserId}/exams")
+    public String getManageInstructorCreatedExamsPage(
+            @PathVariable("instructorUserId") Long instructorUserId,
+            @Valid @ModelAttribute("filter") InstructorCreatedExamsFilterDto instructorCreatedExamsFilterDto,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed: {}", bindingResult.getAllErrors());
+
+            model.addAttribute("instructorId", instructorUserId);
+            return "admin/exam-instructor-manage";
+        }
+
+        try {
+            ExamPageViewDto examViewPageDto = examService.getFilteredInstructorCreatedExamsForAdmin(instructorCreatedExamsFilterDto, instructorUserId);
+
+            model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
+            model.addAttribute("filter", instructorCreatedExamsFilterDto);
+
+            model.addAttribute("exams", examViewPageDto.getExams());
+            model.addAttribute("pageNumber", examViewPageDto.getPage());
+            model.addAttribute("pageSize", examViewPageDto.getPageSize());
+            model.addAttribute("hasNextPage", examViewPageDto.getHasNextPage());
+
+            model.addAttribute("instructorId", instructorUserId);
+
+            log.info("Rendering exam-manage page");
+            return "admin/exam-instructor-manage";
+        } catch (InstructorUserNotFoundException ex) {
+            log.error("Instructor not found with id [{}]", instructorUserId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Instructor not found.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /admin/home");
+            return "redirect:/admin/home";
         }
     }
 
@@ -724,7 +729,7 @@ public class AdminController {
                     .buildAndExpand(instructorUserId)
                     .toUriString();
         } catch (InstructorUserNotFoundException ex) {
-            log.error("InstructorUser not found with id: {}", instructorUserId, ex);
+            log.error("InstructorUser not found with id [{}]", instructorUserId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. instructor not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -732,7 +737,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", subjectId, ex);
+            log.error("Subject not found with id [{}]", subjectId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -758,7 +763,7 @@ public class AdminController {
                     .buildAndExpand(instructorUserId)
                     .toUriString();
         } catch (InstructorUserNotFoundException ex) {
-            log.error("InstructorUser not found with id: {}", instructorUserId, ex);
+            log.error("InstructorUser not found with id [{}]", instructorUserId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. instructor not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -766,7 +771,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id: {}", subjectId, ex);
+            log.error("Subject not found with id [{}]", subjectId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -783,7 +788,7 @@ public class AdminController {
     ) {
         try {
             baseUserService.activateUser(userId);
-            log.debug("BaseUser activated with id: {}", userId);
+            log.debug("BaseUser activated with id [{}]", userId);
 
             redirectAttributes.addFlashAttribute("message", "User account activated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -791,7 +796,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         } catch (BaseUserNotFoundException ex) {
-            log.error("BaseUser not found with id: {}", userId, ex);
+            log.error("BaseUser not found with id [{}]", userId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. BaseUser not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -808,7 +813,7 @@ public class AdminController {
     ) {
         try {
             baseUserService.inactivateUser(userId);
-            log.debug("BaseUser inactivated with id: {}", userId);
+            log.debug("BaseUser inactivated with id [{}]", userId);
 
             redirectAttributes.addFlashAttribute("message", "User account inactivated successfully");
             redirectAttributes.addFlashAttribute("messageType", "success");
@@ -816,7 +821,7 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         } catch (BaseUserNotFoundException ex) {
-            log.error("BaseUser not found with id: {}", userId, ex);
+            log.error("BaseUser not found with id [{}]", userId, ex);
 
             redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. BaseUser not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -824,6 +829,14 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         }
+    }
+
+    @ExceptionHandler(AdminUserNotFoundException.class)
+    public String handleAdminUserNotFoundException(AdminUserNotFoundException ex) {
+        log.warn("Admin user not found: {}", ex.getMessage());
+
+        log.info("Redirecting to /admin/home");
+        return "redirect:/admin/home";
     }
 
 }

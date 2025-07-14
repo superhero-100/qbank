@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuestionFilterDto {
+public class AllQuestionFilterDto {
 
     @Min(value = 0, message = "Invalid subject id")
     private Long subjectId;

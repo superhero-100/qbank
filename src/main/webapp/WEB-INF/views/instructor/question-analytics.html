@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QBank Admin Panel</title>
+    <title>QBank Instructor Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
@@ -10,12 +10,12 @@
 </head>
 <body class="bg-base-200 text-base-content font-sans">
 
-<div th:replace="~{/admin/fragments/header :: tag}"></div>
+<div th:replace="~{/instructor/fragments/header :: tag}"></div>
 
 <!-- Layout -->
 <div class="flex flex-col md:flex-row min-h-screen">
 
-    <div th:replace="~{/admin/fragments/sidebar :: tag}"></div>
+    <div th:replace="~{/instructor/fragments/sidebar :: tag}"></div>
 
     <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
 
@@ -28,10 +28,8 @@
                             <i class="fas fa-chart-bar text-accent text-2xl"></i>
                             <h2 class="text-3xl font-bold text-accent">Question Analytics</h2>
                         </div>
-
-                        <a th:href="@{/admin/home}" class="btn btn-sm btn-outline flex items-center gap-2">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>Back to Dashboard</span>
+                        <a th:href="@{/instructor/manage/questions}" class="btn btn-sm btn-outline btn-primary">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Questions
                         </a>
                     </div>
                 </div>
@@ -142,7 +140,7 @@
 
 </div>
 
-<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+<div th:replace="~{/instructor/fragments/footer :: tag}"></div>
 
 </body>
 </html>

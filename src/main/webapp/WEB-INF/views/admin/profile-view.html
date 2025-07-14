@@ -128,12 +128,12 @@
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Exams</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedExams}">0</div>
-                        <a th:href="@{/admin/manage/instructors/{id}/exams(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/admin/manage/users/instructor/{id}/exams(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Questions</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedQuestions}">0</div>
-                        <a th:href="@{/admin/manage/instructors/{id}/questions(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/admin/manage/users/instructor/{id}/questions(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Assigned Subjects</div>

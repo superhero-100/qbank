@@ -1,6 +1,7 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.dto.model.QuestionFilterDto;
+import com.example.qbankapi.dto.model.AllQuestionFilterDto;
+import com.example.qbankapi.dto.model.InstructorCreatedQuestionsFilterDto;
 import com.example.qbankapi.dto.view.QuestionPageViewDto;
 import com.example.qbankapi.dto.view.QuestionViewDto;
 import com.example.qbankapi.entity.Question;
@@ -29,7 +30,7 @@ public class QuestionDao {
         entityManager.persist(question);
     }
 
-    public QuestionPageViewDto findFilteredQuestions(QuestionFilterDto filter) {
+    public QuestionPageViewDto findFilteredQuestions(AllQuestionFilterDto filter) {
         StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1");
         Map<String, Object> parameters = new HashMap<>();
 
@@ -112,7 +113,7 @@ public class QuestionDao {
                 .getResultList();
     }
 
-    public QuestionPageViewDto findFilteredInstructorCreatedQuestions(QuestionFilterDto filter, Long instructorId) {
+    public QuestionPageViewDto findFilteredInstructorCreatedQuestions(InstructorCreatedQuestionsFilterDto filter, Long instructorId) {
         StringBuilder sql = new StringBuilder("SELECT q FROM Question q WHERE 1 = 1");
         Map<String, Object> parameters = new HashMap<>();
 

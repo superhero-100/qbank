@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminUserService {
 
-    private final AdminUserDao adminUserDao;
+//    private final AdminUserDao adminUserDao;
 
-    public String getAdminZoneId(Long userId) {
-        return adminUserDao.findById(userId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id: %d", userId))).getZoneId();
-    }
+//    public String getAdminZoneId(Long userId) {
+//        return adminUserDao.findById(userId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin not found with id: %d", userId))).getZoneId();
+//    }
 
 }

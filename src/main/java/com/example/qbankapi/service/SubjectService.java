@@ -6,22 +6,17 @@ import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.SubjectDto;
 import com.example.qbankapi.dto.request.AddSubjectRequestDto;
 import com.example.qbankapi.dto.request.UpdateSubjectRequestDto;
-import com.example.qbankapi.dto.view.InstructorUserProfileStatsViewDto;
-import com.example.qbankapi.dto.view.SubjectInstructorViewDto;
+import com.example.qbankapi.dto.view.SubjectAssignedInstructorsViewDto;
 import com.example.qbankapi.dto.view.SubjectViewDto;
 import com.example.qbankapi.entity.AdminUser;
 import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.Subject;
-import com.example.qbankapi.exception.base.impl.AdminUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.InstructorUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.SubjectAlreadyExistsException;
-import com.example.qbankapi.exception.base.impl.SubjectNotFoundException;
+import com.example.qbankapi.exception.base.impl.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -41,7 +36,7 @@ public class SubjectService {
     @Transactional(readOnly = true)
     public List<SubjectViewDto> getSubjectViewDtoList() {
         List<Subject> subjectList = subjectDao.findAll();
-        log.debug("Fetched {} subjects from database", subjectList.size());
+        log.debug("Fetched [{}] subjects from DB", subjectList.size());
         return subjectList.stream()
                 .map(subject -> SubjectViewDto.builder()
                         .id(subject.getId())
@@ -51,51 +46,12 @@ public class SubjectService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void addSubject(AddSubjectRequestDto addSubjectRequest, Long userId) {
-        AdminUser adminUser = adminUserDao.findById(userId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin user not found with id: %d", userId)));
-
-        if (subjectDao.findByName(addSubjectRequest.getName()).isPresent()) {
-            log.warn("Subject with name: {} already exists", addSubjectRequest.getName());
-            throw new SubjectAlreadyExistsException(String.format("Subject already exists with name: %s", addSubjectRequest.getName()));
-        }
-
-        Subject subject = new Subject();
-        subject.setName(addSubjectRequest.getName());
-        subject.setDescription(addSubjectRequest.getDescription());
-        subject.setQuestions(List.of());
-        subject.setExams(List.of());
-        subject.setAssignedInstructors(List.of());
-        subject.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        subject.setCreationZone(adminUser.getZoneId());
-
-        subjectDao.save(subject);
-        log.debug("Subject with name: {} created.", addSubjectRequest.getName());
-    }
-
     @Transactional(readOnly = true)
-    public SubjectDto getSubjectDtoById(Long subjectId) {
-        Subject subject = subjectDao.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
-        log.debug("Subject found with id: {}", subjectId);
-
-        return SubjectDto.builder().id(subject.getId()).name(subject.getName()).description(subject.getDescription()).build();
-    }
-
-    @Transactional
-    public void updateSubject(UpdateSubjectRequestDto updateSubjectRequest) {
-        Subject subject = subjectDao.findById(updateSubjectRequest.getId())
-                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", updateSubjectRequest.getId())));
-        subject.setName(updateSubjectRequest.getName());
-        subject.setDescription(updateSubjectRequest.getDescription());
-        subjectDao.update(subject);
-        log.debug("Subject with name: {} updated.", updateSubjectRequest.getName());
-    }
-
-    @Transactional(readOnly = true)
-    public SubjectInstructorViewDto getSubjectInstructorsDtoById(Long subjectId) {
+    public SubjectAssignedInstructorsViewDto getSubjectAssignedInstructorsDtoById(Long subjectId) {
         Subject subject = subjectDao.findById(subjectId)
-                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
-        return SubjectInstructorViewDto.builder()
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
+        log.debug("Fetched subject with id [{}] from DB", subjectId);
+        return SubjectAssignedInstructorsViewDto.builder()
                 .subject(SubjectViewDto.builder()
                         .id(subject.getId())
                         .name(subject.getName())
@@ -103,7 +59,7 @@ public class SubjectService {
                         .build())
                 .instructorUsers(subject.getAssignedInstructors()
                         .stream()
-                        .map(instructorUser -> SubjectInstructorViewDto.InstructorUserViewDto.builder()
+                        .map(instructorUser -> SubjectAssignedInstructorsViewDto.InstructorUserViewDto.builder()
                                 .id(instructorUser.getId())
                                 .username(instructorUser.getUsername())
                                 .email(instructorUser.getEmail())
@@ -115,6 +71,56 @@ public class SubjectService {
                 .build();
     }
 
+    @Transactional
+    public void adminAddSubject(AddSubjectRequestDto addSubjectRequest, Long adminUserId) {
+        AdminUser adminUser = adminUserDao.findById(adminUserId)
+                .orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin user not found with id [%d]", adminUserId)));
+
+        if (subjectDao.findByName(addSubjectRequest.getName()).isPresent()) {
+            log.warn("Subject already exists with name [{}]", addSubjectRequest.getName());
+            throw new SubjectAlreadyExistsException(String.format("Subject already exists with name [%s]", addSubjectRequest.getName()));
+        }
+
+        Subject subject = new Subject();
+
+        subject.setName(addSubjectRequest.getName());
+        subject.setDescription(addSubjectRequest.getDescription());
+        subject.setQuestions(List.of());
+        subject.setExams(List.of());
+        subject.setAssignedInstructors(List.of());
+        subject.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        subject.setCreationZone(adminUser.getZoneId());
+
+        subjectDao.save(subject);
+        log.debug("Subject created with name [{}]", addSubjectRequest.getName());
+    }
+
+    @Transactional(readOnly = true)
+    public SubjectDto getSubjectDtoById(Long subjectId) {
+        Subject subject = subjectDao.findById(subjectId)
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
+        log.debug("Subject found with id [{}]", subjectId);
+
+        return SubjectDto.builder()
+                .id(subject.getId())
+                .name(subject.getName())
+                .description(subject.getDescription())
+                .build();
+    }
+
+    @Transactional
+    public void adminUpdateSubject(UpdateSubjectRequestDto updateSubjectRequest) {
+        Subject subject = subjectDao.findById(updateSubjectRequest.getId())
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", updateSubjectRequest.getId())));
+
+        subject.setName(updateSubjectRequest.getName());
+        subject.setDescription(updateSubjectRequest.getDescription());
+
+        subjectDao.update(subject);
+        log.debug("Subject updated with name [{}]", updateSubjectRequest.getName());
+    }
+
+    @Transactional(readOnly = true)
     public List<SubjectViewDto> getAvailableSubjectViewDtoList(Set<Long> assignedSubjectIds) {
         return subjectDao.findAll()
                 .stream()
@@ -126,9 +132,9 @@ public class SubjectService {
                         .build())
                 .collect(Collectors.toList());
     }
-
+//
     @Transactional(readOnly = true)
-    public List<SubjectViewDto> getAssignedSubjectViewDtoList(Long instructorUserId) {
+    public List<SubjectViewDto> getAssignedSubjectViewDtoListForInstructor(Long instructorUserId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorUserId)));
         return instructorUser.getAssignedSubjects()
                 .stream()
@@ -139,6 +145,21 @@ public class SubjectService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+//    @Transactional(readOnly = true)
+//    public void isSubjectAssigned(Long instructorId, Long subjectId) {
+//        InstructorUser instructorUser = instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorId)));
+//
+//        subjectDao.findById(subjectId).orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id: %d", subjectId)));
+//
+//        boolean isAssigned = instructorUser.getAssignedSubjects().stream()
+//                .anyMatch(subject -> subject.getId().equals(subjectId));
+//
+//        if (!isAssigned) {
+//            throw new AccessDeniedException(String.format("Instructor %d is not assigned to subject %d", instructorId, subjectId));
+//        }
+//    }
+
 
 //    ---
 

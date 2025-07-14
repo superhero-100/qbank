@@ -33,25 +33,25 @@ public class BaseUserService {
 
     @Transactional
     public Optional<BaseUser> registerBaseUser(RegisterBaseUserRequestDto registerBaseUserRequest) {
-        log.info("Initiating user registration for username: {}, role: {}", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getRole());
+        log.info("Initiating user registration for username [{}], role [{}]", registerBaseUserRequest.getUsername(), registerBaseUserRequest.getRole());
 
         if (baseUserDao.findByUsername(registerBaseUserRequest.getUsername()).isPresent()) {
-            log.warn("Registration failed: username '{}' already exists", registerBaseUserRequest.getUsername());
+            log.warn("Registration failed: username [{}] already exists", registerBaseUserRequest.getUsername());
             throw new UsernameAlreadyExistsException("Username already exists.");
         }
 
         if (baseUserDao.findByEmail(registerBaseUserRequest.getEmail()).isPresent()) {
-            log.warn("Registration failed: email '{}' already exists", registerBaseUserRequest.getEmail());
+            log.warn("Registration failed: email [{}] already exists", registerBaseUserRequest.getEmail());
             throw new EmailAlreadyExistsException("Email already exists.");
         }
 
         if (!registerBaseUserRequest.getPassword().equals(registerBaseUserRequest.getConfirmPassword())) {
-            log.warn("Registration failed: password and confirm password do not match for username '{}'", registerBaseUserRequest.getUsername());
+            log.warn("Registration failed: password and confirm password do not match for username [{}]", registerBaseUserRequest.getUsername());
             throw new PasswordMismatchException("Password and confirm password do not match.");
         }
 
         if (registerBaseUserRequest.getZoneId() == null || !ZoneId.getAvailableZoneIds().contains(registerBaseUserRequest.getZoneId())) {
-            log.warn("Invalid or null Zone ID '{}'. Using system default.", registerBaseUserRequest.getZoneId());
+            log.warn("Invalid or null Zone ID [{}]. Using system default.", registerBaseUserRequest.getZoneId());
             registerBaseUserRequest.setZoneId(ZoneId.systemDefault().getId());
         }
 
@@ -93,21 +93,59 @@ public class BaseUserService {
                 participantUser.setRoleValue(BaseUser.Role.PARTICIPANT.name());
 
                 baseUserDao.save(participantUser);
-                log.info("Participant user '{}' registered successfully.", participantUser.getUsername());
+                log.info("Participant user [{}] registered successfully.", participantUser.getUsername());
 
                 return Optional.of(participantUser);
             }
             default -> {
-                log.error("User registration failed: unsupported role '{}'", registerBaseUserRequest.getRole());
+                log.error("User registration failed: unsupported role [{}]", registerBaseUserRequest.getRole());
                 return Optional.empty();
             }
         }
     }
 
     @Transactional(readOnly = true)
-    public BaseUserPageViewDto getFilteredUsers(BaseUserFilterDto userFilterDto) {
-        log.info("Invoked getFilteredUsers with initial filter: {}", userFilterDto);
+    public BaseUserPageViewDto getFilteredUsersForAdmin(BaseUserFilterDto userFilterDto) {
+        log.info("Invoked getFilteredUsers with initial filter [{}]", userFilterDto);
 
+        normalizeFilterDto(userFilterDto);
+
+        BaseUserPageViewDto userPage = baseUserDao.findFilteredUsers(userFilterDto);
+        log.info("Retrieved [{}] users with applied filters", userPage.getBaseUsers().size());
+
+        return userPage;
+    }
+
+    @Transactional(readOnly = true)
+    public BaseUser.Role getBaseUserRole(Long userId) {
+        return baseUserDao.findById(userId)
+                .orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser with id: %d not found", userId)))
+                .getRole();
+    }
+
+    @Transactional
+    public void activateUser(Long baseUserId) {
+        BaseUser baseUser = baseUserDao.findById(baseUserId)
+                .orElseThrow(() -> new BaseUserNotFoundException(String.format("Base user not found with id [%d]", baseUserId)));
+
+        baseUser.setStatus(BaseUser.Status.ACTIVE);
+
+        baseUserDao.update(baseUser);
+        log.info("Base user successfully activated with id [{}]", baseUserId);
+    }
+
+    @Transactional
+    public void inactivateUser(Long baseUserId) {
+        BaseUser baseUser = baseUserDao.findById(baseUserId)
+                .orElseThrow(() -> new BaseUserNotFoundException(String.format("Base user not found with id [%d]", baseUserId)));
+
+        baseUser.setStatus(BaseUser.Status.INACTIVE);
+
+        baseUserDao.update(baseUser);
+        log.info("Base user successfully inactivated with id [{}]", baseUserId);
+    }
+
+    private void normalizeFilterDto(BaseUserFilterDto userFilterDto) {
         if (userFilterDto.getRole() == null || userFilterDto.getRole().isBlank()) {
             log.debug("Missing role. Defaulting to 'ALL'");
             userFilterDto.setRole("ALL");
@@ -162,32 +200,6 @@ public class BaseUserService {
                 userFilterDto.getSortOrder(),
                 userFilterDto.getPageSize(),
                 userFilterDto.getPage());
-
-        BaseUserPageViewDto userPage = baseUserDao.findFilteredUsers(userFilterDto);
-        log.info("Retrieved {} users with applied filters", userPage.getBaseUsers().size());
-
-        return userPage;
-    }
-
-    @Transactional(readOnly = true)
-    public BaseUser.Role getBaseUserRole(Long userId) {
-        return baseUserDao.findById(userId).orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser with id: %d not found", userId))).getRole();
-    }
-
-    @Transactional
-    public void activateUser(Long id) {
-        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
-        baseUser.setStatus(BaseUser.Status.ACTIVE);
-        baseUserDao.update(baseUser);
-        log.info("User with ID: {} successfully activated", id);
-    }
-
-    @Transactional
-    public void inactivateUser(Long id) {
-        BaseUser baseUser = baseUserDao.findById(id).orElseThrow(() -> new BaseUserNotFoundException(String.format("User not found with id: %d")));
-        baseUser.setStatus(BaseUser.Status.INACTIVE);
-        baseUserDao.update(baseUser);
-        log.info("User with ID: {} successfully inactivated", id);
     }
 
 }

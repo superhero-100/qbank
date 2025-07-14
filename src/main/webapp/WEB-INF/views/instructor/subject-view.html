@@ -1,10 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>QBank Instructor Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
 </head>
-<body>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/instructor/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/instructor/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <div class="p-6 space-y-6">
+            <div class="flex justify-between gap-4 w-full">
+                <div class="p-6 space-y-6">
+                    <h1 class="text-2xl font-bold text-primary">View Assigned Subjects</h1>
+                    <p class="text-sm text-gray-500">Create, update, and organize subject categories.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:if="${#lists.isEmpty(subjects)}" class="col-span-full text-center text-gray-500 p-6">
+                    <p>No subjects assigned.</p>
+                </div>
+
+                <div th:each="subject : ${subjects}" th:if="${!#lists.isEmpty(subjects)}" class="card bg-base-100 shadow-md">
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <h2 class="card-title" th:text="${subject.name}">Subject Name</h2>
+                        <p class="text-sm text-gray-500" th:text="${subject.description}">Subject Description</p>
+
+                        <!-- Actions -->
+                        <div class="card-actions justify-end mt-4 flex flex-wrap gap-2">
+                            <a th:href="@{/instructor/manage/questions(subjectId=${subject.id})}"
+                               class="btn btn-sm btn-neutral">Questions</a>
+                            <a th:href="@{/instructor/manage/exams(subjectId=${subject.id})}"
+                               class="btn btn-sm btn-neutral">Exams</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{/admin/fragments/footer :: tag}"></div>
 
 </body>
 </html>

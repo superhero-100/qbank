@@ -1,6 +1,7 @@
 package com.example.qbankapi.dao;
 
-import com.example.qbankapi.dto.model.ExamFilterDto;
+import com.example.qbankapi.dto.model.AllExamFilterDto;
+import com.example.qbankapi.dto.model.InstructorCreatedExamsFilterDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.dto.view.ExamViewDto;
 import com.example.qbankapi.entity.Exam;
@@ -18,7 +19,7 @@ public class ExamDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public ExamPageViewDto findFilteredExams(ExamFilterDto filter) {
+    public ExamPageViewDto findFilteredExams(AllExamFilterDto filter) {
         StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
         Map<String, Object> parameters = new HashMap<>();
 
@@ -85,7 +86,7 @@ public class ExamDao {
         return examList.isEmpty() ? Optional.empty() : Optional.of(examList.getFirst());
     }
 
-    public ExamPageViewDto findFilteredInstructorCreatedExams(ExamFilterDto filter, Long instructorId) {
+    public ExamPageViewDto findFilteredInstructorCreatedExams(InstructorCreatedExamsFilterDto filter, Long instructorId) {
         StringBuilder sql = new StringBuilder("SELECT e FROM Exam e WHERE 1=1");
         Map<String, Object> parameters = new HashMap<>();
 
