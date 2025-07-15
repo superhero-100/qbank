@@ -39,12 +39,14 @@
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Exams</div>
                         <div class="stat-value" th:text="${stats.totalCreatedExams}">0</div>
-                        <a th:href="@{/instructor/manage/users/instructor/{id}/exams(id=${stats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/instructor/view/instructor/exams}"
+                           class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Questions</div>
                         <div class="stat-value" th:text="${stats.totalCreatedQuestions}">0</div>
-                        <a th:href="@{/instructor/manage/users/instructor/{id}/questions(id=${stats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/instructor/view/instructor/questions}"
+                           class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Assigned Subjects</div>
@@ -59,28 +61,9 @@
                     <!-- Assigned Subjects -->
                     <div class="bg-base-200 p-4 rounded-xl">
                         <h4 class="font-medium mb-3 text-neutral-content">Currently Assigned Subjects</h4>
-
                         <div th:if="${#lists.isEmpty(stats.assignedSubjects)}">
                             <p class="text-sm text-gray-500">No subjects assigned.</p>
                         </div>
-
-                        <ul class="space-y-3" th:if="${!#lists.isEmpty(stats.assignedSubjects)}">
-                            <li th:each="subject : ${stats.assignedSubjects}"
-                                class="flex items-center justify-between bg-base-100 p-3 rounded-lg border border-base-300">
-
-                                <span th:text="${subject.name}"
-                                      class="text-sm font-medium text-gray-500">Subject Name</span>
-
-                                <form th:action="@{/instructor/manage/users/{userId}/revoke-subject(userId=${stats.id})}"
-                                      method="post">
-                                    <input type="hidden" name="subjectId" class="text-gray-200"
-                                           th:value="${subject.id}"/>
-                                    <button type="submit" class="btn btn-xs btn-error">
-                                        <i class="fas fa-times mr-1"></i> Revoke
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
                     </div>
                 </div>
 
@@ -102,7 +85,9 @@
                                 <td th:text="${exam.description}">Quiz</td>
                                 <td th:text="${exam.subjectName}">Subject</td>
                                 <td th:text="${exam.totalMarks}">100</td>
-                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.creationZone}">Date</td>
+                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.creationZone}">
+                                    Date
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -125,7 +110,9 @@
                             <tr th:each="question : ${stats.recentQuestions}">
                                 <td th:text="${question.questionText}">Question?</td>
                                 <td th:text="${question.subjectName}">Subject</td>
-                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${question.creationZone}">Date</td>
+                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${question.creationZone}">
+                                    Date
+                                </td>
                             </tr>
                             </tbody>
                         </table>

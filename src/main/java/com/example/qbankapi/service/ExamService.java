@@ -90,6 +90,21 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
+    public ExamPageViewDto getFilteredInstructorCreatedExamsForInstructor(InstructorCreatedExamsFilterDto instructorCreatedExamsFilterDto, Long instructorId) {
+        log.info("Invoked getFilteredInstructorCreatedExamsForInstructor with initial filter [{}]", instructorCreatedExamsFilterDto);
+
+        instructorUserDao.findById(instructorId)
+                .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
+
+        normalizeFilterDto(instructorCreatedExamsFilterDto);
+
+        ExamPageViewDto examPageViewDto = examDao.findFilteredInstructorCreatedExams(instructorCreatedExamsFilterDto, instructorId);
+        log.info("Retrieved [{}] exams with applied filters", examPageViewDto.getExams().size());
+
+        return examPageViewDto;
+    }
+
+    @Transactional(readOnly = true)
     public ExamAnalyticsViewDto getExamAnalytics(Long examId) {
         Exam exam = examDao.findById(examId)
                 .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id [%d]", examId)));
