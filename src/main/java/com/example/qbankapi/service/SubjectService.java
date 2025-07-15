@@ -2,6 +2,7 @@ package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.AdminUserDao;
 import com.example.qbankapi.dao.InstructorUserDao;
+import com.example.qbankapi.dao.QuestionDao;
 import com.example.qbankapi.dao.SubjectDao;
 import com.example.qbankapi.dto.model.SubjectDto;
 import com.example.qbankapi.dto.request.AddSubjectRequestDto;
@@ -10,6 +11,7 @@ import com.example.qbankapi.dto.view.SubjectAssignedInstructorsViewDto;
 import com.example.qbankapi.dto.view.SubjectViewDto;
 import com.example.qbankapi.entity.AdminUser;
 import com.example.qbankapi.entity.InstructorUser;
+import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.entity.Subject;
 import com.example.qbankapi.exception.base.impl.*;
 import lombok.RequiredArgsConstructor;
@@ -132,7 +134,8 @@ public class SubjectService {
                         .build())
                 .collect(Collectors.toList());
     }
-//
+
+    //
     @Transactional(readOnly = true)
     public List<SubjectViewDto> getAssignedSubjectViewDtoListForInstructor(Long instructorUserId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorUserId)));

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QBank Admin Panel</title>
+    <title>QBank Instructor Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
@@ -104,26 +104,21 @@
                             </div>
                             <div>
                                 <span class="font-semibold">Total Questions:</span>
-                                <span th:text="${e.totalQuestions}">0</span>
+                                <span th:text="${e.questionsCount}">0</span>
                             </div>
                             <div>
                                 <span class="font-semibold">Enrolled Users:</span>
-                                <span th:text="${e.totalEnrolledUsers}">0</span>
-                            </div>
-                            <div>
-                                <span class="font-semibold">Creation DateTime:</span>
-                                <!--<span th:text="${e.createdAt}">0</span>-->
-                                <span th:text="${#temporals.format(e.createdAt, 'yyyy-MM-dd HH:mm')}">0</span>
+                                <span th:text="${e.enrollmentCount}">0</span>
                             </div>
                         </div>
 
                         <!-- Actions -->
-                        <!--<div class="card-actions justify-end">-->
-                        <!--   <a th:href="@{'/instructor/manage/exams/view/' + ${e.id}}"-->
-                        <!--      class="btn btn-sm btn-primary">View</a>-->
-                        <!--   <a th:href="@{'/instructor/manage/exams/delete/' + ${e.id}}"-->
-                        <!--      class="btn btn-sm btn-error text-white">Delete</a>-->
-                        <!--</div>-->
+                        <div class="card-actions justify-end">
+
+                            <a th:href="@{/instructor/manage/exams/{id}/analytics(id=${e.id})}"
+                               class="btn btn-sm btn-primary text-white">View Analytics</a>
+
+                        </div>
                     </div>
                 </div>
             </div>

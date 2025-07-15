@@ -24,11 +24,11 @@
 
             <div class="flex justify-between gap-4 w-full">
                 <div class="p-6 space-y-6">
-                    <h1 class="text-2xl font-bold text-primary" th:text="${instructor != null} ? 'Manage Created Questions' : 'Manage Questions'"></h1>
+                    <h1 class="text-2xl font-bold text-primary">Manage Questions</h1>
                     <p class="text-sm text-gray-500">Create, update, and organize questions.</p>
                 </div>
 
-                <div th:if="${instructor == null}" class="p-6">
+                <div class="p-6">
                     <a th:href="@{/instructor/manage/questions/add}" class="btn btn-success">Add New Question</a>
                 </div>
             </div>
@@ -39,9 +39,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <!-- Subject -->
                     <div>
-                        <label class="label font-semibold text-base-content"
-                               th:text="${instructor != null} ? 'Assigned Subject' : 'Subject'">
-                        </label>
+                        <label class="label font-semibold text-base-content">Subject</label>
                         <select th:field="*{subjectId}" class="select select-bordered w-full">
                             <option value="0">All</option>
                             <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
@@ -171,17 +169,17 @@
                         <!-- Actions -->
                         <div class="card-actions justify-end">
 
-                            <a th:href="@{/admin/manage/questions/{id}/analytics(id=${q.id})}"
+                            <a th:href="@{/instructor/manage/questions/{id}/analytics(id=${q.id})}"
                                class="btn btn-sm btn-accent text-white">View Analytics</a>
 
-                            <a th:href="@{/admin/manage/questions/{id}/edit(id=${q.id})}"
+                            <a th:href="@{/instructor/manage/questions/{id}/edit(id=${q.id})}"
                                class="btn btn-sm btn-info text-white">Edit</a>
 
                             <!-- Deactivate Button -->
                             <button type="button"
                                     class="btn btn-sm btn-warning text-white"
                                     th:if="${q.isActive}"
-                                    th:onclick="|openStatusDeactivateToggleConfirmModal('@{/admin/manage/questions/{id}/deactivate(id=${q.id})}')|">
+                                    th:onclick="|openStatusDeactivateToggleConfirmModal('@{/instructor/manage/questions/{id}/deactivate(id=${q.id})}')|">
                                 <i class="fas fa-ban mr-1"></i> Deactivate
                             </button>
 
@@ -189,7 +187,7 @@
                             <button type="button"
                                     class="btn btn-sm btn-success text-white"
                                     th:unless="${q.isActive}"
-                                    th:onclick="|openStatusActivateToggleConfirmModal('@{/admin/manage/questions/{id}/activate(id=${q.id})}')|">
+                                    th:onclick="|openStatusActivateToggleConfirmModal('@{/instructor/manage/questions/{id}/activate(id=${q.id})}')|">
                                 <i class="fas fa-check mr-1"></i> Activate
                             </button>
 
@@ -206,22 +204,14 @@
             <!-- Pagination -->
             <div th:if="${!(questions == null or questions?.isEmpty())}" class="flex justify-between items-center mt-6">
 
-                <a th:if="${pageNumber > 0 and instructorId == null}"
-                   th:href="@{/admin/manage/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
-                   class="btn btn-sm btn-outline">Previous</a>
-
-                <a th:if="${pageNumber > 0 and instructorId != null}"
-                   th:href="@{/admin/manage/instructors/{id}/questions(id=${instructorId},page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                <a th:if="${pageNumber > 0}"
+                   th:href="@{/instructor/manage/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Previous</a>
 
                 <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
 
-                <a th:if="${hasNextPage and instructorId == null}"
-                   th:href="@{/admin/manage/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
-                   class="btn btn-sm btn-outline">Next</a>
-
-                <a th:if="${hasNextPage and instructorId != null}"
-                   th:href="@{/admin/manage/instructors/{id}/questions(id=${instructorId},page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                <a th:if="${hasNextPage}"
+                   th:href="@{/instructor/manage/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
                    class="btn btn-sm btn-outline">Next</a>
 
             </div>
@@ -230,7 +220,7 @@
 
 </div>
 
-<div th:replace="~{/admin/fragments/footer :: tag}"></div>
+<div th:replace="~{/instructor/fragments/footer :: tag}"></div>
 <div th:replace="~{/fragments/modal :: configurableModal}"></div>
 
 <script>

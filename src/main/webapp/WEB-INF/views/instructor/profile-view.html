@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Instructor Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/instructor/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/instructor/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-8 overflow-auto animate-fade-in">
+
+        <!-- INSTRUCTOR PROFILE -->
+        <div>
+            <div class="card bg-base-100 shadow-xl p-8 space-y-6">
+
+                <!-- Header -->
+                <div>
+                    <h2 class="text-3xl font-bold text-primary" th:text="${stats.username}">
+                        Username</h2>
+                    <p class="text-sm text-gray-500" th:text="'Email: ' + ${stats.email}"></p>
+                    <p class="text-sm text-gray-500" th:text="'Zone ID: ' + ${stats.zoneId}"></p>
+                    <p class="text-sm text-gray-500"
+                       th:text="'Registered At: ' + ${#temporals.format(stats.registeredAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${stats.registrationZone}"></p>
+                </div>
+
+                <!-- Statistics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
+                        <div class="stat-title text-white">Created Exams</div>
+                        <div class="stat-value" th:text="${stats.totalCreatedExams}">0</div>
+                        <a th:href="@{/instructor/manage/users/instructor/{id}/exams(id=${stats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                    </div>
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
+                        <div class="stat-title text-white">Created Questions</div>
+                        <div class="stat-value" th:text="${stats.totalCreatedQuestions}">0</div>
+                        <a th:href="@{/instructor/manage/users/instructor/{id}/questions(id=${stats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                    </div>
+                    <div class="stat bg-base-200 text-base-content rounded-xl">
+                        <div class="stat-title text-white">Assigned Subjects</div>
+                        <div class="stat-value" th:text="${stats.totalAssignedSubjects}">0</div>
+                    </div>
+                </div>
+
+                <!-- Subject Assignment Section -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-400">Subject Management</h3>
+
+                    <!-- Assigned Subjects -->
+                    <div class="bg-base-200 p-4 rounded-xl">
+                        <h4 class="font-medium mb-3 text-neutral-content">Currently Assigned Subjects</h4>
+
+                        <div th:if="${#lists.isEmpty(stats.assignedSubjects)}">
+                            <p class="text-sm text-gray-500">No subjects assigned.</p>
+                        </div>
+
+                        <ul class="space-y-3" th:if="${!#lists.isEmpty(stats.assignedSubjects)}">
+                            <li th:each="subject : ${stats.assignedSubjects}"
+                                class="flex items-center justify-between bg-base-100 p-3 rounded-lg border border-base-300">
+
+                                <span th:text="${subject.name}"
+                                      class="text-sm font-medium text-gray-500">Subject Name</span>
+
+                                <form th:action="@{/instructor/manage/users/{userId}/revoke-subject(userId=${stats.id})}"
+                                      method="post">
+                                    <input type="hidden" name="subjectId" class="text-gray-200"
+                                           th:value="${subject.id}"/>
+                                    <button type="submit" class="btn btn-xs btn-error">
+                                        <i class="fas fa-times mr-1"></i> Revoke
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Recent Exams Table -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-400">Recent Created Exams</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full text-sm">
+                            <thead class="bg-base-200 text-base-content">
+                            <tr>
+                                <th>Description</th>
+                                <th>Subject</th>
+                                <th>Total Marks</th>
+                                <th>Created At</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="exam : ${stats.recentExams}">
+                                <td th:text="${exam.description}">Quiz</td>
+                                <td th:text="${exam.subjectName}">Subject</td>
+                                <td th:text="${exam.totalMarks}">100</td>
+                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.creationZone}">Date</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Questions Table -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-3 text-gray-400">Recent Created Questions</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full text-sm">
+                            <thead class="bg-base-200 text-base-content">
+                            <tr>
+                                <th>Question</th>
+                                <th>Subject</th>
+                                <th>Created At</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="question : ${stats.recentQuestions}">
+                                <td th:text="${question.questionText}">Question?</td>
+                                <td th:text="${question.subjectName}">Subject</td>
+                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${question.creationZone}">Date</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{/instructor/fragments/footer :: tag}"></div>
+
+</body>
+</html>

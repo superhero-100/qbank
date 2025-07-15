@@ -20,6 +20,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,6 +49,21 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public QuestionPageViewDto getFilteredInstructorCreatedQuestionsForAdmin(InstructorCreatedQuestionsFilterDto instructorCreatedQuestionsFilterDto, Long instructorId) {
         log.info("Invoked getFilteredInstructorCreatedQuestionsForAdmin with initial filter: {}", instructorCreatedQuestionsFilterDto);
+
+        instructorUserDao.findById(instructorId)
+                .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
+
+        normalizeFilterDto(instructorCreatedQuestionsFilterDto);
+
+        QuestionPageViewDto questionViewPageDto = questionDao.findFilteredInstructorCreatedQuestions(instructorCreatedQuestionsFilterDto, instructorId);
+        log.info("Retrieved [{}] questions with applied filters", questionViewPageDto.getQuestions().size());
+
+        return questionViewPageDto;
+    }
+
+    @Transactional(readOnly = true)
+    public QuestionPageViewDto getFilteredInstructorCreatedQuestionsForInstructor(InstructorCreatedQuestionsFilterDto instructorCreatedQuestionsFilterDto, Long instructorId) {
+        log.info("Invoked getFilteredInstructorCreatedQuestionsForInstructor with initial filter: {}", instructorCreatedQuestionsFilterDto);
 
         instructorUserDao.findById(instructorId)
                 .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
@@ -92,7 +109,6 @@ public class QuestionService {
                 .build();
     }
 
-
     @Transactional
     public void adminAddQuestion(AddQuestionRequestDto addQuestionRequest, Long adminUserId) {
         log.info("Adding question for subjectId: {}", addQuestionRequest.getSubjectId());
@@ -103,6 +119,36 @@ public class QuestionService {
         Subject subject = subjectDao.findById(addQuestionRequest.getSubjectId())
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", addQuestionRequest.getSubjectId())));
 
+        Question question = createQuestion(addQuestionRequest, subject, adminUser, adminUser.getZoneId());
+
+        questionDao.save(question);
+        log.debug("Question added with id: {}", question.getId());
+    }
+
+    @Transactional
+    public void instructorAddQuestion(AddQuestionRequestDto addQuestionRequest, Long instructorUserId) {
+        log.info("Adding question for subjectId: {}", addQuestionRequest.getSubjectId());
+
+        InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
+                .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorUserId)));
+
+        boolean isSubjectAssigned = instructorUser.getAssignedSubjects().stream()
+                .anyMatch(subject -> subject.getId().equals(addQuestionRequest.getSubjectId()));
+
+        if (!isSubjectAssigned) {
+            throw new AccessDeniedException(String.format("Access denied subject with id [%d] not assigned to instructor with id [%d]", addQuestionRequest.getSubjectId(), instructorUserId));
+        }
+
+        Subject subject = subjectDao.findById(addQuestionRequest.getSubjectId())
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", addQuestionRequest.getSubjectId())));
+
+        Question question = createQuestion(addQuestionRequest, subject, instructorUser, instructorUser.getZoneId());
+
+        questionDao.save(question);
+        log.debug("Question added with id: {}", question.getId());
+    }
+
+    private Question createQuestion(AddQuestionRequestDto addQuestionRequest, Subject subject, BaseUser baseUser, String zoneId) {
         Question question = new Question();
         question.setText(addQuestionRequest.getText());
         question.setOptions(List.of(
@@ -118,12 +164,10 @@ public class QuestionService {
         question.setSubject(subject);
         question.setAssociatedExams(List.of());
         question.setParticipantUserExamQuestionAnswers(List.of());
-        question.setCreatedByBaseUser(adminUser);
+        question.setCreatedByBaseUser(baseUser);
         question.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        question.setCreationZone(adminUser.getZoneId());
-
-        questionDao.save(question);
-        log.debug("Question added with id: {}", question.getId());
+        question.setCreationZone(zoneId);
+        return question;
     }
 
     @Transactional(readOnly = true)
@@ -151,6 +195,30 @@ public class QuestionService {
         Subject subject = subjectDao.findById(updateQuestionRequest.getSubjectId())
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", updateQuestionRequest.getSubjectId())));
 
+        setModifiedFields(question, updateQuestionRequest, subject);
+
+        questionDao.update(question);
+    }
+
+    @Transactional
+    public void instructorUpdateQuestion(UpdateQuestionRequestDto updateQuestionRequest, Long instructorId) {
+        Question question = questionDao.findById(updateQuestionRequest.getId())
+                .orElseThrow(() -> new QuestionNotFoundException(String.format("Question not found with id [%d]", updateQuestionRequest.getId())));
+
+        Subject subject = subjectDao.findById(updateQuestionRequest.getSubjectId())
+                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", updateQuestionRequest.getSubjectId())));
+
+        InstructorUser instructorUser = instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
+        if (instructorUser.getAssignedSubjects().contains(subject)) {
+            throw new AccessDeniedException(String.format("Access denied subject with id [%d] not assigned to instructor with id [%d]", subject.getId(), instructorId));
+        }
+
+        setModifiedFields(question, updateQuestionRequest, subject);
+
+        questionDao.update(question);
+    }
+
+    private void setModifiedFields(Question question, UpdateQuestionRequestDto updateQuestionRequest, Subject subject) {
         question.setText(updateQuestionRequest.getText());
         question.setOptions(new ArrayList<>(List.of(
                 updateQuestionRequest.getOptionA(),
@@ -162,8 +230,6 @@ public class QuestionService {
         question.setComplexity(updateQuestionRequest.getComplexity());
         question.setMarks(updateQuestionRequest.getMarks());
         question.setSubject(subject);
-
-        questionDao.update(question);
     }
 
     @Transactional
@@ -186,6 +252,15 @@ public class QuestionService {
 
         questionDao.update(question);
         log.info("Successfully deactivated question with id [{}]", questionId);
+    }
+
+    @Transactional(readOnly = true)
+    public void isQuestionSubjectAssignedToInstructor(Long questionId, Long instructorId) {
+        Subject subject = questionDao.findById(questionId).orElseThrow(() -> new QuestionNotFoundException(String.format("Question user not found with id [%d]", questionId))).getSubject();
+        InstructorUser instructorUser = instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
+        if (instructorUser.getAssignedSubjects().contains(subject)) {
+            throw new AccessDeniedException(String.format("Access denied subject with id [%d] not assigned to instructor with id [%d]", subject.getId(), instructorId));
+        }
     }
 
 //    @Transactional(readOnly = true)
@@ -261,6 +336,29 @@ public class QuestionService {
 //                    questionDao.save(newQuestion);
 //                });
 //    }
+
+    @Transactional(readOnly = true)
+    public QuestionPageViewDto getFilteredQuestionsForInstructor(AllQuestionFilterDto allQuestionFilterDto, Long instructorId) {
+        log.info("Invoked getFilteredQuestionsForInstructor with initial filter [{}]", allQuestionFilterDto);
+
+        normalizeFilterDto(allQuestionFilterDto);
+
+        InstructorUser instructorUser = instructorUserDao.findById(instructorId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorId)));
+
+        Set<Long> assignedSubjectIds = instructorUser.getAssignedSubjects()
+                .stream()
+                .map(Subject::getId)
+                .collect(Collectors.toSet());
+
+        if (allQuestionFilterDto.getSubjectId() != 0 && !assignedSubjectIds.contains(allQuestionFilterDto.getSubjectId())) {
+            allQuestionFilterDto.setSubjectId(0L);
+        }
+
+        QuestionPageViewDto questionViewPageDto = questionDao.findFilteredQuestionsBySubjectsIn(allQuestionFilterDto, assignedSubjectIds);
+        log.info("Retrieved [{}] questions with applied filters", questionViewPageDto.getQuestions().size());
+
+        return questionViewPageDto;
+    }
 
     private void normalizeFilterDto(AllQuestionFilterDto allQuestionFilterDto) {
         if (allQuestionFilterDto.getSubjectId() == null || allQuestionFilterDto.getSubjectId() <= 0) {

@@ -207,8 +207,8 @@
 
 <script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
     let message = [[${message}]];
-    let type = [[${messageType} ? : 'info']];
-    let position = [[${toastPosition} ? : 'top-right']];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
 
     window.addEventListener('DOMContentLoaded', () => {
         showToast(message, type, position);
