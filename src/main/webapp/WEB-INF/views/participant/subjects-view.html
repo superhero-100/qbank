@@ -13,40 +13,33 @@
 <div th:replace="~{/participant/fragments/header :: tag}"></div>
 
 <!-- Main Content -->
-<main class="container mx-auto px-4 py-10 fade-in">
-    <div class=" flex items-center justify-center gap-3 text-center mb-6 text-primary">
-        <i class="fas fa-book text-4xl"></i>
-        <h2 class="text-3xl font-bold">Subjects</h2>
-    </div>
+<main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+    <div class="p-6 space-y-6">
+        <div class="flex justify-between gap-4 w-full">
+            <div class="p-6 space-y-6">
+                <h1 class="text-2xl font-bold text-primary">Subjects</h1>
+            </div>
+        </div>
 
-    <div th:if="${#lists.isEmpty(subjects)}" class="text-center text-base-content opacity-60">
-        <p>No subjects available.</p>
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:if="${#lists.isEmpty(subjects)}" class="text-center text-base-content opacity-60">
+                <p>No subjects available.</p>
+            </div>
 
-    <div th:if="${!#lists.isEmpty(subjects)}" class="overflow-x-auto">
-        <table class="table table-zebra table-md w-full border border-base-300 rounded-box">
-            <thead class="bg-primary text-primary-content">
-            <tr>
-                <th>#</th>
-                <th>Subject Name</th>
-                <th>Description</th>
-                <th class="text-center">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="subject, iterStat : ${subjects}">
-                <td th:text="${iterStat.index + 1}">1</td>
-                <td class="font-semibold" th:text="${subject.name}">Mathematics</td>
-                <td class="opacity-80" th:text="${subject.description}">Description goes here</td>
-                <td class="text-center">
-                    <a class="btn btn-sm btn-neutral"
-                       th:href="@{/participant/exams(subjectId=${subject.id})}">
-                        <i class="fas fa-eye mr-1"></i> View Exams
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            <div th:each="subject : ${subjects}" th:if="${!#lists.isEmpty(subjects)}" class="card bg-base-100 shadow-md">
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h2 class="card-title" th:text="${subject.name}">Subject Name</h2>
+                    <p class="text-sm text-gray-500" th:text="${subject.description}">Subject Description</p>
+
+                    <!-- Actions -->
+                    <div class="card-actions justify-end mt-4 flex flex-wrap gap-2">
+                        <a th:href="@{/participant/exams(subjectId=${subject.id})}"
+                           class="btn btn-sm btn-neutral">View Exams</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 

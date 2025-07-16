@@ -30,7 +30,6 @@ public class QuestionAnalyticsViewDto {
     private Double percentIncorrect;
 
     private ZonedDateTime createdAt;
-    private String creationZone;
 
     private String createdByUsername;
 

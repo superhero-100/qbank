@@ -76,7 +76,7 @@
                         <div class="card bg-base-100 shadow-sm">
                             <div class="card-body p-4">
                                 <h3 class="text-sm text-base-content font-semibold">Created At</h3>
-                                <p class="text-base-content" th:text="${#temporals.format(examAnalytics.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}"></p>
+                                <p class="text-base-content" th:text="${#temporals.format(examAnalytics.createdAt, 'dd MMM yyyy, HH:mm')}"></p>
                             </div>
                         </div>
 
@@ -91,7 +91,7 @@
                             <div class="card-body p-4">
                                 <h3 class="text-sm text-base-content font-semibold">Enrollment Start</h3>
                                 <p class="text-base-content"
-                                   th:text="${#temporals.format(examAnalytics.enrollmentStartDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                   th:text="${#temporals.format(examAnalytics.enrollmentStartDate, 'dd MMM yyyy, HH:mm')}">
                                 </p>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
                             <div class="card-body p-4">
                                 <h3 class="text-sm text-base-content font-semibold">Enrollment End</h3>
                                 <p class="text-base-content"
-                                   th:text="${#temporals.format(examAnalytics.enrollmentEndDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                   th:text="${#temporals.format(examAnalytics.enrollmentEndDate, 'dd MMM yyyy, HH:mm')}">
                                 </p>
                             </div>
                         </div>
@@ -109,7 +109,7 @@
                             <div class="card-body p-4">
                                 <h3 class="text-sm text-base-content font-semibold">Exam Start</h3>
                                 <p class="text-base-content"
-                                   th:text="${#temporals.format(examAnalytics.examStartDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                   th:text="${#temporals.format(examAnalytics.examStartDate, 'dd MMM yyyy, HH:mm')}">
                                 </p>
                             </div>
                         </div>
@@ -118,7 +118,7 @@
                             <div class="card-body p-4">
                                 <h3 class="text-sm text-base-content font-semibold">Exam End</h3>
                                 <p class="text-base-content"
-                                   th:text="${#temporals.format(examAnalytics.examEndDate, 'dd MMM yyyy, HH:mm')} + ' ' + ${examAnalytics.creationZone}">
+                                   th:text="${#temporals.format(examAnalytics.examEndDate, 'dd MMM yyyy, HH:mm')}">
                                 </p>
                             </div>
                         </div>

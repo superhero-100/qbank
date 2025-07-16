@@ -26,9 +26,10 @@ import java.util.stream.Collectors;
 public class ParticipantUserService {
 
     private final ParticipantUserDao participantUserDao;
+    private final BaseUserService baseUserService;
 
     @Transactional(readOnly = true)
-    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long participantUserId) {
+    public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long participantUserId, String currentUserZoneId) {
         ParticipantUser participantUser = participantUserDao.findById(participantUserId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", participantUserId)));
 
@@ -39,8 +40,8 @@ public class ParticipantUserService {
                 .username(participantUser.getUsername())
                 .email(participantUser.getEmail())
                 .zoneId(participantUser.getZoneId())
-                .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(ZoneId.of(participantUser.getCreationZone())))
-                .registrationZone(participantUser.getCreationZone())
+                .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                ----
                 .totalExamsEnrolled(participantUserExamResults.size())
                 .totalExamsTaken(participantUserExamSubmissions.size())
                 .bestScore(participantUserExamResults.stream()
@@ -69,9 +70,8 @@ public class ParticipantUserService {
                         .average().orElse(0.0))
                 .lastExamTakenAt(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
                         .getCreatedAt()
-                        .withZoneSameInstant(ZoneId.of(participantUserExamSubmissions.getLast().getCreationZone())))
-                .lastExamTakenZone(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
-                        .getCreationZone())
+                        .withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                ----
                 .recentExams(participantUserExamResults.stream()
                         .sorted(Comparator.comparing(
                                 (ParticipantUserExamResult result) -> result.getParticipantUserExamSubmission().getCreatedAt()
@@ -85,8 +85,8 @@ public class ParticipantUserService {
                                     .subjectName(exam.getSubject().getName())
                                     .score(result.getTotalScore())
                                     .submittedAt(participantUserExamSubmission.getCreatedAt()
-                                            .withZoneSameInstant(ZoneId.of(participantUserExamSubmission.getCreationZone())))
-                                    .submissionZone(participantUserExamSubmission.getCreationZone())
+                                            .withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                                    ----
                                     .accuracy(result.getParticipantUserExamAnalytics().getAccuracy())
                                     .build();
                         })
@@ -96,11 +96,11 @@ public class ParticipantUserService {
     }
 
 
-//    @Transactional(readOnly = true)
-//    public ParticipantUser findById(Long id) {
-//        return participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException("Participant not found with ID: " + id));
-//    }
-//
+    @Transactional(readOnly = true)
+    public ParticipantUser findById(Long id) {
+        return participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException("Participant not found with ID: " + id));
+    }
+
 //    @Transactional(readOnly = true)
 //    public List<ParticipantUserEnrolledExamDetailsViewDto> getAllEnrolledExamDtoList(Long id) {
 //        ParticipantUser participantUser = participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant User not found with id: %d",id)));

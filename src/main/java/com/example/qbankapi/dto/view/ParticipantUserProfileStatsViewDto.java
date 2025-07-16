@@ -24,8 +24,6 @@ public class ParticipantUserProfileStatsViewDto {
 
     private ZonedDateTime registeredAt;
 
-    private String registrationZone;
-
     private Integer totalExamsEnrolled;
 
     private Integer totalExamsTaken;
@@ -44,8 +42,6 @@ public class ParticipantUserProfileStatsViewDto {
 
     private ZonedDateTime lastExamTakenAt;
 
-    private String lastExamTakenZone;
-
     private List<RecentExamViewDto> recentExams;
 
     @Data
@@ -61,8 +57,6 @@ public class ParticipantUserProfileStatsViewDto {
         private Integer score;
 
         private ZonedDateTime submittedAt;
-
-        private String submissionZone;
 
         private Double accuracy;
 

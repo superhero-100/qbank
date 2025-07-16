@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QBank Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+
+</head>
+<body class="bg-base-200 text-base-content font-sans">
+
+<div th:replace="~{/instructor/fragments/header :: tag}"></div>
+
+<!-- Layout -->
+<div class="flex flex-col md:flex-row min-h-screen">
+
+    <div th:replace="~{/instructor/fragments/sidebar :: tag}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 space-y-6 overflow-auto animate-fade-in">
+        <section class="bg-base-100 p-6 rounded-xl shadow-md">
+
+            <div class="flex justify-between gap-4 w-full">
+                <div class="p-6 space-y-6">
+                    <h1 class="text-2xl font-bold text-primary">Manage Created Questions</h1>
+                    <p class="text-sm text-gray-500">Create, update, and organize questions.</p>
+                </div>
+            </div>
+
+            <!-- Filter Panel -->
+            <form th:action="@{/instructor/view/instructor/questions}" th:object="${filter}" method="get">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <!-- Subject -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Subject</label>
+                        <select th:field="*{subjectId}" class="select select-bordered w-full">
+                            <option value="0">All</option>
+                            <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Complexity -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Complexity</label>
+                        <select th:field="*{complexity}" class="select select-bordered w-full">
+                            <option value="ALL">All</option>
+                            <option value="EASY">Easy</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HARD">Hard</option>
+                        </select>
+                    </div>
+
+                    <!-- Marks -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Marks</label>
+                        <select th:field="*{marks}" class="select select-bordered w-full">
+                            <option value="0">All</option>
+                            <optgroup label="Easy">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </optgroup>
+                            <optgroup label="Medium">
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </optgroup>
+                            <optgroup label="Hard">
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Active/Inactive Filter -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Status</label>
+                        <select th:field="*{statusFilter}" class="select select-bordered w-full">
+                            <option value="ALL">All</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort By -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Sort By</label>
+                        <select th:field="*{sortBy}" class="select select-bordered w-full">
+                            <option value="id">#id</option>
+                            <option value="complexity">Complexity</option>
+                            <option value="subject">Subject</option>
+                            <option value="marks">Marks</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Sort Order</label>
+                        <select th:field="*{sortOrder}" class="select select-bordered w-full">
+                            <option value="ASC">ASC</option>
+                            <option value="DESC">DESC</option>
+                        </select>
+                    </div>
+
+                    <!-- Page Size -->
+                    <div>
+                        <label class="label font-semibold text-base-content">Page Size</label>
+                        <select th:field="*{pageSize}" class="select select-bordered w-full">
+                            <option value="5">5 per page</option>
+                            <option value="10">10 per page</option>
+                            <option value="20">20 per page</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="lg:col-span-3 md:col-span-2">
+                    <button type="submit" class="btn btn-primary w-full mt-2">Apply Filters</button>
+                </div>
+            </form>
+
+            <div th:if="${questions}" class="flex flex-col gap-6 mt-6">
+                <div th:each="q, iterStat : ${questions}" class="card bg-base-100 shadow-lg w-full">
+                    <div class="card-body space-y-4">
+
+                        <!-- Question Header -->
+                        <h2 class="card-title text-lg font-bold text-primary flex items-baseline space-x-2">
+                            <span class="text-xl text-base-content text-bold">#<span th:text="${q.id}">1</span></span>
+                            <span th:utext="${q.text}" class="text-base-content"></span>
+                        </h2>
+
+                        <!-- Metadata -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div><span class="font-semibold">Subject:</span> <span
+                                    th:text="${q.subjectName}">Java</span></div>
+                            <div><span class="font-semibold">Complexity:</span> <span
+                                    th:text="${q.complexity}">Medium</span></div>
+                            <div><span class="font-semibold">Marks:</span> <span th:text="${q.marks}">5</span></div>
+                        </div>
+
+                        <!-- Options List -->
+                        <div>
+                            <p class="font-semibold mb-2">Options:</p>
+                            <ol class="space-y-3 text-sm text-base-content">
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">A:</span> <span
+                                        th:utext="${q.options[0]}">Option A</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">B:</span> <span
+                                        th:utext="${q.options[1]}">Option B</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">C:</span> <span
+                                        th:utext="${q.options[2]}">Option C</span></li>
+                                <li class="flex gap-2 items-start"><span class="font-semibold text-md">D:</span> <span
+                                        th:utext="${q.options[3]}">Option D</span></li>
+                            </ol>
+                        </div>
+
+                        <!-- Correct Answer -->
+                        <div class="text-md text-success font-semibold">
+                            Correct Answer:
+                            <span th:text="${q.correctAnswer.name()}">A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fallback Message -->
+            <div th:if="${questions == null or questions?.isEmpty()}">
+                <p class="text-center text-sm text-base-content/60 mt-6">No questions found.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${!(questions == null or questions?.isEmpty())}" class="flex justify-between items-center mt-6">
+
+                <a th:if="${pageNumber > 0}"
+                   th:href="@{/instructor/view/instructor/questions(page=${pageNumber - 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Previous</a>
+
+                <span class="text-sm text-base-content/70">Page <span th:text="${pageNumber + 1}">1</span></span>
+
+                <a th:if="${hasNextPage}"
+                   th:href="@{/instructor/view/instructor/questions(page=${pageNumber + 1},pageSize=${filter.pageSize},subjectId=${filter.subjectId},complexity=${filter.complexity},marks=${filter.marks},statusFilter=${filter.statusFilter},sortBy=${filter.sortBy},sortOrder=${filter.sortOrder})}"
+                   class="btn btn-sm btn-outline">Next</a>
+
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<div th:replace="~{/instructor/fragments/footer :: tag}"></div>
+<div th:replace="~{/fragments/modal :: configurableModal}"></div>
+
+<script>
+    function openStatusActivateToggleConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Activate Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to activate this question?';
+        document.getElementById('confirmActionBtn').innerText = 'Activate';
+        document.getElementById('confirmActionBtn').className = 'btn btn-primary';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+
+    function openStatusDeactivateToggleConfirmModal(url) {
+        document.getElementById('modalTitle').innerText = 'Deactivate Confirmation';
+        document.getElementById('modalMessage').innerText = 'Do you want to deactivate this question?';
+        document.getElementById('confirmActionBtn').innerText = 'Deactivate';
+        document.getElementById('confirmActionBtn').className = 'btn btn-primary';
+        document.getElementById('modalCancelBtn').innerText = 'Cancel';
+
+        document.getElementById('confirmActionBtn').onclick = function () {
+            window.location.href = url;
+        };
+
+        document.getElementById('actionModal').showModal();
+    }
+</script>
+
+</body>
+</html>

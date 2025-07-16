@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <th:block th:replace="~{/fragments/toast :: toast-style}"></th:block>
 
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
@@ -13,8 +14,7 @@
 <div th:replace="~{/participant/fragments/header :: tag}"></div>
 
 <!-- Exams Section -->
-<div class="container mx-auto px-4 py-10 fade-in">
-
+<main class="container mx-auto px-4 py-10 fade-in">
     <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-3 text-success">
             <i class="fas fa-file-alt text-4xl"></i>
@@ -28,47 +28,55 @@
         </div>
     </div>
 
-
     <div th:if="${#lists.isEmpty(exams)}" class="text-center text-base-content opacity-60 mt-6">
         <p><i class="fas fa-info-circle mr-1"></i> No exams available.</p>
     </div>
 
-    <div th:if="${!#lists.isEmpty(exams)}" class="overflow-x-auto mt-6">
-        <table class="table table-zebra w-full rounded-box shadow-md">
-            <thead class="bg-success text-success-content">
-            <tr>
-                <th>#</th>
-                <th>Description</th>
-                <th>Subject</th>
-                <th>Total Marks</th>
-                <th>Questions</th>
-                <th>Enrolled Users</th>
-                <th class="text-center">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="exam, iterStat : ${exams}">
-                <td th:text="${iterStat.index + 1}">1</td>
-                <td th:text="${exam.description}">Midterm Assessment</td>
-                <td th:text="${exam.subjectName}">Mathematics</td>
-                <td th:text="${exam.totalMarks}">100</td>
-                <td th:text="${exam.totalQuestions}">20</td>
-                <td th:text="${exam.totalEnrolledUsers}">15</td>
-                <td class="text-center">
-                    <a th:href="@{'/participant/exam/start/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">
-                        <i class="fas fa-user-plus mr-1"></i> Start Exam
-                    </a>
-<!--                    <a th:href="@{'/participant/exam/enroll/' + ${exam.id}}" class="btn btn-sm btn-outline btn-success">-->
-<!--                        <i class="fas fa-user-plus mr-1"></i> Enroll Exam-->
-<!--                    </a>-->
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <!-- Exams Grid as Cards -->
+    <div th:if="${!#lists.isEmpty(exams)}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div th:each="exam : ${exams}" class="card bg-base-100 shadow-md">
+            <div class="card-body">
+                <h2 class="card-title text-gray-300" th:text="${exam.description}">Exam Title</h2>
+                <p class="text-sm">
+                    <strong>Subject:</strong> <span th:text="${exam.subjectName}">Subject Name</span>
+                </p>
+                <p class="text-sm"><strong>Total Marks:</strong> <span th:text="${exam.totalMarks}">100</span></p>
+                <p class="text-sm"><strong>Questions:</strong> <span th:text="${exam.questionsCount}">20</span></p>
+                <p class="text-sm"><strong>Enrolled Users:</strong> <span th:text="${exam.enrollmentCount}">15</span>
+                </p>
+
+                <!-- Action Button -->
+                <div class="card-actions justify-end mt-4">
+                    <form th:action="@{/participant/exam/{id}/enroll(id=${exam.id})}" method="post"
+                          th:if="${!exam.isEnrolled}" class="inline-block">
+                        <button type="submit" class="btn btn-sm btn-neutral">
+                            <i class="fas fa-user-plus mr-1"></i> Enroll
+                        </button>
+                    </form>
+
+                    <button th:if="${exam.isEnrolled}"
+                            class="btn btn-sm btn-neutral"
+                            disabled>
+                        <i class="fas fa-check-circle mr-1"></i> Enrolled
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</main>
 
 <div th:replace="~{/participant/fragments/footer :: tag}"></div>
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
+
+<script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
+</script>
 
 </body>
 </html>

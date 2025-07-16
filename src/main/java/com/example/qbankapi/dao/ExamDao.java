@@ -5,9 +5,11 @@ import com.example.qbankapi.dto.model.InstructorCreatedExamsFilterDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.dto.view.ExamViewDto;
 import com.example.qbankapi.entity.Exam;
+import com.example.qbankapi.entity.ParticipantUser;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Repository
@@ -115,13 +117,13 @@ public class ExamDao {
 //        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.subject.id = :subjectId", Exam.class).setParameter("subjectId", subjectId).getResultList();
 //    }
 
-//    public List<Exam> findAllByEnrollmentEndDate(ZonedDateTime nowUtc, User user) {
-//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND :user NOT MEMBER OF e.enrolledUsers", Exam.class).setParameter("nowUtc", nowUtc).setParameter("user", user).getResultList();
-//    }
-//
-//    public List<Exam> findAllByEnrollmentEndDateAndSubjectId(ZonedDateTime nowUtc, Long subjectId, User user) {
-//        return entityManager.createQuery("SELECT e FROM Exam e WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId AND :user NOT MEMBER OF e.enrolledUsers", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).setParameter("user", user).getResultList();
-//    }
+    public List<Exam> findAllByEnrollmentStartEndDate(ZonedDateTime nowUtc) {
+        return entityManager.createQuery("SELECT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc", nowUtc).getResultList();
+    }
+
+    public List<Exam> findAllByEnrollmentStartEndDateAndSubjectId(ZonedDateTime nowUtc, Long subjectId) {
+        return entityManager.createQuery("SELECT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).getResultList();
+    }
 
     public Optional<Exam> findById(Long id) {
         List<Exam> examList = entityManager.createQuery("SELECT e FROM Exam e WHERE e.id = :id", Exam.class).setParameter("id", id).getResultList();

@@ -26,7 +26,7 @@ public class InstructorUserService {
     private final SubjectDao subjectDao;
 
     @Transactional(readOnly = true)
-    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long instructorUserId) {
+    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long instructorUserId,String currentUserZoneId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", instructorUserId)));
         log.debug("Fetched Instructor user with id [{}]", instructorUserId);
@@ -40,8 +40,8 @@ public class InstructorUserService {
                 .username(instructorUser.getUsername())
                 .email(instructorUser.getEmail())
                 .zoneId(instructorUser.getZoneId())
-                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(instructorUser.getCreationZone())))
-                .registrationZone(instructorUser.getCreationZone())
+                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                ----
                 .totalCreatedExams(exams.size())
                 .totalCreatedQuestions(questions.size())
                 .totalAssignedSubjects(subjects.size())
@@ -58,19 +58,18 @@ public class InstructorUserService {
                                 .description(exam.getDescription())
                                 .subjectName(exam.getSubject().getName())
                                 .totalMarks(exam.getTotalMarks())
-                                .createdAt(exam.getCreatedAt().withZoneSameInstant(ZoneId.of(exam.getCreationZone())))
-                                .creationZone(exam.getCreationZone())
+                                .createdAt(exam.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                                ----
                                 .build())
-                        .collect(Collectors.toList())
-                )
+                        .collect(Collectors.toList()))
                 .recentQuestions(questions.stream()
                         .sorted(Comparator.comparing(Question::getCreatedAt).reversed())
                         .limit(5)
                         .map(question -> InstructorUserProfileStatsViewDto.RecentCreatedQuestionsViewDto.builder()
                                 .questionText(question.getText())
                                 .subjectName(question.getSubject().getName())
-                                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(question.getCreationZone())))
-                                .creationZone(question.getCreationZone())
+                                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                                ----
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

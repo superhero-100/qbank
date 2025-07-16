@@ -30,7 +30,8 @@ public class ParticipantUserExamSubmission extends Auditable {
     @ToString.Exclude
     private Exam exam;
 
-    @OneToOne(mappedBy = "participantUserExamSubmission")
+    @OneToOne
+    @JoinColumn(name = "participant_user_exam_enrollment_id")
     @ToString.Exclude
     private ParticipantUserExamEnrollment participantUserExamEnrollment;
 

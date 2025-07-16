@@ -77,7 +77,7 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public QuestionAnalyticsViewDto getQuestionAnalytics(Long questionId) {
+    public QuestionAnalyticsViewDto getQuestionAnalytics(Long questionId, String currentUserZoneId) {
         Question question = questionDao.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException(String.format("Question not found with id: %d", questionId)));
         log.debug("Fetched question from DB with id [{}]", questionId);
@@ -103,8 +103,8 @@ public class QuestionService {
                 .incorrectAttempts(incorrectAttempts)
                 .percentCorrect(percentCorrect)
                 .percentIncorrect(percentIncorrect)
-                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(question.getCreationZone())))
-                .creationZone(question.getCreationZone())
+                .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                ----
                 .createdByUsername(question.getCreatedByBaseUser().getUsername())
                 .build();
     }

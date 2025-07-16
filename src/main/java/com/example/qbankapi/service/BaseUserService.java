@@ -1,6 +1,9 @@
 package com.example.qbankapi.service;
 
+import com.example.qbankapi.dao.AdminUserDao;
 import com.example.qbankapi.dao.BaseUserDao;
+import com.example.qbankapi.dao.InstructorUserDao;
+import com.example.qbankapi.dao.ParticipantUserDao;
 import com.example.qbankapi.dto.model.BaseUserFilterDto;
 import com.example.qbankapi.dto.request.RegisterBaseUserRequestDto;
 import com.example.qbankapi.dto.view.BaseUserPageViewDto;
@@ -8,9 +11,7 @@ import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.entity.InstructorUser;
 import com.example.qbankapi.entity.ParticipantUser;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
-import com.example.qbankapi.exception.base.impl.EmailAlreadyExistsException;
-import com.example.qbankapi.exception.base.impl.PasswordMismatchException;
-import com.example.qbankapi.exception.base.impl.UsernameAlreadyExistsException;
+import com.example.qbankapi.exception.base.impl.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +31,9 @@ public class BaseUserService {
 
     private final BaseUserDao baseUserDao;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AdminUserDao adminUserDao;
+    private final InstructorUserDao instructorUserDao;
+    private final ParticipantUserDao participantUserDao;
 
     @Transactional
     public Optional<BaseUser> registerBaseUser(RegisterBaseUserRequestDto registerBaseUserRequest) {
@@ -200,6 +204,17 @@ public class BaseUserService {
                 userFilterDto.getSortOrder(),
                 userFilterDto.getPageSize(),
                 userFilterDto.getPage());
+    }
+
+    @Transactional(readOnly = true)
+    public String findByIdAndGetZoneId(Long baseUserId) {
+        BaseUser baseUser = baseUserDao.findById(baseUserId).orElseThrow(() -> new BaseUserNotFoundException(String.format("Base user not found with id [%d]", baseUserId)));
+        return switch (baseUser.getRole()) {
+            case ADMIN -> adminUserDao.findById(baseUserId).orElseThrow(() -> new AdminUserNotFoundException(String.format("Admin user not found with id [%d]", baseUserId))).getZoneId();
+            case INSTRUCTOR -> instructorUserDao.findById(baseUserId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", baseUserId))).getZoneId();
+            case PARTICIPANT -> participantUserDao.findById(baseUserId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", baseUserId))).getZoneId();
+            default -> throw new InvalidProfileTypeException(String.format("Invalid id base user id [%d]", baseUserId));
+        };
     }
 
 }

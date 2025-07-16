@@ -31,7 +31,6 @@ public class ExamAnalyticsViewDto {
     private String createdBy;
 
     private ZonedDateTime createdAt;
-    private String creationZone;
 
     private ZonedDateTime enrollmentStartDate;
     private ZonedDateTime enrollmentEndDate;

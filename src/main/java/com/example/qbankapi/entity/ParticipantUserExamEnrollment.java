@@ -32,8 +32,7 @@ public class ParticipantUserExamEnrollment {
     @Enumerated(EnumType.ORDINAL)
     private ExamAttemptStatus examAttemptStatus;
 
-    @OneToOne
-    @JoinColumn(name = "participant_user_exam_submission_id")
+    @OneToOne(mappedBy = "participantUserExamEnrollment")
     @ToString.Exclude
     private ParticipantUserExamSubmission participantUserExamSubmission;
 

@@ -31,7 +31,7 @@
                     <p class="text-sm text-gray-500" th:text="'Email: ' + ${stats.email}"></p>
                     <p class="text-sm text-gray-500" th:text="'Zone ID: ' + ${stats.zoneId}"></p>
                     <p class="text-sm text-gray-500"
-                       th:text="'Registered At: ' + ${#temporals.format(stats.registeredAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${stats.registrationZone}"></p>
+                       th:text="'Registered At: ' + ${#temporals.format(stats.registeredAt, 'dd MMM yyyy, HH:mm')}"></p>
                 </div>
 
                 <!-- Statistics Grid -->
@@ -85,7 +85,7 @@
                                 <td th:text="${exam.description}">Quiz</td>
                                 <td th:text="${exam.subjectName}">Subject</td>
                                 <td th:text="${exam.totalMarks}">100</td>
-                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${exam.creationZone}">
+                                <td th:text="${#temporals.format(exam.createdAt, 'dd MMM yyyy, HH:mm')}">
                                     Date
                                 </td>
                             </tr>
@@ -110,7 +110,7 @@
                             <tr th:each="question : ${stats.recentQuestions}">
                                 <td th:text="${question.questionText}">Question?</td>
                                 <td th:text="${question.subjectName}">Subject</td>
-                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')} + ' ' + ${question.creationZone}">
+                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')}">
                                     Date
                                 </td>
                             </tr>

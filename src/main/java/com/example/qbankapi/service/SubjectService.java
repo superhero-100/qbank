@@ -49,7 +49,7 @@ public class SubjectService {
     }
 
     @Transactional(readOnly = true)
-    public SubjectAssignedInstructorsViewDto getSubjectAssignedInstructorsDtoById(Long subjectId) {
+    public SubjectAssignedInstructorsViewDto getSubjectAssignedInstructorsDtoById(Long subjectId, String currentUserZoneId) {
         Subject subject = subjectDao.findById(subjectId)
                 .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
         log.debug("Fetched subject with id [{}] from DB", subjectId);
@@ -66,8 +66,8 @@ public class SubjectService {
                                 .username(instructorUser.getUsername())
                                 .email(instructorUser.getEmail())
                                 .zoneId(instructorUser.getZoneId())
-                                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(instructorUser.getCreationZone())))
-                                .registerationZone(instructorUser.getCreationZone())
+                                .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
+//                                ----
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

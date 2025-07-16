@@ -8,10 +8,7 @@ import com.example.qbankapi.dto.view.ExamPageViewDto;
 import com.example.qbankapi.dto.view.QuestionAnalyticsViewDto;
 import com.example.qbankapi.dto.view.QuestionPageViewDto;
 import com.example.qbankapi.exception.base.impl.*;
-import com.example.qbankapi.service.ExamService;
-import com.example.qbankapi.service.InstructorUserService;
-import com.example.qbankapi.service.QuestionService;
-import com.example.qbankapi.service.SubjectService;
+import com.example.qbankapi.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,6 +33,7 @@ public class InstructorController {
     private final QuestionService questionService;
     private final ExamService examService;
     private final InstructorUserService instructorUserService;
+    private final BaseUserService baseUserService;
 
     @GetMapping("/home")
     public String getDashboardPage() {
@@ -85,11 +83,12 @@ public class InstructorController {
     @GetMapping("/manage/questions/{questionId}/analytics")
     public String getQuestionAnalyticsPage(
             @PathVariable("questionId") Long questionId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            QuestionAnalyticsViewDto questionAnalyticsViewDto = questionService.getQuestionAnalytics(questionId);
+            QuestionAnalyticsViewDto questionAnalyticsViewDto = questionService.getQuestionAnalytics(questionId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID)));
 
             model.addAttribute("questionAnalytics", questionAnalyticsViewDto);
 
@@ -351,8 +350,12 @@ public class InstructorController {
     }
 
     @GetMapping("/profile")
-    public String getProfilePage(HttpSession session, Model model) {
-        model.addAttribute("stats", instructorUserService.getInstructorUserStats((Long) session.getAttribute(USER_ID)));
+    public String getProfilePage(
+            HttpSession httpSession,
+            Model model
+    ) {
+        Long baseUserId = (Long) httpSession.getAttribute(USER_ID);
+        model.addAttribute("stats", instructorUserService.getInstructorUserStats(baseUserId, baseUserService.findByIdAndGetZoneId(baseUserId)));
 
         log.info("Rendering profile-view page");
         return "instructor/profile-view";

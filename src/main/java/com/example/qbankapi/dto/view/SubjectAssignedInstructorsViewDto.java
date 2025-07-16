@@ -34,8 +34,6 @@ public class SubjectAssignedInstructorsViewDto {
 
         private ZonedDateTime registeredAt;
 
-        private String registerationZone;
-
     }
 
 }

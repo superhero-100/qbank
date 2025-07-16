@@ -3,7 +3,6 @@ package com.example.qbankapi.controller.admin;
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.*;
 import com.example.qbankapi.dto.view.*;
-import com.example.qbankapi.entity.BaseUser;
 import com.example.qbankapi.exception.base.BaseUserNotFoundException;
 import com.example.qbankapi.exception.base.impl.*;
 import com.example.qbankapi.service.*;
@@ -54,11 +53,12 @@ public class AdminController {
     @GetMapping("/view/instructors")
     public String getSubjectAssignedInstructorsPage(
             @RequestParam("subjectId") Long subjectId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            model.addAttribute("subjectInstructors", subjectService.getSubjectAssignedInstructorsDtoById(subjectId));
+            model.addAttribute("subjectInstructors", subjectService.getSubjectAssignedInstructorsDtoById(subjectId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID))));
 
             log.info("Rendering subject-instructor-view page");
             return "admin/subject-instructor-view";
@@ -214,11 +214,12 @@ public class AdminController {
     @GetMapping("/manage/questions/{questionId}/analytics")
     public String getQuestionAnalyticsPage(
             @PathVariable("questionId") Long questionId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            QuestionAnalyticsViewDto questionAnalyticsViewDto = questionService.getQuestionAnalytics(questionId);
+            QuestionAnalyticsViewDto questionAnalyticsViewDto = questionService.getQuestionAnalytics(questionId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID)));
 
             model.addAttribute("questionAnalytics", questionAnalyticsViewDto);
 
@@ -471,11 +472,12 @@ public class AdminController {
     @GetMapping("/manage/exams/{examId}/analytics")
     public String getExamsAnalyticsPage(
             @PathVariable("examId") Long examId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            ExamAnalyticsViewDto examAnalyticsViewDto = examService.getExamAnalytics(examId);
+            ExamAnalyticsViewDto examAnalyticsViewDto = examService.getExamAnalytics(examId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID)));
 
             model.addAttribute("examAnalytics", examAnalyticsViewDto);
 
@@ -581,11 +583,12 @@ public class AdminController {
     @GetMapping("/view/users/instructor/{instructorUserId}/profile")
     public String getInstructorUserProfileViewPage(
             @PathVariable("instructorUserId") Long instructorUserId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(instructorUserId);
+            InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(instructorUserId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID)));
 
             model.addAttribute("availableSubjects", subjectService.getAvailableSubjectViewDtoList(
                     instructorUserProfileStatsViewDto
@@ -612,11 +615,12 @@ public class AdminController {
     @GetMapping("/view/users/participant/{participantUserId}/profile")
     public String getProfileViewPage(
             @PathVariable("participantUserId") Long participantUserId,
+            HttpSession httpSession,
             Model model,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            model.addAttribute("participantUserProfileStats", participantUserService.getParticipantUserStats(participantUserId));
+            model.addAttribute("participantUserProfileStats", participantUserService.getParticipantUserStats(participantUserId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID))));
 
             log.info("Rendering profile-view page");
             return "admin/profile-view";
