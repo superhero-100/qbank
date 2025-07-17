@@ -173,7 +173,7 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 "rohit@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(25)),
                 BaseUser.Status.ACTIVE,
-                TimeZoneId.ASIA_KOLKATA.getZoneId()
+                TimeZoneId.AMERICA_NEW_YORK.getZoneId()
         );
 
         initService.createAndSaveParticipantIfNotExists(
@@ -182,7 +182,7 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 "sneha@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(27)),
                 BaseUser.Status.INACTIVE,
-                TimeZoneId.ASIA_KOLKATA.getZoneId()
+                TimeZoneId.AFRICA_JOHANNESBURG.getZoneId()
         );
 
         initService.createAndSaveParticipantIfNotExists(
@@ -191,7 +191,7 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
                 "deepak@123",
                 ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(17)),
                 BaseUser.Status.ACTIVE,
-                TimeZoneId.ASIA_KOLKATA.getZoneId()
+                TimeZoneId.ASIA_TOKYO.getZoneId()
         );
 
         initService.createAndSaveParticipantIfNotExists(

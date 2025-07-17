@@ -3,10 +3,10 @@ package com.example.qbankapi.controller.participant;
 import com.example.qbankapi.dto.model.ExamDto;
 import com.example.qbankapi.dto.model.ExamSubmissionDto;
 import com.example.qbankapi.dto.model.ParticipantUserAnswerDto;
+import com.example.qbankapi.entity.Exam;
 import com.example.qbankapi.entity.ParticipantUserExamEnrollment;
-import com.example.qbankapi.exception.base.impl.AccessDeniedException;
-import com.example.qbankapi.exception.base.impl.ExamNotFoundException;
-import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
+import com.example.qbankapi.entity.Question;
+import com.example.qbankapi.exception.base.impl.*;
 import com.example.qbankapi.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
 
@@ -62,63 +66,143 @@ public class ExamController {
         }
     }
 
-    //     only start if valid time as per the     cached user zone id   and if previously enrolled
     @GetMapping("/start/{examEnrollmentId}")
-    public String startExam(@PathVariable("examEnrollmentId") Long examEnrollmentId, HttpSession session) {
-        ExamDto examDto = examService.getExamInDtoByEnrollmentId(examEnrollmentId);
+    public String startExam(@PathVariable("examEnrollmentId") Long examEnrollmentId, HttpSession httpSession, RedirectAttributes redirectAttributes) {
+        try {
+            ExamDto examDto = examService.getExamInDtoByEnrollmentId(examEnrollmentId, (Long) httpSession.getAttribute(USER_ID));
 
-        session.setAttribute("examDto", examDto);
-        session.setAttribute("examSubmissionDto", ExamSubmissionDto.builder().examId(examDto.getId()).build());
-        session.setAttribute("currentQuestionNumber", 1);
-        session.setAttribute("totalQuestion", examDto.getQuestions().size());
+            httpSession.setAttribute("examDto", examDto);
+            httpSession.setAttribute("examSubmissionDto", ExamSubmissionDto.builder().examEnrollmentId(examEnrollmentId).examId(examDto.getId()).build());
+            httpSession.setAttribute("currentQuestionNumber", 1);
+            httpSession.setAttribute("totalQuestion", examDto.getQuestions().size());
+
+            log.info("Redirecting to /participant/exam/question");
+            return "redirect:/participant/exam/question";
+        } catch (ParticipantUserExamSubmissionAlreadyExistsException ex) {
+            log.info("Prevented duplicate exam submission: {}", ex.getMessage());
+
+            redirectAttributes.addFlashAttribute("message", "You have already submitted this exam. Duplicate submissions are not allowed.");
+            redirectAttributes.addFlashAttribute("messageType", "warning");
+
+            log.info("Redirecting to /participant/calendar");
+            return "redirect:/participant/calendar";
+        } catch (ParticipantUserExamEnrollmentNotFoundException ex) {
+            log.warn("Enrollment not found: {}", examEnrollmentId, ex);
+
+            redirectAttributes.addFlashAttribute("message", "Invalid exam enrollment. Please try again.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /participant/calendar");
+            return "redirect:/participant/calendar";
+        } catch (AccessDeniedException ex) {
+            log.error("Access denied for exam [{}] and user [{}]", examEnrollmentId, httpSession.getAttribute(USER_ID), ex);
+
+            redirectAttributes.addFlashAttribute("message", ex.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Redirecting to /participant/calendar");
+            return "redirect:/participant/calendar";
+        }
+    }
+
+    @GetMapping("/question")
+    public String getQuestion(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        Integer currentQuestionNumber = (Integer) session.getAttribute("currentQuestionNumber");
+        ExamDto examDto = (ExamDto) session.getAttribute("examDto");
+
+        if (currentQuestionNumber == null || examDto == null) {
+            redirectAttributes.addFlashAttribute("message", "Session expired or invalid access.");
+            redirectAttributes.addFlashAttribute("messageType", "warning");
+
+            log.info("Redirecting to /participant/home");
+            return "redirect:/participant/home";
+        }
+
+        model.addAttribute("subjectName", examDto.getSubjectName());
+        model.addAttribute("currentQuestionNumber", currentQuestionNumber);
+        model.addAttribute("question", examDto.getQuestions().get(currentQuestionNumber - 1));
+
+        log.info("Rendering exam");
+        return "participant/exam";
+    }
+
+    @PostMapping("/submit")
+    public String processQuestion(@ModelAttribute ParticipantUserAnswerDto participantUserAnswerDto, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        Integer currentQuestionNumber = (Integer) session.getAttribute("currentQuestionNumber");
+        Integer totalQuestion = (Integer) session.getAttribute("totalQuestion");
+        ExamSubmissionDto examSubmissionDto = (ExamSubmissionDto) session.getAttribute("examSubmissionDto");
+
+        if (currentQuestionNumber == null || totalQuestion == null || examSubmissionDto == null) {
+            redirectAttributes.addFlashAttribute("message", "Session expired or invalid access.");
+            redirectAttributes.addFlashAttribute("messageType", "warning");
+
+            log.info("Redirecting to /participant/home");
+            return "redirect:/participant/home";
+        }
+
+        examSubmissionDto.getAnswers().put(participantUserAnswerDto.getQuestionId(), participantUserAnswerDto.getAnswer());
+
+        if (currentQuestionNumber.equals(totalQuestion)) {
+            examService.saveUserExamSubmission(examSubmissionDto);
+
+            session.removeAttribute("examDto");
+            session.removeAttribute("examSubmissionDto");
+            session.removeAttribute("currentQuestionNumber");
+            session.removeAttribute("totalQuestion");
+
+            redirectAttributes.addFlashAttribute("message", "Exam submitted successfully. Results will be available after the exam ends.");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+
+            log.info("Redirecting to /participant/home");
+            return "redirect:/participant/home";
+        }
+
+        session.setAttribute("currentQuestionNumber", currentQuestionNumber + 1);
 
         log.info("Redirecting to /participant/exam/question");
         return "redirect:/participant/exam/question";
     }
 
-    @GetMapping("/question")
-    public String getQuestion(Model model, HttpSession session) {
-        Integer currentQuestionNumber = (Integer) session.getAttribute("currentQuestionNumber");
-        ExamDto examDto = (ExamDto) session.getAttribute("examDto");
-        if (currentQuestionNumber == null || examDto == null) {
-            return "redirect:/participant/home";
-        }
-        model.addAttribute("subjectName", examDto.getSubjectName());
-        model.addAttribute("currentQuestionNumber", currentQuestionNumber);
-        model.addAttribute("question", examDto.getQuestions().get(currentQuestionNumber - 1));
-        return "participant/exam";
-    }
-
-    @PostMapping("/submit")
-    public String processQuestion(@ModelAttribute ParticipantUserAnswerDto participantUserAnswerDto, Model model, HttpSession session) {
+    @PostMapping("/exit")
+    public String exitExam(HttpSession session, RedirectAttributes redirectAttributes) {
         Integer currentQuestionNumber = (Integer) session.getAttribute("currentQuestionNumber");
         Integer totalQuestion = (Integer) session.getAttribute("totalQuestion");
         ExamSubmissionDto examSubmissionDto = (ExamSubmissionDto) session.getAttribute("examSubmissionDto");
-        if (currentQuestionNumber == null || totalQuestion == null || examSubmissionDto == null) {
+        ExamDto examDto = (ExamDto) session.getAttribute("examDto");
+
+        if (currentQuestionNumber == null || totalQuestion == null || examSubmissionDto == null || examDto == null) {
+            redirectAttributes.addFlashAttribute("message", "Session expired or invalid access.");
+            redirectAttributes.addFlashAttribute("messageType", "warning");
+
+            log.info("Redirecting to /participant/home");
             return "redirect:/participant/home";
         }
-        examSubmissionDto.getAnswers().put(participantUserAnswerDto.getQuestionId(), participantUserAnswerDto.getAnswer());
-        if (currentQuestionNumber.equals(totalQuestion)) {
-            System.out.println("examSubmissionDto = " + examSubmissionDto);
-//            Long userId = (Long) session.getAttribute(USER_ID);
-//            Long userExamResultId = examService.processSubmission(examSubmissionDto, userId);
-//            session.removeAttribute("examDto");
-//            session.removeAttribute("examSubmissionDto");
-//            session.removeAttribute("currentQuestionNumber");
-//            session.removeAttribute("totalQuestion");
-//            String path = UriComponentsBuilder.fromPath("/participant/result/exam/{id}").buildAndExpand(userExamResultId).toUriString();
-//            return "redirect:" + path;
-        }
-        session.setAttribute("currentQuestionNumber", currentQuestionNumber + 1);
-        return "redirect:/participant/exam/question";
-    }
 
-    @GetMapping("/exit")
-    public String exitExam(HttpSession session) {
+        Map<Long, Question.Option> answers = examSubmissionDto.getAnswers();
+        List<ExamDto.ExamQuestionDto> questions = examDto.getQuestions();
+
+        examService.saveUserExamSubmission(examSubmissionDto);
+
+        Long participantId = (Long) session.getAttribute(USER_ID);
+        log.info("Participant [{}] exited exam [{}]. Submission completed with unanswered questions set to null.", participantId, examDto.getId());
+
+        while (currentQuestionNumber < totalQuestion) {
+            Long questionId = questions.get(currentQuestionNumber).getId();
+            answers.putIfAbsent(questionId, null);
+            currentQuestionNumber++;
+        }
+
         session.removeAttribute("examDto");
         session.removeAttribute("examSubmissionDto");
         session.removeAttribute("currentQuestionNumber");
         session.removeAttribute("totalQuestion");
+
+        redirectAttributes.addFlashAttribute("message", "You exited the exam. Your attempted answers have been submitted. Results will be available after the exam ends.");
+        redirectAttributes.addFlashAttribute("messageType", "info");
+
+        log.info("Redirecting to /participant/home");
         return "redirect:/participant/home";
     }
 

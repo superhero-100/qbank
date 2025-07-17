@@ -118,11 +118,11 @@ public class ExamDao {
 //    }
 
     public List<Exam> findAllByEnrollmentStartEndDate(ZonedDateTime nowUtc) {
-        return entityManager.createQuery("SELECT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc", nowUtc).getResultList();
+        return entityManager.createQuery("SELECT DISTINCT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc", Exam.class).setParameter("nowUtc", nowUtc).getResultList();
     }
 
     public List<Exam> findAllByEnrollmentStartEndDateAndSubjectId(ZonedDateTime nowUtc, Long subjectId) {
-        return entityManager.createQuery("SELECT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).getResultList();
+        return entityManager.createQuery("SELECT DISTINCT e FROM Exam e JOIN FETCH e.subject s LEFT JOIN FETCH e.participantEnrollments pe LEFT JOIN FETCH pe.participantUser pu WHERE e.enrollmentStartDate < :nowUtc AND e.enrollmentEndDate > :nowUtc AND e.subject.id = :subjectId", Exam.class).setParameter("nowUtc", nowUtc).setParameter("subjectId", subjectId).getResultList();
     }
 
     public Optional<Exam> findById(Long id) {

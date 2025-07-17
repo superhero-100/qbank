@@ -1,8 +1,8 @@
 package com.example.qbankapi.controller.participant;
 
 import com.example.qbankapi.entity.ParticipantUser;
+import com.example.qbankapi.service.BaseUserService;
 import com.example.qbankapi.service.ExamService;
-import com.example.qbankapi.service.ParticipantUserExamResultService;
 import com.example.qbankapi.service.ParticipantUserService;
 import com.example.qbankapi.service.SubjectService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
@@ -24,17 +25,29 @@ public class ParticipantController {
     private final ParticipantUserService participantUserService;
     private final SubjectService subjectService;
     private final ExamService examService;
-//    private final ParticipantUserExamResultService participantUserExamResultService;
+    private final BaseUserService baseUserService;
 
     @GetMapping("/home")
-    public String getDashboardPage(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute(USER_ID);
+    public String getDashboardPage(HttpServletRequest request, Model model, HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute(USER_ID);
         ParticipantUser user = participantUserService.findById(userId);
 
         model.addAttribute("username", user.getUsername());
 
         log.info("Rendering dashboard page");
         return "participant/dashboard";
+    }
+
+    @GetMapping("/calendar")
+    public String getParticipantCalenderPage(HttpServletRequest request, Model model, HttpSession httpSession) {
+        Long userId = (Long) httpSession.getAttribute(USER_ID);
+        ParticipantUser user = participantUserService.findById(userId);
+
+        model.addAttribute("contextPath", request.getContextPath());
+        model.addAttribute("upcomingExams", examService.getUpcomingExams(userId));
+
+        log.info("Rendering exams-upcoming page");
+        return "participant/exams-upcoming";
     }
 
     @GetMapping("/subjects")
@@ -65,14 +78,14 @@ public class ParticipantController {
 //        return "participant/history-view";
 //    }
 
-//    @GetMapping("/profile")
-//    public String getProfilePage(HttpSession session, Model model) {
-//        Long participantUserId = (Long) session.getAttribute(USER_ID);
-//        model.addAttribute("stats", participantUserService.getParticipantUserStats(participantUserId));
-//
-//        log.info("Rendering profile-view page");
-//        return "participant/profile-view";
-//    }
+    @GetMapping("/profile")
+    public String getProfilePage(HttpSession session, Model model) {
+        Long participantUserId = (Long) session.getAttribute(USER_ID);
+        model.addAttribute("stats", participantUserService.getParticipantUserStats(participantUserId, baseUserService.findByIdAndGetZoneId(participantUserId)));
+
+        log.info("Rendering profile-view page");
+        return "participant/profile-view";
+    }
 
 //    @GetMapping("/result/exam/{id}")
 //    public String getExamResultPage(@PathVariable("id") Long id, Model model) {

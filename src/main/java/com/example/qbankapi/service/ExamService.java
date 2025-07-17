@@ -1,13 +1,10 @@
 package com.example.qbankapi.service;
 
 import com.example.qbankapi.dao.*;
-import com.example.qbankapi.dto.model.AllExamFilterDto;
-import com.example.qbankapi.dto.model.ExamDto;
-import com.example.qbankapi.dto.model.InstructorCreatedExamsFilterDto;
+import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
 import com.example.qbankapi.dto.view.ExamAnalyticsViewDto;
 import com.example.qbankapi.dto.view.ExamPageViewDto;
-import com.example.qbankapi.dto.view.ExamViewDto;
 import com.example.qbankapi.dto.view.ParticipantUserExamViewDto;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.impl.*;
@@ -19,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,10 +32,14 @@ public class ExamService {
     private final QuestionDao questionDao;
     private final ParticipantUserDao participantUserDao;
     private final ParticipantUserExamEnrollmentDao participantUserExamEnrollmentDao;
+    private final ParticipantUserExamQuestionAnswerDao participantUserExamQuestionAnswerDao;
+    private final ParticipantUserExamSubmissionDao participantUserExamSubmissionDao;
+    private final ParticipantUserExamAnalyticsDao participantUserExamAnalyticsDao;
+    private final ParticipantUserExamResultDao participantUserExamResultDao;
+    private final Random random;
+    private final List<String> colorPalette = List.of("#0d6efd", "#6610f2", "#6f42c1", "#d63384", "#dc3545", "#fd7e14", "#ffc107", "#198754", "#20c997", "#0dcaf0", "#6c757d");
+
 //    private final BaseUserDao baseUserDao;
-//    private final UserAnalyticsDao userAnalyticsDao;
-//    private final UserExamResultDao userExamResultDao;
-//    private final UserAnswerDao userAnswerDao;
 
     @Transactional(readOnly = true)
     public ExamPageViewDto getFilteredExamsForAdmin(AllExamFilterDto allExamFilterDto) {
@@ -215,8 +214,8 @@ public class ExamService {
         examAnalytics.setEnrollmentsCount(0);
         examAnalytics.setSubmissionsCount(0);
         examAnalytics.setAverageScore(0D);
-        examAnalytics.setHighestScore(0D);
-        examAnalytics.setLowestScore(0D);
+        examAnalytics.setHighestScore(0);
+        examAnalytics.setLowestScore(0);
 
         return examAnalytics;
     }
@@ -239,33 +238,50 @@ public class ExamService {
     public List<ParticipantUserExamViewDto> getAllExamsInDto(Long userId) {
         ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
 
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(participantUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
 
-        System.out.println("---");
-        System.out.println(participantUser.getExamEnrollments());
-
-        return examDao.findAllByEnrollmentStartEndDate(nowUtc).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
+        return examDao.findAllByEnrollmentStartEndDate(nowUtc).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getEnrollmentStartDate()).enrollmentEndDate(exam.getEnrollmentEndDate()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<ParticipantUserExamViewDto> getExamsInDtoBySubjectId(Long subjectId, Long userId) {
         ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
 
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneId.of(participantUser.getZoneId())).withZoneSameInstant(ZoneOffset.UTC);
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
 
-        System.out.println("---");
-        System.out.println(participantUser.getExamEnrollments());
-
-        return examDao.findAllByEnrollmentStartEndDateAndSubjectId(nowUtc, subjectId).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
+        return examDao.findAllByEnrollmentStartEndDateAndSubjectId(nowUtc, subjectId).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getExamStartDate()).enrollmentEndDate(exam.getEnrollmentEndDate()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public ExamDto getExamInDtoByEnrollmentId(Long examEnrollmentId) {
+    public ExamDto getExamInDtoByEnrollmentId(Long examEnrollmentId, Long participantId) {
         ParticipantUserExamEnrollment participantUserExamEnrollment = participantUserExamEnrollmentDao.findById(examEnrollmentId).orElseThrow(() -> new ParticipantUserExamEnrollmentNotFoundException(String.format("Participant user exam enrollment not found with id [%d]", examEnrollmentId)));
 
-//      validate
+        ParticipantUser participantUser = participantUserExamEnrollment.getParticipantUser();
 
         Exam exam = participantUserExamEnrollment.getExam();
+
+        if (!participantUser.getId().equals(participantId)) {
+            log.warn("Access violation: participantId [{}] attempted to access enrollment belonging to participantId [{}]", participantId, participantUser.getId());
+
+            throw new AccessDeniedException(String.format("Access denied: Your account does not have permission to access this exam enrollment [%d].", examEnrollmentId));
+        }
+
+        if (participantUserExamEnrollment.getExamAttemptStatus().equals(ParticipantUserExamEnrollment.ExamAttemptStatus.SUBMITTED)) {
+            log.warn("Duplicate submission attempt: participantId [{}], examId [{}], enrollmentId [{}] has already been submitted.", participantUserExamEnrollment.getParticipantUser().getId(), participantUserExamEnrollment.getExam().getId(), participantUserExamEnrollment.getId());
+
+            throw new ParticipantUserExamSubmissionAlreadyExistsException(String.format("Exam submission already exists for enrollmentId [%d].", participantUserExamEnrollment.getId()));
+        }
+
+        ZoneId userZone = ZoneId.of(participantUser.getZoneId());
+
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+
+        if (!(nowUtc.isAfter(exam.getExamStartDate()) && nowUtc.isBefore(exam.getExamEndDate()))) {
+            log.warn("Access denied: Current time [{}] is outside the valid exam window [{} - {}] for user zone [{}]", nowUtc, exam.getExamStartDate(), exam.getExamEndDate(), userZone);
+
+            throw new AccessDeniedException(String.format("Exam with id [%d] has not started", exam.getId()));
+        }
+
         return ExamDto.builder()
                 .id(exam.getId())
                 .description(exam.getDescription())
@@ -286,97 +302,89 @@ public class ExamService {
                 .build();
     }
 
-//    @Transactional
-//    public Long processSubmission(ExamSubmissionDto submissionDto, Long userId) {
-//        ParticipantUser participantUser = participantUserDao.findById(userId)
-//                .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
-//
-//        Exam exam = examDao.findById(submissionDto.getExamId())
-//                .orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id: %d", submissionDto.getExamId())));
-//
-//        ExamAnalytics examAnalytics = exam.getAnalytics();
-//
-//        int totalCorrect = 0;
-//        int attempted = 0;
-//        List<ParticipantUserExamQuestionAnswer> participantUserExamQuestionAnswers = new ArrayList<>();
-//
-//        for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
-//            Long questionId = entry.getKey();
-//            Optional<Question.Option> givenNullableAnswer = Optional.ofNullable(entry.getValue());
-//
-//            Question question = questionDao.findById(questionId)
-//                    .orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
-//
-//            boolean isCorrect = false;
-//            if (givenNullableAnswer.isPresent()) {
-//                isCorrect = givenNullableAnswer.get().equals(question.getCorrectAnswer());
-//            }
-//
-//            if (givenNullableAnswer.isPresent()) attempted++;
-//            if (isCorrect) totalCorrect++;
-//
-//            ParticipantUserExamQuestionAnswer participantUserExamQuestionAnswer = new ParticipantUserExamQuestionAnswer();
-//            participantUserExamQuestionAnswer.setQuestion(question);
-//            participantUserExamQuestionAnswer.setAnswerGiven(givenNullableAnswer.orElse(null));
-//            participantUserExamQuestionAnswer.setIsCorrect(isCorrect);
-//            participantUserExamQuestionAnswers.add(participantUserExamQuestionAnswer);
-//        }
-//
-//        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
-//        ParticipantUserExamAnalytics participantUserExamAnalytics = new ParticipantUserExamAnalytics();
-//        participantUserExamAnalytics.setAttemptedQuestions(attempted);
-//        participantUserExamAnalytics.setCorrectAnswers(totalCorrect);
-//        participantUserExamAnalytics.setAccuracy(accuracy);
-//        userAnalyticsDao.save(participantUserExamAnalytics);
-//
-//        ParticipantUserExamResult participantUserExamResult = new ParticipantUserExamResult();
-//        //local date used for submit exam
-//        participantUserExamResult.setSubmittedAt(LocalDateTime.now());
-//        participantUserExamResult.setTotalScore(totalCorrect);
-//        participantUserExamResult.setParticipantUser(participantUser);
-//        participantUserExamResult.setExam(exam);
-//        participantUserExamResult.setAnalytics(participantUserExamAnalytics);
-//        participantUserExamResult.setAnswers(participantUserExamQuestionAnswers);
-//
-//        participantUserExamQuestionAnswers.forEach(ans -> ans.setParticipantUserExamResult(participantUserExamResult));
-//        userExamResultDao.save(participantUserExamResult);
-//
-//        participantUserExamAnalytics.setParticipantUserExamResult(participantUserExamResult);
-//        userAnalyticsDao.update(participantUserExamAnalytics);
-//
-//        participantUserExamQuestionAnswers.forEach(participantUserExamQuestionAnswer -> {
-//            participantUserExamQuestionAnswer.setParticipantUserExamResult(participantUserExamResult);
-//            userAnswerDao.save(participantUserExamQuestionAnswer);
-//        });
-//
-//        int previousCount = examAnalytics.getTotalSubmissions() != null ? examAnalytics.getTotalSubmissions() : 0;
-//        double previousAvg = examAnalytics.getAverageScore() != null ? examAnalytics.getAverageScore() : 0.0;
-//
-//        int updatedCount = previousCount + 1;
-//        Double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
-//
-//        examAnalytics.setTotalSubmissions(updatedCount);
-//        examAnalytics.setAverageScore(updatedAvg);
-//        examAnalytics.setHighestScore(Math.max(examAnalytics.getHighestScore(), totalCorrect * 1.0));
-//        examAnalytics.setLowestScore(previousCount == 0 ? totalCorrect * 1.0 : Math.min(examAnalytics.getLowestScore(), totalCorrect * 1.0));
-//
-//        examAnalyticsDao.update(examAnalytics);
-//
-//        exam.getEnrolledParticipantUsers().add(participantUser);
-//        // add in completed participant users
-//
-//        examDao.save(exam);
-//
-//        participantUser.getParticipantUserExamResults().add(participantUserExamResult);
-//        participantUser.getEnrolledExams().add(exam);
-//        participantUser.setModifiedAt(ZonedDateTime.now(ZoneOffset.UTC));
-//        participantUserDao.update(participantUser);
-//
-//        return participantUserExamResult.getId();
-//    }
+    @Transactional
+    public void saveUserExamSubmission(ExamSubmissionDto submissionDto) {
+        ParticipantUserExamEnrollment participantUserExamEnrollment = participantUserExamEnrollmentDao.findById(submissionDto.getExamEnrollmentId()).orElseThrow(() -> new ParticipantUserExamEnrollmentNotFoundException(String.format("ParticipantUserExamEnrollment not found with ID [%d]", submissionDto.getExamEnrollmentId())));
+        participantUserExamEnrollment.setExamAttemptStatus(ParticipantUserExamEnrollment.ExamAttemptStatus.SUBMITTED);
+        participantUserExamEnrollmentDao.update(participantUserExamEnrollment);
 
+        ParticipantUser participantUser = participantUserExamEnrollment.getParticipantUser();
+        Exam exam = participantUserExamEnrollment.getExam();
 
-//    ---
+        ParticipantUserExamSubmission participantUserExamSubmission = new ParticipantUserExamSubmission();
+
+        participantUserExamSubmission.setParticipantUser(participantUser);
+        participantUserExamSubmission.setExam(exam);
+        participantUserExamSubmission.setParticipantUserExamEnrollment(participantUserExamEnrollment);
+        participantUserExamSubmission.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        participantUserExamSubmission.setCreationZone(participantUser.getZoneId());
+
+        participantUserExamSubmissionDao.save(participantUserExamSubmission);
+
+        int attempted = 0;
+        int totalCorrect = 0;
+
+        for (Map.Entry<Long, Question.Option> entry : submissionDto.getAnswers().entrySet()) {
+            Long questionId = entry.getKey();
+            Optional<Question.Option> givenNullableAnswer = Optional.ofNullable(entry.getValue());
+
+            Question question = questionDao.findById(questionId).orElseThrow(() -> new QuestionNotFoundException("Invalid Question ID: " + questionId));
+
+            boolean isCorrect = false;
+            if (givenNullableAnswer.isPresent()) {
+                isCorrect = givenNullableAnswer.get().equals(question.getCorrectAnswer());
+            }
+
+            if (givenNullableAnswer.isPresent()) attempted++;
+            if (isCorrect) totalCorrect++;
+
+            ParticipantUserExamQuestionAnswer participantUserExamQuestionAnswer = new ParticipantUserExamQuestionAnswer();
+
+            participantUserExamQuestionAnswer.setQuestion(question);
+            participantUserExamQuestionAnswer.setAnswerGiven(givenNullableAnswer.orElse(null));
+            participantUserExamQuestionAnswer.setIsCorrect(isCorrect);
+            participantUserExamQuestionAnswer.setParticipantUserExamSubmission(participantUserExamSubmission);
+
+            participantUserExamQuestionAnswerDao.save(participantUserExamQuestionAnswer);
+        }
+
+        Double accuracy = attempted > 0 ? ((double) totalCorrect / attempted) * 100.0 : 0.0;
+
+        ParticipantUserExamAnalytics participantUserExamAnalytics = new ParticipantUserExamAnalytics();
+
+        participantUserExamAnalytics.setAttemptedQuestions(attempted);
+        participantUserExamAnalytics.setCorrectAnswers(totalCorrect);
+        participantUserExamAnalytics.setAccuracy(accuracy);
+
+        participantUserExamAnalyticsDao.save(participantUserExamAnalytics);
+
+        ParticipantUserExamResult participantUserExamResult = new ParticipantUserExamResult();
+
+        participantUserExamResult.setTotalScore(totalCorrect);
+        participantUserExamResult.setParticipantUser(participantUser);
+        participantUserExamResult.setExam(exam);
+        participantUserExamResult.setParticipantUserExamAnalytics(participantUserExamAnalytics);
+        participantUserExamResult.setParticipantUserExamSubmission(participantUserExamSubmission);
+
+        participantUserExamResultDao.save(participantUserExamResult);
+
+        ExamAnalytics examAnalytics = exam.getExamAnalytics();
+
+        int previousCount = examAnalytics.getSubmissionsCount();
+        double previousAvg = examAnalytics.getAverageScore();
+
+        int updatedCount = previousCount + 1;
+        double updatedAvg = ((previousAvg * previousCount) + totalCorrect) / updatedCount;
+        int updatedHighestScore = Math.max(examAnalytics.getHighestScore(), totalCorrect);
+        int updatedLowestScore = previousCount == 0 ? totalCorrect : Math.min(examAnalytics.getLowestScore(), totalCorrect);
+
+        examAnalytics.setSubmissionsCount(updatedCount);
+        examAnalytics.setAverageScore(updatedAvg);
+        examAnalytics.setHighestScore(updatedHighestScore);
+        examAnalytics.setLowestScore(updatedLowestScore);
+
+        examAnalyticsDao.update(examAnalytics);
+    }
 
     @Transactional
     public void enrollExam(Long userId, Long examId) {
@@ -384,14 +392,10 @@ public class ExamService {
 
         Exam exam = examDao.findById(examId).orElseThrow(() -> new ExamNotFoundException(String.format("Exam not found with id [%d]", examId)));
 
-        ZoneId userZone = ZoneId.of(participantUser.getZoneId());
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
 
-        ZonedDateTime currentTimeInUserZone = ZonedDateTime.now(userZone);
-        ZonedDateTime examEnrollmentStartInUserZone = exam.getEnrollmentStartDate().withZoneSameInstant(userZone);
-        ZonedDateTime examEnrollmentEndInUserZone = exam.getEnrollmentEndDate().withZoneSameInstant(userZone);
-
-        if (!(currentTimeInUserZone.isAfter(examEnrollmentStartInUserZone) && currentTimeInUserZone.isBefore(examEnrollmentEndInUserZone))) {
-            throw new AccessDeniedException(String.format("Exam with id [%d] has not started yet in your time zone [%s]", examId, userZone));
+        if (!(nowUtc.isAfter(exam.getEnrollmentStartDate()) && nowUtc.isBefore(exam.getEnrollmentEndDate()))) {
+            throw new AccessDeniedException(String.format("Exam with id [%d] has not started", examId));
         }
 
         ParticipantUserExamEnrollment participantUserExamEnrollment = new ParticipantUserExamEnrollment();
@@ -469,6 +473,31 @@ public class ExamService {
                 instructorCreatedExamsFilterDto.getSortOrder(),
                 instructorCreatedExamsFilterDto.getPageSize(),
                 instructorCreatedExamsFilterDto.getPage());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getUpcomingExams(Long participantUserId) {
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findByParticipantUserIdAndExamStartEnd(participantUserId, nowUtc);
+
+        return participantUserExamEnrollments.stream().map(enrollment -> {
+            Exam exam = enrollment.getExam();
+            Map<String, Object> event = new HashMap<>();
+
+            String subjectName = exam.getSubject().getName();
+            String description = exam.getDescription();
+
+            event.put("title", subjectName + " - " + description);
+            event.put("start", exam.getExamStartDate().withZoneSameInstant(ZoneOffset.UTC).toString());
+            event.put("end", exam.getExamEndDate().withZoneSameInstant(ZoneOffset.UTC).toString());
+            event.put("examEnrollmentId", enrollment.getId());
+
+            String randomColor = colorPalette.get(random.nextInt(colorPalette.size()));
+            event.put("backgroundColor", randomColor);
+            event.put("textColor", "#ffffff");
+
+            return event;
+        }).collect(Collectors.toList());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.qbankapi.entity;
 
 import lombok.*;
+import org.hibernate.id.IntegralDataTypeHolder;
 
 import javax.persistence.*;
 
@@ -27,10 +28,10 @@ public class ExamAnalytics {
     private Double averageScore;
 
     @Column(name = "highest_score")
-    private Double highestScore;
+    private Integer highestScore;
 
     @Column(name = "lowest_score")
-    private Double lowestScore;
+    private Integer lowestScore;
 
     @OneToOne(mappedBy = "examAnalytics")
     @ToString.Exclude

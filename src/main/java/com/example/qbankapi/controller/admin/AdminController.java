@@ -514,6 +514,7 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed: {}", bindingResult.getAllErrors());
 
+            model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
             return "admin/exam-add";
         }
 

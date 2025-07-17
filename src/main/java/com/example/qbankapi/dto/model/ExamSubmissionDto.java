@@ -17,6 +17,8 @@ public class ExamSubmissionDto {
 
     private Long examId;
 
+    private Long examEnrollmentId;
+
     @Builder.Default
     private Map<Long, Question.Option> answers = new LinkedHashMap<>();
 

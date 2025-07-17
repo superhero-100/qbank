@@ -14,7 +14,7 @@
 <div th:replace="~{/participant/fragments/header :: tag}"></div>
 
 <!-- Exams Section -->
-<main class="container mx-auto px-4 py-10 fade-in">
+<main class="container mx-auto px-4 py-10 animate-fade-in">
     <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-3 text-success">
             <i class="fas fa-file-alt text-4xl"></i>
@@ -42,7 +42,12 @@
                 </p>
                 <p class="text-sm"><strong>Total Marks:</strong> <span th:text="${exam.totalMarks}">100</span></p>
                 <p class="text-sm"><strong>Questions:</strong> <span th:text="${exam.questionsCount}">20</span></p>
-                <p class="text-sm"><strong>Enrolled Users:</strong> <span th:text="${exam.enrollmentCount}">15</span>
+                <p class="text-sm"><strong>Enrolled Users:</strong> <span th:text="${exam.enrollmentCount}">15</span></p>
+                <p class="text-sm">
+                    <strong>Enrollment:</strong>
+                    <span th:text="${#temporals.format(exam.enrollmentStartDate, 'dd MMM yyyy, HH:mm')}"></span>
+                    &nbsp;to&nbsp;
+                    <span th:text="${#temporals.format(exam.enrollmentEndDate, 'dd MMM yyyy HH:mm')}"></span>
                 </p>
 
                 <!-- Action Button -->

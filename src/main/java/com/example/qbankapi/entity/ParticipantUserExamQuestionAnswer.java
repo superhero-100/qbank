@@ -18,16 +18,16 @@ public class ParticipantUserExamQuestionAnswer {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "question_id")
+    @ToString.Exclude
+    private Question question;
+
     @Column(name = "answer_given")
     private Question.Option answerGiven;
 
     @Column(name = "is_correct")
     private Boolean isCorrect;
-
-    @ManyToOne
-    @JoinColumn(name = "question_id")
-    @ToString.Exclude
-    private Question question;
 
     @ManyToOne
     @JoinColumn(name = "participant_user_exam_submission_id")

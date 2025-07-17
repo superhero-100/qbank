@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar - Qbank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <th:block th:replace="~{/fragments/global-head :: tags}"></th:block>
+    <th:block th:replace="~{/fragments/toast :: toast-style}"></th:block>
+
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js'></script>
+
+</head>
+<body class="bg-base-200 text-base-content flex flex-col min-h-screen">
+
+<div th:replace="~{/participant/fragments/header :: tag}"></div>
+
+<main class="container mx-auto px-4 py-12 text-center flex-grow">
+
+    <section class="bg-base-100 py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6 text-center text-info">
+                <i class="fas fa-calendar-alt mr-2"></i> Upcoming Exams
+            </h2>
+            <div id="calendar" class="bg-white rounded-lg shadow-lg p-4"></div>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{/participant/fragments/footer :: tag}"></div>
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
+
+<script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
+</script>
+
+<script th:inline="javascript">
+    const BASE_URL = [[${contextPath}]];
+    const EVENTS = [[${upcomingExams}]];
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            timeZone: 'local',
+            height: 'auto',
+            events: EVENTS,
+
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+
+            eventClick: function (info) {
+                const enrollmentId = info.event.extendedProps.examEnrollmentId;
+                if (enrollmentId) {
+                    window.location.href = BASE_URL + '/participant/exam/start/' + enrollmentId;
+                } else {
+                    alert('Invalid exam enrollment ID');
+                }
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+
+</body>
+</html>

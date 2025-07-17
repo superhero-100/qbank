@@ -15,59 +15,84 @@
 
 <main class="container mx-auto px-4 py-8">
 
-    <!-- Welcome -->
-    <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold">Welcome, <span th:text="${stats.username}">User</span></h2>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
-        <div class="stat bg-base-100 shadow-md rounded-xl p-5 text-center">
-            <div class="text-sm text-gray-500">Total Exams</div>
-            <div class="text-3xl font-bold" th:text="${stats.totalExamsTaken}">0</div>
-        </div>
-
-        <div class="stat bg-base-100 shadow-md rounded-xl p-5 text-center">
-            <div class="text-sm text-gray-500">Avg. Score</div>
-            <div class="text-3xl font-bold" th:text="${#numbers.formatDecimal(stats.averageScore, 0, 2)}">0</div>
-        </div>
-
-        <div class="stat bg-base-100 shadow-md rounded-xl p-5 text-center">
-            <div class="text-sm text-gray-500">Accuracy</div>
-            <div class="text-3xl font-bold" th:text="${#numbers.formatDecimal(stats.averageAccuracy, 0, 1) + '%'}">0%</div>
-        </div>
-
-        <div class="stat bg-base-100 shadow-md rounded-xl p-5 text-center md:col-span-1">
-            <div class="text-sm text-gray-500">Questions Attempted</div>
-            <div class="text-3xl font-bold" th:text="${stats.totalQuestionsAttempted}">0</div>
-        </div>
-
-        <div class="stat bg-base-100 shadow-md rounded-xl p-5 text-center md:col-span-1">
-            <div class="text-sm text-gray-500">Correct Answers</div>
-            <div class="text-3xl font-bold" th:text="${stats.totalCorrectAnswers}">0</div>
-        </div>
-    </div>
-
-    <!-- Recent Exams -->
-    <div class="mt-12">
-        <h4 class="text-xl font-semibold mb-4">Recent Exams</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" th:if="${!#lists.isEmpty(stats.recentExams)}">
-            <div th:each="exam : ${stats.recentExams}" class="card bg-base-100 shadow-md p-5 h-full">
-                <h5 class="text-lg font-semibold mb-2" th:text="${exam.examDescription}">Mock Exam</h5>
-                <p class="text-sm leading-relaxed">
-                    <strong>Subject:</strong> <span th:text="${exam.subjectName}">Math</span><br>
-                    <strong>Score:</strong> <span th:text="${exam.score}">85%</span><br>
-                    <strong>Accuracy:</strong>
-                    <span th:text="${#numbers.formatDecimal(exam.accuracy, 0, 2) + '%'}">0%</span><br>
-                    <strong>Submitted:</strong>
-                    <span th:text="${#dates.format(exam.submittedAt, 'dd MMM yyyy HH:mm')}">18 Jun 2025</span>
-                </p>
+    <div>
+        <div class="card bg-base-100 shadow-xl p-8 space-y-6">
+            <!-- Basic Info -->
+            <div>
+                <h2 class="text-3xl font-bold text-primary" th:text="${stats.username}">
+                    Username</h2>
+                <p class="text-sm text-gray-500" th:text="'Email: ' + ${stats.email}"></p>
+                <p class="text-sm text-gray-500" th:text="'Zone ID: ' + ${stats.zoneId}"></p>
+                <p class="text-sm text-gray-500"
+                   th:text="'Registered At: ' + ${#temporals.format(stats.registeredAt, 'dd MMM yyyy, HH:mm')}"></p>
+                <p class="text-sm text-gray-500" th:if="${stats.lastExamTakenAt != null}"
+                   th:text="'Last Exam Taken At: ' + ${#temporals.format(stats.lastExamTakenAt, 'dd MMM yyyy, HH:mm')}"></p>
             </div>
-        </div>
 
-        <div th:if="${#lists.isEmpty(stats.recentExams)}" class="alert alert-info mt-6 text-center">
-            No recent exams available.
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Total Exams Enrolled</div>
+                    <div class="stat-value" th:text="${stats.totalExamsEnrolled}">0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Best Score</div>
+                    <div class="stat-value" th:text="${stats.bestScore}">0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Worst Score</div>
+                    <div class="stat-value" th:text="${stats.worstScore}">0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Average Score</div>
+                    <div class="stat-value" th:text="${stats.averageScore}">0.0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Questions Attempted</div>
+                    <div class="stat-value" th:text="${stats.totalQuestionsAttempted}">0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl">
+                    <div class="stat-title text-white">Correct Answers</div>
+                    <div class="stat-value" th:text="${stats.totalCorrectAnswers}">0</div>
+                </div>
+
+                <div class="stat bg-primary text-primary-content rounded-xl col-span-1 md:col-span-3">
+                    <div class="stat-title text-white">Accuracy</div>
+                    <div class="stat-value" th:text="${stats.averageAccuracy + '%'}">0%</div>
+                </div>
+            </div>
+
+            <!-- Recent Exams Table -->
+            <div class="pt-6">
+                <h3 class="text-xl font-semibold mb-3">Recent Exams</h3>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full text-sm">
+                        <thead class="bg-base-200 text-base-content">
+                        <tr>
+                            <th>Exam</th>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Accuracy</th>
+                            <th>Submitted At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="exam : ${stats.recentExams}">
+                            <td th:text="${exam.examDescription}">Exam A</td>
+                            <td th:text="${exam.subjectName}">Subject</td>
+                            <td th:text="${exam.score}">95</td>
+                            <td th:text="${exam.accuracy + '%'}">90%</td>
+                            <td th:text="${#temporals.format(exam.submittedAt, 'dd MMM yyyy, HH:mm')}">Date</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 

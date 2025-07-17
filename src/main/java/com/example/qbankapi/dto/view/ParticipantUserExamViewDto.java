@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,6 +24,10 @@ public class ParticipantUserExamViewDto {
     private Integer questionsCount;
 
     private Integer enrollmentCount;
+
+    private ZonedDateTime enrollmentStartDate;
+
+    private ZonedDateTime enrollmentEndDate;
 
     private Boolean isEnrolled;
 

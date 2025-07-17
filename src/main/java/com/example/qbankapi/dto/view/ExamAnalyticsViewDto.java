@@ -23,8 +23,8 @@ public class ExamAnalyticsViewDto {
     private Integer totalSubmissions;
 
     private Double averageScore;
-    private Double highestScore;
-    private Double lowestScore;
+    private Integer highestScore;
+    private Integer lowestScore;
 
     private Integer totalQuestions;
 

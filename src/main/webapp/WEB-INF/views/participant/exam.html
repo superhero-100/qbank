@@ -171,8 +171,9 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                const basePath = window.location.pathname.split("/participant/exam/question")[0];
-                window.location.href = basePath + "/participant/exam/exit";
+                submitExitForm();
+                // const basePath = window.location.pathname.split("/participant/exam/question")[0];
+                // window.location.href = basePath + "/participant/exam/exit";
             };
         });
     });
@@ -181,11 +182,20 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                const basePath = window.location.pathname.split("/participant/exam/question")[0];
-                window.location.href = basePath + "/participant/exam/exit";
+                submitExitForm();
+                // const basePath = window.location.pathname.split("/participant/exam/question")[0];
+                // window.location.href = basePath + "/participant/exam/exit";
             };
         });
     });
+
+    function submitExitForm() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/participant/exam/exit';
+        document.body.appendChild(form);
+        form.submit();
+    }
 
     // Countdown Timer
     document.addEventListener("DOMContentLoaded", function () {
