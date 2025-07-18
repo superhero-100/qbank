@@ -518,26 +518,26 @@ public class AdminController {
             return "admin/exam-add";
         }
 
-        if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
-            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate");
-
-            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
-            return "admin/exam-add";
-        }
-
-        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
-            log.warn("Validation failed: examStartDate is not before examEndDate");
-
-            model.addAttribute("error", "Exam start date must be before exam end date.");
-            return "admin/exam-add";
-        }
-
-        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
-            log.warn("Validation failed: enrollmentEndDate is not before examStartDate");
-
-            model.addAttribute("error", "Enrollment must end before the exam starts.");
-            return "admin/exam-add";
-        }
+//        if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
+//            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate");
+//
+//            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
+//            return "admin/exam-add";
+//        }
+//
+//        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
+//            log.warn("Validation failed: examStartDate is not before examEndDate");
+//
+//            model.addAttribute("error", "Exam start date must be before exam end date.");
+//            return "admin/exam-add";
+//        }
+//
+//        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
+//            log.warn("Validation failed: enrollmentEndDate is not before examStartDate");
+//
+//            model.addAttribute("error", "Enrollment must end before the exam starts.");
+//            return "admin/exam-add";
+//        }
 
         try {
             examService.adminCreateExam(createExamRequestDto, (Long) httpSession.getAttribute(USER_ID));
@@ -730,7 +730,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("messageType", "success");
 
             return "redirect:" + UriComponentsBuilder
-                    .fromPath("/admin/view/users/{userId}/profile")
+                    .fromPath("/admin/view/users/instructor/{userId}/profile")
                     .buildAndExpand(instructorUserId)
                     .toUriString();
         } catch (InstructorUserNotFoundException ex) {
@@ -764,7 +764,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("messageType", "success");
 
             return "redirect:" + UriComponentsBuilder
-                    .fromPath("/admin/view/users/{userId}/profile")
+                    .fromPath("/admin/view/users/instructor/{userId}/profile")
                     .buildAndExpand(instructorUserId)
                     .toUriString();
         } catch (InstructorUserNotFoundException ex) {

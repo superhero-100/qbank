@@ -24,7 +24,7 @@
 
         <div class="flex items-center gap-2 px-4 py-2 bg-base-100 rounded-xl border border-primary shadow">
             <span class="text-sm font-semibold text-base-content">Auto Next In</span>
-            <span id="countdown-timer" class="badge badge-primary text-lg w-12 text-center">30</span>
+            <span id="countdown-timer" class="badge badge-primary text-lg w-12 text-center">10</span>
         </div>
     </div>
 
@@ -141,6 +141,10 @@
     </div>
 </dialog>
 
+<script th:inline="javascript">
+    const BASE_URL = [[${contextPath}]];
+</script>
+
 <!-- Scripts -->
 <script>
     const examForm = document.getElementById('exam-form');
@@ -171,9 +175,13 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                submitExitForm();
-                // const basePath = window.location.pathname.split("/participant/exam/question")[0];
-                // window.location.href = basePath + "/participant/exam/exit";
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = BASE_URL + "/participant/exam/exit";
+                document.body.appendChild(form);
+                form.submit();
+
+                // window.location.href = BASE_URL + "/participant/exam/exit";
             };
         });
     });
@@ -182,20 +190,16 @@
             e.preventDefault();
             exitModal.showModal();
             confirmExitBtn.onclick = () => {
-                submitExitForm();
-                // const basePath = window.location.pathname.split("/participant/exam/question")[0];
-                // window.location.href = basePath + "/participant/exam/exit";
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = BASE_URL + "/participant/exam/exit";
+                document.body.appendChild(form);
+                form.submit();
+
+                // window.location.href = BASE_URL + "/participant/exam/exit";
             };
         });
     });
-
-    function submitExitForm() {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/participant/exam/exit';
-        document.body.appendChild(form);
-        form.submit();
-    }
 
     // Countdown Timer
     document.addEventListener("DOMContentLoaded", function () {

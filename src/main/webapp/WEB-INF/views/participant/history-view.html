@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <div th:replace="~{/fragments/global-head :: tags}"></div>
+    <th:block th:replace="~{/fragments/toast :: toast-style}"></th:block>
 
 </head>
 <body class="bg-base-200 text-base-content flex flex-col min-h-screen">
@@ -13,7 +14,7 @@
 <div th:replace="~{/participant/fragments/header :: tag}"></div>
 
 <!-- History Section -->
-<div class="container mx-auto px-4 py-10 fade-in">
+<div class="container mx-auto px-4 py-10 animate-fade-in">
 
     <div class="text-center mb-6">
         <h2 class="text-3xl font-bold text-warning flex items-center justify-center gap-2">
@@ -42,16 +43,15 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="record, iterStat : ${history}">
+            <tr th:each="enrollment, iterStat : ${history}">
                 <td th:text="${iterStat.index + 1}">1</td>
-                <td th:text="${record.subjectName}">Subject</td>
-                <td th:text="${record.description}">Description</td>
-                <td th:text="${record.totalMarks}">100</td>
-                <td th:text="${record.totalQuestions}">50</td>
-                <td th:text="${record.totalEnrolledUsers}">120</td>
+                <td th:text="${enrollment.exam.subjectName}">Subject</td>
+                <td th:text="${enrollment.exam.description}">Description</td>
+                <td th:text="${enrollment.exam.totalMarks}">100</td>
+                <td th:text="${enrollment.exam.questionsCount}">50</td>
+                <td th:text="${enrollment.exam.enrollmentCount}">120</td>
                 <td class="text-center">
-                    <a class="btn btn-sm btn-warning"
-                       th:href="@{|/participant/result/exam/${record.resultId}|}">
+                    <a class="btn btn-sm btn-warning" th:href="@{|/participant/result/exam/${enrollment.id}|}">
                         <i class="fas fa-eye mr-1"></i> View
                     </a>
                 </td>
@@ -63,6 +63,17 @@
 </div>
 
 <div th:replace="~{/participant/fragments/footer :: tag}"></div>
+<div th:replace="~{/fragments/toast :: toast-html-script}"></div>
+
+<script th:if="${message != null and !#strings.isEmpty(message)}" th:inline="javascript">
+    let message = [[${message}]];
+    let type = [[${messageType} ?: 'info']];
+    let position = [[${toastPosition} ?: 'top-right']];
+
+    window.addEventListener('DOMContentLoaded', () => {
+        showToast(message, type, position);
+    });
+</script>
 
 </body>
 </html>

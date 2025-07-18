@@ -3,9 +3,7 @@ package com.example.qbankapi.service;
 import com.example.qbankapi.dao.*;
 import com.example.qbankapi.dto.model.*;
 import com.example.qbankapi.dto.request.CreateExamRequestDto;
-import com.example.qbankapi.dto.view.ExamAnalyticsViewDto;
-import com.example.qbankapi.dto.view.ExamPageViewDto;
-import com.example.qbankapi.dto.view.ParticipantUserExamViewDto;
+import com.example.qbankapi.dto.view.*;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.impl.*;
 import lombok.*;
@@ -38,8 +36,6 @@ public class ExamService {
     private final ParticipantUserExamResultDao participantUserExamResultDao;
     private final Random random;
     private final List<String> colorPalette = List.of("#0d6efd", "#6610f2", "#6f42c1", "#d63384", "#dc3545", "#fd7e14", "#ffc107", "#198754", "#20c997", "#0dcaf0", "#6c757d");
-
-//    private final BaseUserDao baseUserDao;
 
     @Transactional(readOnly = true)
     public ExamPageViewDto getFilteredExamsForAdmin(AllExamFilterDto allExamFilterDto) {
@@ -239,8 +235,9 @@ public class ExamService {
         ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
 
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        ZoneId userZoneId = ZoneId.of(participantUser.getZoneId());
 
-        return examDao.findAllByEnrollmentStartEndDate(nowUtc).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getEnrollmentStartDate()).enrollmentEndDate(exam.getEnrollmentEndDate()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
+        return examDao.findAllByEnrollmentStartEndDate(nowUtc).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getEnrollmentStartDate().withZoneSameInstant(userZoneId)).enrollmentEndDate(exam.getEnrollmentEndDate().withZoneSameInstant(userZoneId)).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -248,8 +245,9 @@ public class ExamService {
         ParticipantUser participantUser = participantUserDao.findById(userId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("User not found with id: %d", userId)));
 
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        ZoneId userZoneId = ZoneId.of(participantUser.getZoneId());
 
-        return examDao.findAllByEnrollmentStartEndDateAndSubjectId(nowUtc, subjectId).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getExamStartDate()).enrollmentEndDate(exam.getEnrollmentEndDate()).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
+        return examDao.findAllByEnrollmentStartEndDateAndSubjectId(nowUtc, subjectId).stream().map(exam -> ParticipantUserExamViewDto.builder().id(exam.getId()).description(exam.getDescription()).totalMarks(exam.getTotalMarks()).subjectName(exam.getSubject().getName()).questionsCount(exam.getQuestions().size()).enrollmentCount(exam.getParticipantEnrollments().size()).enrollmentStartDate(exam.getExamStartDate().withZoneSameInstant(userZoneId)).enrollmentEndDate(exam.getEnrollmentEndDate().withZoneSameInstant(userZoneId)).isEnrolled(exam.getParticipantEnrollments().stream().anyMatch(participantUserExamEnrollment -> participantUserExamEnrollment.getParticipantUser().getId().equals(userId))).build()).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -478,7 +476,7 @@ public class ExamService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getUpcomingExams(Long participantUserId) {
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findByParticipantUserIdAndExamStartEnd(participantUserId, nowUtc);
+        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findAllByParticipantUserIdAndNowIsBeforeExamEnd(participantUserId, nowUtc);
 
         return participantUserExamEnrollments.stream().map(enrollment -> {
             Exam exam = enrollment.getExam();
@@ -497,6 +495,23 @@ public class ExamService {
             event.put("textColor", "#ffffff");
 
             return event;
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TodayExamViewDto> getTodayExams(Long participantUserId) {
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findAllByParticipantUserIdAndNowIsBetweenExamStartEnd(participantUserId, nowUtc);
+        return participantUserExamEnrollments.stream().map(participantUserExamEnrollment -> {
+            Exam exam = participantUserExamEnrollment.getExam();
+            return TodayExamViewDto.builder()
+                    .enrollmentId(participantUserExamEnrollment.getId())
+                    .description(exam.getDescription())
+                    .subjectName(exam.getSubject().getName())
+                    .totalMarks(exam.getTotalMarks())
+                    .questionsCount(exam.getQuestions().size())
+                    .enrollmentCount(exam.getParticipantEnrollments().size())
+                    .build();
         }).collect(Collectors.toList());
     }
 

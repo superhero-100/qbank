@@ -38,22 +38,22 @@ public class CreateExamRequestDto {
     @NotNull @Min(value = 0, message = "Must be 0 or more")
     private Integer total6MarkQuestions;
 
-    @Future(message = "Enrollment Start Date Must be in future ")
+//    @Future(message = "Enrollment Start Date Must be in future ")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @NotNull(message = "Enrollment start date is required")
     private LocalDateTime enrollmentStartDate;
 
-    @Future(message = "Enrollment end Date Must be in future ")
+//    @Future(message = "Enrollment end Date Must be in future ")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @NotNull(message = "Enrollment end date is required")
     private LocalDateTime enrollmentEndDate;
 
-    @Future(message = "Exam start Date Must be in future ")
+//    @Future(message = "Exam start Date Must be in future ")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @NotNull(message = "Exam start date is required")
     private LocalDateTime examStartDate;
 
-    @Future(message = "Exam end Date Must be in future ")
+//    @Future(message = "Exam end Date Must be in future ")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @NotNull(message = "Exam end date is required")
     private LocalDateTime examEndDate;

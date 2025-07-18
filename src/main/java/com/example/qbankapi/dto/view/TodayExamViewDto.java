@@ -9,20 +9,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParticipantUserEnrolledExamDetailsViewDto {
+public class TodayExamViewDto {
 
-    private Long id;
+    private Long enrollmentId;
 
     private String description;
 
-    private Integer totalMarks;
-
     private String subjectName;
 
-    private Integer totalQuestions;
+    private Integer totalMarks;
 
-    private Integer totalEnrolledUsers;
+    private Integer questionsCount;
 
-    private Long resultId;
+    private Integer enrollmentCount;
 
 }

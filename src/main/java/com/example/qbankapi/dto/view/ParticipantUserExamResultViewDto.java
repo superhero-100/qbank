@@ -1,9 +1,11 @@
 package com.example.qbankapi.dto.view;
 
+import com.example.qbankapi.entity.ParticipantUserExamEnrollment;
 import com.example.qbankapi.entity.Question;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,13 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 public class ParticipantUserExamResultViewDto {
 
-    private Long id;
-
     private String username;
+
+    private Boolean isExamSubmitted;
 
     private Integer totalScore;
 
-    private LocalDateTime submittedAt;
+    private ZonedDateTime submittedAt;
 
     private ExamViewDto exam;
 
@@ -72,9 +74,9 @@ public class ParticipantUserExamResultViewDto {
 
         private String subjectName;
 
-        private Integer totalQuestions;
+        private Integer questionsCount;
 
-        private Integer totalEnrolledUsers;
+        private Integer enrollmentsCount;
     }
 
     @Data

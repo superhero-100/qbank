@@ -1,10 +1,9 @@
 package com.example.qbankapi.service;
 
-import com.example.qbankapi.dao.AdminUserDao;
-import com.example.qbankapi.dao.BaseUserDao;
-import com.example.qbankapi.dao.InstructorUserDao;
-import com.example.qbankapi.dao.ParticipantUserDao;
+import com.example.qbankapi.dao.*;
 
+import com.example.qbankapi.dto.view.ExamViewDto;
+import com.example.qbankapi.dto.view.ParticipantUserExamEnrollmentViewDto;
 import com.example.qbankapi.dto.view.ParticipantUserProfileStatsViewDto;
 import com.example.qbankapi.entity.*;
 import com.example.qbankapi.exception.base.impl.ParticipantUserNotFoundException;
@@ -14,10 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
-import java.util.ArrayList;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 public class ParticipantUserService {
 
     private final ParticipantUserDao participantUserDao;
-    private final BaseUserService baseUserService;
+    private final ParticipantUserExamEnrollmentDao participantUserExamEnrollmentDao;
 
     @Transactional(readOnly = true)
     public ParticipantUserProfileStatsViewDto getParticipantUserStats(Long participantUserId, String currentUserZoneId) {
@@ -41,7 +40,6 @@ public class ParticipantUserService {
                 .email(participantUser.getEmail())
                 .zoneId(participantUser.getZoneId())
                 .registeredAt(participantUser.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                ----
                 .totalExamsEnrolled(participantUserExamResults.size())
                 .totalExamsTaken(participantUserExamSubmissions.size())
                 .bestScore(participantUserExamResults.stream()
@@ -68,10 +66,7 @@ public class ParticipantUserService {
                         .map(ParticipantUserExamResult::getParticipantUserExamAnalytics)
                         .mapToDouble(ParticipantUserExamAnalytics::getAccuracy)
                         .average().orElse(0.0))
-                .lastExamTakenAt(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast()
-                        .getCreatedAt()
-                        .withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                ----
+                .lastExamTakenAt(participantUserExamSubmissions.isEmpty() ? null : participantUserExamSubmissions.getLast().getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
                 .recentExams(participantUserExamResults.stream()
                         .sorted(Comparator.comparing(
                                 (ParticipantUserExamResult result) -> result.getParticipantUserExamSubmission().getCreatedAt()
@@ -84,9 +79,7 @@ public class ParticipantUserService {
                                     .examDescription(exam.getDescription())
                                     .subjectName(exam.getSubject().getName())
                                     .score(result.getTotalScore())
-                                    .submittedAt(participantUserExamSubmission.getCreatedAt()
-                                            .withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                                    ----
+                                    .submittedAt(participantUserExamSubmission.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
                                     .accuracy(result.getParticipantUserExamAnalytics().getAccuracy())
                                     .build();
                         })
@@ -101,23 +94,28 @@ public class ParticipantUserService {
         return participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException("Participant not found with ID: " + id));
     }
 
-//    @Transactional(readOnly = true)
-//    public List<ParticipantUserEnrolledExamDetailsViewDto> getAllEnrolledExamDtoList(Long id) {
-//        ParticipantUser participantUser = participantUserDao.findById(id).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant User not found with id: %d",id)));
-//        return participantUser.getParticipantUserExamResults().stream()
-//                .map(userExamResult -> ParticipantUserEnrolledExamDetailsViewDto.builder()
-//                        .id(userExamResult.getExam().getId())
-//                        .description(userExamResult.getExam().getDescription())
-//                        .totalMarks(userExamResult.getExam().getTotalMarks())
-//                        .subjectName(userExamResult.getExam().getSubject().getName())
-//                        .totalQuestions(userExamResult.getExam().getQuestions().size())
-//                        .totalEnrolledUsers(userExamResult.getExam().getEnrolledParticipantUsers().size())
-//                        .resultId(userExamResult.getId())
-//                        .build())
-//                .collect(Collectors.toList());
-//    }
+    @Transactional(readOnly = true)
+    public List<ParticipantUserExamEnrollmentViewDto> getAllEnrolledExamDtoList(Long participantUserId) {
+        ParticipantUser participantUser = participantUserDao.findById(participantUserId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant User not found with id: %d", participantUserId)));
 
-//    ---
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findAllByParticipantUserIdAndNowIsAfterExamEnd(participantUserId, nowUtc);
+
+        return participantUserExamEnrollments.stream().map(userExamEnrollment -> {
+            Exam exam = userExamEnrollment.getExam();
+            Subject subject = exam.getSubject();
+            return ParticipantUserExamEnrollmentViewDto.builder()
+                    .id(userExamEnrollment.getId())
+                    .exam(ExamViewDto.builder()
+                            .description(exam.getDescription())
+                            .totalMarks(exam.getTotalMarks())
+                            .subjectName(subject.getName())
+                            .questionsCount(exam.getQuestions().size())
+                            .enrollmentCount(exam.getParticipantEnrollments().size())
+                            .build())
+                    .build();
+        }).collect(Collectors.toList());
+    }
 
 //    @Transactional
 //    public void addAll(List<AddUserRequestDto> userRequestDtoList) {

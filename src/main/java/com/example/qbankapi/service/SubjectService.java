@@ -67,7 +67,6 @@ public class SubjectService {
                                 .email(instructorUser.getEmail())
                                 .zoneId(instructorUser.getZoneId())
                                 .registeredAt(instructorUser.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                                ----
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

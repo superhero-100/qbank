@@ -168,6 +168,15 @@ public class AppInitConfig implements ApplicationListener<ContextRefreshedEvent>
         );
 
         initService.createAndSaveParticipantIfNotExists(
+                "manish.giri",
+                "manish.giri@gmail.com",
+                "manish@123",
+                ZonedDateTime.now(ZoneOffset.UTC).minus(Period.ofDays(25)),
+                BaseUser.Status.ACTIVE,
+                TimeZoneId.AMERICA_NEW_YORK.getZoneId()
+        );
+
+        initService.createAndSaveParticipantIfNotExists(
                 "rohit.kumar",
                 "rohit.kumar@gmail.com",
                 "rohit@123",

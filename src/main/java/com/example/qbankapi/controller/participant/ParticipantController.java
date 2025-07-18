@@ -1,15 +1,16 @@
 package com.example.qbankapi.controller.participant;
 
+import com.example.qbankapi.dao.ParticipantUserExamResultDao;
 import com.example.qbankapi.entity.ParticipantUser;
-import com.example.qbankapi.service.BaseUserService;
-import com.example.qbankapi.service.ExamService;
-import com.example.qbankapi.service.ParticipantUserService;
-import com.example.qbankapi.service.SubjectService;
+import com.example.qbankapi.exception.base.impl.AccessDeniedException;
+import com.example.qbankapi.exception.base.impl.ParticipantUserExamEnrollmentNotFoundException;
+import com.example.qbankapi.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -26,9 +27,10 @@ public class ParticipantController {
     private final SubjectService subjectService;
     private final ExamService examService;
     private final BaseUserService baseUserService;
+    private final ParticipantUserExamResultService participantUserExamResultService;
 
     @GetMapping("/home")
-    public String getDashboardPage(HttpServletRequest request, Model model, HttpSession httpSession) {
+    public String getDashboardPage(Model model, HttpSession httpSession) {
         Long userId = (Long) httpSession.getAttribute(USER_ID);
         ParticipantUser user = participantUserService.findById(userId);
 
@@ -38,10 +40,19 @@ public class ParticipantController {
         return "participant/dashboard";
     }
 
+    @GetMapping("/exams/today")
+    public String getExamsTodayPage(Model model, HttpSession httpSession){
+        Long userId = (Long) httpSession.getAttribute(USER_ID);
+
+        model.addAttribute("todayExams", examService.getTodayExams(userId));
+
+        log.info("Rendering exams-today page");
+        return "participant/exams-today";
+    }
+
     @GetMapping("/calendar")
     public String getParticipantCalenderPage(HttpServletRequest request, Model model, HttpSession httpSession) {
         Long userId = (Long) httpSession.getAttribute(USER_ID);
-        ParticipantUser user = participantUserService.findById(userId);
 
         model.addAttribute("contextPath", request.getContextPath());
         model.addAttribute("upcomingExams", examService.getUpcomingExams(userId));
@@ -71,12 +82,13 @@ public class ParticipantController {
         return "participant/exams-view";
     }
 
-//    @GetMapping("/history")
-//    public String getHistoryPage(HttpSession session, Model model) {
-//        Long userId = (Long) session.getAttribute(USER_ID);
-//        model.addAttribute("history", participantUserService.getAllEnrolledExamDtoList(userId));
-//        return "participant/history-view";
-//    }
+    @GetMapping("/history")
+    public String getHistoryPage(HttpSession session, Model model) {
+        model.addAttribute("history", participantUserService.getAllEnrolledExamDtoList((Long) session.getAttribute(USER_ID)));
+
+        log.info("Rendering history-view page");
+        return "participant/history-view";
+    }
 
     @GetMapping("/profile")
     public String getProfilePage(HttpSession session, Model model) {
@@ -87,12 +99,31 @@ public class ParticipantController {
         return "participant/profile-view";
     }
 
-//    @GetMapping("/result/exam/{id}")
-//    public String getExamResultPage(@PathVariable("id") Long id, Model model) {
-//        model.addAttribute("result", participantUserExamResultService.getParticipantUserExamResultInDtoById(id));
-//
-//        log.info("Rendering exam-result page");
-//        return "participant/exam-result";
-//    }
+    @GetMapping("/result/exam/{enrollmentId}")
+    public String getExamResultPage(@PathVariable("enrollmentId") Long enrollmentId, HttpSession httpSession, Model model, RedirectAttributes redirectAttributes) {
+        Long userId = (Long) httpSession.getAttribute(USER_ID);
+        try {
+            model.addAttribute("result", participantUserExamResultService.getParticipantUserExamResultInDtoByExamEnrollmentId(enrollmentId, userId));
+
+            log.info("Rendering exam-result page");
+            return "participant/exam-result";
+        } catch (ParticipantUserExamEnrollmentNotFoundException ex) {
+            log.error("Exam enrollment not found for ID {}: {}", enrollmentId, ex.getMessage());
+
+            redirectAttributes.addFlashAttribute("message", "Exam result not found");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Rendering /participant/history page");
+            return "redirect:/participant/history";
+        } catch (AccessDeniedException ex) {
+            log.error("Access denied for userId={} on enrollmentId={}: {}", userId, enrollmentId, ex.getMessage());
+
+            redirectAttributes.addFlashAttribute("message", ex.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
+
+            log.info("Rendering /participant/history page");
+            return "redirect:/participant/history";
+        }
+    }
 
 }

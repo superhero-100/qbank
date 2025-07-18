@@ -78,8 +78,8 @@ public class AuthenticationService {
                     case PARTICIPANT -> {
                         ParticipantUser participantUser = participantUserDao.findById(baseUser.getId())
                                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant not found with id [%d]", baseUser.getId())));
-                        participantUser.setZoneId(loginBaseUserRequest.getZoneId());
-                        participantUserDao.update(participantUser);
+//                        participantUser.setZoneId(loginBaseUserRequest.getZoneId());
+//                        participantUserDao.update(participantUser);
                         log.info("BaseUser with id [{}] timezone id [{}] updated", participantUser.getId(), loginBaseUserRequest.getZoneId());
                     }
                     default -> log.error("Unhandled role [{}] for timezone checking ", baseUser.getRole());

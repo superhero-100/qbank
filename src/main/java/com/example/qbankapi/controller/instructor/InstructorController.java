@@ -308,26 +308,26 @@ public class InstructorController {
             return "instructor/exam-add";
         }
 
-        if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
-            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate.");
-
-            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
-            return "instructor/exam-add";
-        }
-
-        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
-            log.warn("Validation failed: examStartDate is not before examEndDate.");
-
-            model.addAttribute("error", "Exam start date must be before exam end date.");
-            return "instructor/exam-add";
-        }
-
-        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
-            log.warn("Validation failed: enrollmentEndDate is not before examStartDate.");
-
-            model.addAttribute("error", "Enrollment must end before the exam starts.");
-            return "instructor/exam-add";
-        }
+//        if (!createExamRequestDto.getEnrollmentStartDate().isBefore(createExamRequestDto.getEnrollmentEndDate())) {
+//            log.warn("Validation failed: enrollmentStartDate is not before enrollmentEndDate.");
+//
+//            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
+//            return "instructor/exam-add";
+//        }
+//
+//        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
+//            log.warn("Validation failed: examStartDate is not before examEndDate.");
+//
+//            model.addAttribute("error", "Exam start date must be before exam end date.");
+//            return "instructor/exam-add";
+//        }
+//
+//        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
+//            log.warn("Validation failed: enrollmentEndDate is not before examStartDate.");
+//
+//            model.addAttribute("error", "Enrollment must end before the exam starts.");
+//            return "instructor/exam-add";
+//        }
 
         try {
             examService.instructorCreateExam(createExamRequestDto, (Long) session.getAttribute(USER_ID));

@@ -59,7 +59,6 @@ public class InstructorUserService {
                                 .subjectName(exam.getSubject().getName())
                                 .totalMarks(exam.getTotalMarks())
                                 .createdAt(exam.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                                ----
                                 .build())
                         .collect(Collectors.toList()))
                 .recentQuestions(questions.stream()
@@ -69,7 +68,6 @@ public class InstructorUserService {
                                 .questionText(question.getText())
                                 .subjectName(question.getSubject().getName())
                                 .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                                ----
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

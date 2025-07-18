@@ -120,13 +120,6 @@ public class BaseUserService {
         return userPage;
     }
 
-    @Transactional(readOnly = true)
-    public BaseUser.Role getBaseUserRole(Long userId) {
-        return baseUserDao.findById(userId)
-                .orElseThrow(() -> new BaseUserNotFoundException(String.format("BaseUser with id: %d not found", userId)))
-                .getRole();
-    }
-
     @Transactional
     public void activateUser(Long baseUserId) {
         BaseUser baseUser = baseUserDao.findById(baseUserId)

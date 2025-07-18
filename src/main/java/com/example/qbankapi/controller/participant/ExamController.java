@@ -3,8 +3,6 @@ package com.example.qbankapi.controller.participant;
 import com.example.qbankapi.dto.model.ExamDto;
 import com.example.qbankapi.dto.model.ExamSubmissionDto;
 import com.example.qbankapi.dto.model.ParticipantUserAnswerDto;
-import com.example.qbankapi.entity.Exam;
-import com.example.qbankapi.entity.ParticipantUserExamEnrollment;
 import com.example.qbankapi.entity.Question;
 import com.example.qbankapi.exception.base.impl.*;
 import com.example.qbankapi.service.ExamService;
@@ -14,15 +12,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
 
@@ -106,7 +101,7 @@ public class ExamController {
     }
 
     @GetMapping("/question")
-    public String getQuestion(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String getQuestion(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
         Integer currentQuestionNumber = (Integer) session.getAttribute("currentQuestionNumber");
         ExamDto examDto = (ExamDto) session.getAttribute("examDto");
@@ -119,6 +114,7 @@ public class ExamController {
             return "redirect:/participant/home";
         }
 
+        model.addAttribute("contextPath", request.getContextPath());
         model.addAttribute("subjectName", examDto.getSubjectName());
         model.addAttribute("currentQuestionNumber", currentQuestionNumber);
         model.addAttribute("question", examDto.getQuestions().get(currentQuestionNumber - 1));

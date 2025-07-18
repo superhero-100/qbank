@@ -104,7 +104,6 @@ public class QuestionService {
                 .percentCorrect(percentCorrect)
                 .percentIncorrect(percentIncorrect)
                 .createdAt(question.getCreatedAt().withZoneSameInstant(ZoneId.of(currentUserZoneId)))
-//                ----
                 .createdByUsername(question.getCreatedByBaseUser().getUsername())
                 .build();
     }
