@@ -128,12 +128,14 @@
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Exams</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedExams}">0</div>
-                        <a th:href="@{/admin/manage/users/instructor/{id}/exams(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/admin/manage/users/instructor/{id}/exams(id=${instructorUserProfileStats.id})}"
+                           class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Created Questions</div>
                         <div class="stat-value" th:text="${instructorUserProfileStats.totalCreatedQuestions}">0</div>
-                        <a th:href="@{/admin/manage/users/instructor/{id}/questions(id=${instructorUserProfileStats.id})}" class="mt-4 btn btn-primary w-full text-center">View All</a>
+                        <a th:href="@{/admin/manage/users/instructor/{id}/questions(id=${instructorUserProfileStats.id})}"
+                           class="mt-4 btn btn-primary w-full text-center">View All</a>
                     </div>
                     <div class="stat bg-base-200 text-base-content rounded-xl">
                         <div class="stat-title text-white">Assigned Subjects</div>
@@ -142,8 +144,36 @@
                 </div>
 
                 <!-- Subject Assignment Section -->
-                <div class="mt-6">
+                <div class="mt-10">
                     <h3 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-400">Subject Management</h3>
+
+                    <!-- Assign Subject Form -->
+                    <div class="bg-base-200 shadow-md rounded-xl p-6 mb-8">
+                        <h4 class="font-medium mb-3 text-neutral-content">Assign New Subjects</h4>
+
+                        <form th:action="@{/admin/manage/users/{userId}/assign-subject(userId=${instructorUserProfileStats.id})}"
+                              method="post"
+                              class="flex flex-col sm:flex-row sm:items-end gap-4">
+
+                            <div class="w-full sm:w-2/3">
+                                <label for="subjectId" class="block text-sm font-medium text-gray-600 mb-1">Select
+                                    Subjects</label>
+                                <select name="subjectId" id="subjectId" multiple
+                                        class="w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:outline-none h-40">
+                                    <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"
+                                            th:selected="${!#lists.contains(availableSubjects, s)}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="sm:w-1/3">
+                                <button type="submit"
+                                        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-200">
+                                    <i class="fas fa-plus-circle mr-2"></i> Assign Subject
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- Assigned Subjects -->
                     <div class="bg-base-200 p-4 rounded-xl">
@@ -153,7 +183,8 @@
                             <p class="text-sm text-gray-500">No subjects assigned.</p>
                         </div>
 
-                        <ul class="space-y-3" th:if="${!#lists.isEmpty(instructorUserProfileStats.assignedSubjects)}">
+                        <ul class="space-y-3"
+                            th:if="${!#lists.isEmpty(instructorUserProfileStats.assignedSubjects)}">
                             <li th:each="subject : ${instructorUserProfileStats.assignedSubjects}"
                                 class="flex items-center justify-between bg-base-100 p-3 rounded-lg border border-base-300">
 
@@ -172,25 +203,6 @@
                         </ul>
                     </div>
 
-                    <!-- Assign Subject Form -->
-                    <div class="mt-6 bg-base-200 p-4 rounded-xl">
-                        <h4 class="font-medium mb-3 text-base-content">Assign New Subject</h4>
-
-                        <form th:action="@{/admin/manage/users/{userId}/assign-subject(userId=${instructorUserProfileStats.id})}"
-                              method="post"
-                              class="flex flex-col sm:flex-row gap-3 sm:items-center">
-
-                            <select name="subjectId" class="select select-bordered w-full sm:w-1/2" required>
-                                <option disabled selected value="">Select subject</option>
-                                <option th:each="s : ${availableSubjects}" th:value="${s.id}" th:text="${s.name}">Subject
-                                </option>
-                            </select>
-
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-plus-circle mr-1"></i> Assign Subject
-                            </button>
-                        </form>
-                    </div>
                 </div>
 
                 <!-- Recent Exams Table -->
@@ -234,7 +246,8 @@
                             <tr th:each="question : ${instructorUserProfileStats.recentQuestions}">
                                 <td th:text="${question.questionText}">Question?</td>
                                 <td th:text="${question.subjectName}">Subject</td>
-                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')}">Date</td>
+                                <td th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')}">Date
+                                </td>
                             </tr>
                             </tbody>
                         </table>

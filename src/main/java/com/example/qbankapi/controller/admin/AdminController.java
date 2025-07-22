@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.qbankapi.interceptor.constant.Variable.USER_ID;
@@ -524,14 +525,14 @@ public class AdminController {
 //            model.addAttribute("error", "Enrollment start date must be before enrollment end date.");
 //            return "admin/exam-add";
 //        }
-//
+
 //        if (!createExamRequestDto.getExamStartDate().isBefore(createExamRequestDto.getExamEndDate())) {
 //            log.warn("Validation failed: examStartDate is not before examEndDate");
 //
 //            model.addAttribute("error", "Exam start date must be before exam end date.");
 //            return "admin/exam-add";
 //        }
-//
+
 //        if (!createExamRequestDto.getEnrollmentEndDate().isBefore(createExamRequestDto.getExamStartDate())) {
 //            log.warn("Validation failed: enrollmentEndDate is not before examStartDate");
 //
@@ -591,6 +592,7 @@ public class AdminController {
         try {
             InstructorUserProfileStatsViewDto instructorUserProfileStatsViewDto = instructorUserService.getInstructorUserStats(instructorUserId, baseUserService.findByIdAndGetZoneId((Long) httpSession.getAttribute(USER_ID)));
 
+            model.addAttribute("subjects", subjectService.getSubjectViewDtoList());
             model.addAttribute("availableSubjects", subjectService.getAvailableSubjectViewDtoList(
                     instructorUserProfileStatsViewDto
                             .getAssignedSubjects()
@@ -721,12 +723,12 @@ public class AdminController {
     @PostMapping("/manage/users/{userId}/assign-subject")
     public String assignSubjectToInstructor(
             @PathVariable("userId") Long instructorUserId,
-            @RequestParam("subjectId") Long subjectId,
+            @RequestParam("subjectId") List<Long> subjectIds,
             RedirectAttributes redirectAttributes) {
         try {
-            instructorUserService.assignSubject(instructorUserId, subjectId);
+            instructorUserService.assignSubject(instructorUserId, subjectIds);
 
-            redirectAttributes.addFlashAttribute("message", "Subject assigned successfully.");
+            redirectAttributes.addFlashAttribute("message", "Subjects assigned successfully.");
             redirectAttributes.addFlashAttribute("messageType", "success");
 
             return "redirect:" + UriComponentsBuilder
@@ -742,9 +744,9 @@ public class AdminController {
             log.info("Redirecting to /admin/manage/users");
             return "redirect:/admin/manage/users";
         } catch (SubjectNotFoundException ex) {
-            log.error("Subject not found with id [{}]", subjectId, ex);
+            log.error("Subject not found with ids [{}]", subjectIds, ex);
 
-            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subject not found.");
+            redirectAttributes.addFlashAttribute("message", "An unexpected error occurred. Subjects not found.");
             redirectAttributes.addFlashAttribute("messageType", "error");
 
             log.info("Redirecting to /admin/manage/users");

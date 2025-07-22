@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class InstructorUserService {
     private final SubjectDao subjectDao;
 
     @Transactional(readOnly = true)
-    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long instructorUserId,String currentUserZoneId) {
+    public InstructorUserProfileStatsViewDto getInstructorUserStats(Long instructorUserId, String currentUserZoneId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
                 .orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", instructorUserId)));
         log.debug("Fetched Instructor user with id [{}]", instructorUserId);
@@ -74,21 +75,20 @@ public class InstructorUserService {
     }
 
     @Transactional
-    public void assignSubject(Long instructorUserId, Long subjectId) {
+    public void assignSubject(Long instructorUserId, List<Long> subjectIds) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId)
                 .orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id [%d]", instructorUserId)));
 
-        Subject subject = subjectDao.findById(subjectId)
-                .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId)));
-
-        if (!instructorUser.getAssignedSubjects().contains(subject)) {
-            instructorUser.getAssignedSubjects().add(subject);
-
-            instructorUserDao.update(instructorUser);
-            log.info("Subject with id [{}] assigned to instructor with id [{}]", subjectId, instructorUserId);
-        } else {
-            log.info("Subject with id [{}] already assigned to instructor with id [{}]", subjectId, instructorUserId);
+        List<Subject> subjectList = new ArrayList<>();
+        for (Long subjectId : subjectIds) {
+            subjectList.add(subjectDao.findById(subjectId)
+                    .orElseThrow(() -> new SubjectNotFoundException(String.format("Subject not found with id [%d]", subjectId))));
         }
+
+        instructorUser.setAssignedSubjects(subjectList);
+
+        instructorUserDao.update(instructorUser);
+        log.info("Subjects with ids [{}] assigned to instructor with id [{}]", subjectIds, instructorUserId);
     }
 
     @Transactional

@@ -274,10 +274,22 @@ public class ExamService {
 
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
 
-        if (!(nowUtc.isAfter(exam.getExamStartDate()) && nowUtc.isBefore(exam.getExamEndDate()))) {
-            log.warn("Access denied: Current time [{}] is outside the valid exam window [{} - {}] for user zone [{}]", nowUtc, exam.getExamStartDate(), exam.getExamEndDate(), userZone);
+//        if (!(nowUtc.isAfter(exam.getExamStartDate()) && nowUtc.isBefore(exam.getExamEndDate()))) {
+//            log.warn("Access denied: Current time [{}] is outside the valid exam window [{} - {}] for user zone [{}]", nowUtc, exam.getExamStartDate(), exam.getExamEndDate(), userZone);
+//
+//            throw new AccessDeniedException(String.format("Exam with id [%d] has not started or ended already", exam.getId()));
+//        }
 
-            throw new AccessDeniedException(String.format("Exam with id [%d] has not started", exam.getId()));
+        if (nowUtc.isBefore(exam.getExamStartDate())) {
+            log.warn("Access denied: Current time [{}] is before the exam start time [{}] for user zone [{}]", nowUtc, exam.getExamStartDate(), userZone);
+
+            throw new AccessDeniedException(String.format("Exam has not started yet", exam.getId()));
+        }
+
+        if (nowUtc.isAfter(exam.getExamEndDate())) {
+            log.warn("Access denied: Current time [{}] is after the exam end time [{}] for user zone [{}]", nowUtc, exam.getExamEndDate(), userZone);
+
+            throw new AccessDeniedException(String.format("Exam has already ended", exam.getId()));
         }
 
         return ExamDto.builder()

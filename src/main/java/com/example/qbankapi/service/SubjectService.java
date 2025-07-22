@@ -134,7 +134,6 @@ public class SubjectService {
                 .collect(Collectors.toList());
     }
 
-    //
     @Transactional(readOnly = true)
     public List<SubjectViewDto> getAssignedSubjectViewDtoListForInstructor(Long instructorUserId) {
         InstructorUser instructorUser = instructorUserDao.findById(instructorUserId).orElseThrow(() -> new InstructorUserNotFoundException(String.format("Instructor user not found with id: %d", instructorUserId)));
