@@ -138,11 +138,12 @@
 
         <!-- Logging -->
         <!-- Bridge Spring's Commons Logging to SLF4J -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.36</version>
-        </dependency>
+<!--        spring <= 4    in spring >= 5 versions  automatically delegated to slf4j via spring-JCL     Jakarta Commons Logging  -  Javax Commons Logging -->
+<!--        <dependency>-->
+<!--            <groupId>org.slf4j</groupId>-->
+<!--            <artifactId>jcl-over-slf4j</artifactId>-->
+<!--            <version>1.7.36</version>-->
+<!--        </dependency>-->
 
         <!-- SLF4J API (Facade) -->
         <dependency>

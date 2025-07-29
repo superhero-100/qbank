@@ -20,9 +20,26 @@
 
     <section class="bg-base-100 py-12 px-4">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-3xl font-bold mb-6 text-center text-info">
-                <i class="fas fa-calendar-alt mr-2"></i> Upcoming Exams
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-200">
+                <i class="fas fa-calendar-alt mr-2"></i> Enrolled Exams
             </h2>
+
+            <!-- Color Legend -->
+            <div class="flex flex-wrap justify-center gap-4 mb-6 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 inline-block rounded bg-[#28a745]"></span> Submitted
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 inline-block rounded bg-[#dc3545]"></span> Started, Not Submitted
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 inline-block rounded bg-[#6c757d]"></span> Ended, Not Submitted
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 inline-block rounded bg-[#ffc107]"></span> Not Started
+                </div>
+            </div>
+
             <div id="calendar" class="bg-white rounded-lg shadow-lg p-4"></div>
         </div>
     </section>
@@ -44,7 +61,7 @@
 
 <script th:inline="javascript">
     const BASE_URL = [[${contextPath}]];
-    const EVENTS = [[${upcomingExams}]];
+    const EVENTS = [[${calenderEvents}]];
 </script>
 
 <script>

@@ -17,10 +17,6 @@ public class ParticipantUserExamEnrollmentDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<ParticipantUserExamEnrollment> findAllByParticipantUserIdAndNowIsBeforeExamEnd(Long participantUserId, ZonedDateTime nowUtc) {
-        return entityManager.createQuery("SELECT DISTINCT puee FROM ParticipantUserExamEnrollment puee JOIN FETCH puee.exam e JOIN FETCH e.subject s WHERE puee.participantUser.id = :participantUserId AND puee.exam.examEndDate > :nowUtc AND puee.examAttemptStatus = :examAttemptStatus", ParticipantUserExamEnrollment.class).setParameter("participantUserId", participantUserId).setParameter("nowUtc", nowUtc).setParameter("examAttemptStatus", ParticipantUserExamEnrollment.ExamAttemptStatus.NOT_ATTEMPTED).getResultList();
-    }
-
     public List<ParticipantUserExamEnrollment> findAllByParticipantUserIdAndNowIsBetweenExamStartEnd(Long participantUserId, ZonedDateTime nowUtc) {
         return entityManager.createQuery("SELECT DISTINCT puee FROM ParticipantUserExamEnrollment puee JOIN FETCH puee.exam e JOIN FETCH e.subject s WHERE puee.participantUser.id = :participantUserId AND puee.exam.examStartDate < :nowUtc AND puee.exam.examEndDate > :nowUtc AND puee.examAttemptStatus = :examAttemptStatus", ParticipantUserExamEnrollment.class).setParameter("participantUserId", participantUserId).setParameter("nowUtc", nowUtc).setParameter("examAttemptStatus", ParticipantUserExamEnrollment.ExamAttemptStatus.NOT_ATTEMPTED).getResultList();
     }

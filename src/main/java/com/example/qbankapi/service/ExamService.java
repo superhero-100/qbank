@@ -34,8 +34,6 @@ public class ExamService {
     private final ParticipantUserExamSubmissionDao participantUserExamSubmissionDao;
     private final ParticipantUserExamAnalyticsDao participantUserExamAnalyticsDao;
     private final ParticipantUserExamResultDao participantUserExamResultDao;
-    private final Random random;
-    private final List<String> colorPalette = List.of("#0d6efd", "#6610f2", "#6f42c1", "#d63384", "#dc3545", "#fd7e14", "#ffc107", "#198754", "#20c997", "#0dcaf0", "#6c757d");
 
     @Transactional(readOnly = true)
     public ExamPageViewDto getFilteredExamsForAdmin(AllExamFilterDto allExamFilterDto) {
@@ -486,11 +484,10 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
-    public List<Map<String, Object>> getUpcomingExams(Long participantUserId) {
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        List<ParticipantUserExamEnrollment> participantUserExamEnrollments = participantUserExamEnrollmentDao.findAllByParticipantUserIdAndNowIsBeforeExamEnd(participantUserId, nowUtc);
+    public List<Map<String, Object>> getUserExamCalenderEvents(Long participantUserId) {
+        ParticipantUser participantUser = participantUserDao.findById(participantUserId).orElseThrow(() -> new ParticipantUserNotFoundException(String.format("Participant user not found with id [%d]", participantUserId)));
 
-        return participantUserExamEnrollments.stream().map(enrollment -> {
+        return participantUser.getExamEnrollments().stream().map(enrollment -> {
             Exam exam = enrollment.getExam();
             Map<String, Object> event = new HashMap<>();
 
@@ -502,8 +499,26 @@ public class ExamService {
             event.put("end", exam.getExamEndDate().withZoneSameInstant(ZoneOffset.UTC).toString());
             event.put("examEnrollmentId", enrollment.getId());
 
-            String randomColor = colorPalette.get(random.nextInt(colorPalette.size()));
-            event.put("backgroundColor", randomColor);
+            ZoneId userZone = ZoneId.of(participantUser.getZoneId());
+
+            ZonedDateTime nowUserDateTime = ZonedDateTime.now(userZone);
+
+            if (nowUserDateTime.isAfter(exam.getExamEndDate().withZoneSameInstant(userZone))) {
+                if (enrollment.getExamAttemptStatus().equals(ParticipantUserExamEnrollment.ExamAttemptStatus.SUBMITTED)) {
+                    event.put("backgroundColor", "#28a745"); // Green - Exam ended and submitted
+                } else {
+                    event.put("backgroundColor", "#6c757d"); // Dark Gray - Exam ended and not submitted
+                }
+            } else if (nowUserDateTime.isAfter(exam.getExamStartDate().withZoneSameInstant(userZone))) {
+                if (enrollment.getExamAttemptStatus().equals(ParticipantUserExamEnrollment.ExamAttemptStatus.SUBMITTED)) {
+                    event.put("backgroundColor", "#28a745"); // Green - Exam started and submitted
+                } else {
+                    event.put("backgroundColor", "#dc3545"); // Red - Exam started and not submitted
+                }
+            } else {
+                event.put("backgroundColor", "#ffc107"); // Amber - Exam not started
+            }
+
             event.put("textColor", "#ffffff");
 
             return event;

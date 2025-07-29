@@ -55,10 +55,10 @@ public class ParticipantController {
         Long userId = (Long) httpSession.getAttribute(USER_ID);
 
         model.addAttribute("contextPath", request.getContextPath());
-        model.addAttribute("upcomingExams", examService.getUpcomingExams(userId));
+        model.addAttribute("calenderEvents", examService.getUserExamCalenderEvents(userId));
 
-        log.info("Rendering exams-upcoming page");
-        return "participant/exams-upcoming";
+        log.info("Rendering exams-calender page");
+        return "participant/exams-calender";
     }
 
     @GetMapping("/subjects")
